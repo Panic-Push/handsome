@@ -1,0 +1,27 @@
+name: iPad build
+on:
+  push:
+    branches: [codex/penwise-course-journeys]
+    paths: ['ios/**', 'core/**', 'content/**', '.github/workflows/ipad-build.yml']
+  pull_request:
+    paths: ['ios/**', 'core/**', 'content/**', '.github/workflows/ipad-build.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  simulator:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build the iPad app for the simulator
+        run: >
+          xcodebuild -project ios/Penwise.xcodeproj -scheme Penwise
+          -configuration Debug -destination 'generic/platform=iOS Simulator'
+          ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build

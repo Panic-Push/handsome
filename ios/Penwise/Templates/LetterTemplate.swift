@@ -66,9 +66,9 @@ final class TemplateLibrary {
         return list.first { $0.glyph == "a" } ?? list.first
     }
 
-    /// Teaching order: letters that share strokes are learned together
-    /// (c o a d g q e s f), then straight letters, bridges, diagonals.
-    private static let teachingOrder = Array("coadgqesfltijhnmrbpkuvwxyz")
+    /// Teaching order, matching the journey chapters: round letters, tall
+    /// letters, tails, bridges, more curves, then diagonals.
+    private static let teachingOrder = Array("coadltigqjynmhrbpesfukvwxz")
 
     private static func rank(_ glyph: String) -> Int {
         guard let first = glyph.first, let index = teachingOrder.firstIndex(of: first) else { return 1_000 }
@@ -103,6 +103,7 @@ extension LetterTemplate {
 
     /// "lowercase a", "capital A", "cursive a".
     var spokenName: String {
+        if style == LetterStyle.traditional.rawValue { return "traditional \(glyph)" }
         if isCursive { return "cursive \(glyph)" }
         if glyph.lowercased() == glyph && glyph.uppercased() != glyph { return "lowercase \(glyph)" }
         if glyph.uppercased() == glyph && glyph.lowercased() != glyph { return "capital \(glyph)" }

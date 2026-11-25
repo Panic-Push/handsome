@@ -10,7 +10,7 @@ The full product plan lives in the "Handwriting App — Development Plan" doc.
 | Folder | What it holds |
 | --- | --- |
 | `core/` | Shared engine (Kotlin Multiplatform): ink model, letter templates, scoring |
-| `content/templates/` | Letter templates as JSON, one file per letter, named by Unicode code point (`0061.json` = a) |
+| `content/templates/` | Letter templates as JSON for three styles (Normal `print-modern`, Classic `cursive-modern`, Traditional `cursive-traditional`), one file per letter, named by Unicode code point (`0061.json` = a) |
 | `ios/` | iPad app (SwiftUI + PencilKit). Open `ios/Penwise.xcodeproj` |
 | `tools/` | Helper scripts: seed template generator, Xcode project generator |
 | `android/` | Coming in Phase 3 |
@@ -74,6 +74,11 @@ With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 | Anything else | Send me a screenshot of the error |
 
 ## What to test
+
+**Full lowercase alphabet**
+- [ ] Three course books on Home: Normal, Classic and Traditional; each opens a 6-chapter journey covering a–z plus a checkpoint.
+- [ ] Every letter a–z appears in Learn, Practice and Test for each style.
+- [ ] Traditional letters lean and have loops; Classic letters are upright with plain ascenders. Writing the looped form in Classic (or the plain form in Traditional) is accepted.
 
 **Journey and automatic scoring (section 5)**
 - [ ] New learner: Home's journey card says **Start with c** and opens the chapter map (through the entry screen); c shows **Up next**.

@@ -15,6 +15,37 @@ struct LetterPickerView: View {
         letters.first { (progress.best(mode, $0.id) ?? 0) < ProgressStore.passMark }
     }
 
+    @ViewBuilder
+    private func activities(_ course: Journey) -> some View {
+        let chapters = course.chapters.filter { !$0.isCheckpoint }
+        VStack(alignment: .leading, spacing: 12) {
+            Text(mode == .test ? "Memory tests" : "Chapter drills").font(.workbook(.title2))
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 215), spacing: 12)], spacing: 12) {
+                ForEach(chapters) { chapter in
+                    activity(chapter.title, glyphs: chapter.letters, course: course)
+                }
+                if mode == .test {
+                    activity("Full alphabet", glyphs: chapters.flatMap(\.letters), course: course)
+                }
+            }
+        }
+    }
+
+    private func activity(_ title: String, glyphs: [String], course: Journey) -> some View {
+        NavigationLink(value: Route.set(mode, title, glyphs.map { course.templateID($0) })) {
+            VStack(alignment: .leading, spacing: 8) {
+                Image(systemName: mode.symbol).foregroundStyle(mode.color)
+                Text(title).font(.headline)
+                Text("\(glyphs.count) letters" + (mode == .test ? " · shuffled" : " · guided"))
+                    .font(.subheadline).foregroundStyle(.secondary)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .paperCard(radius: 16)
+        }
+        .buttonStyle(PressableStyle())
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
@@ -33,6 +64,10 @@ struct LetterPickerView: View {
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
+                }
+
+                if mode != .learn, let course = JourneyLibrary.shared.journey(style: settings.style) {
+                    activities(course)
                 }
 
                 if let next = upNext {

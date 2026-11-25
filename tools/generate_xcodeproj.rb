@@ -60,6 +60,7 @@ target.resources_build_phase.add_file_reference(journeys)
 
 config_group = project.main_group.new_group('Config', 'Config')
 config_group.new_reference('Info.plist')
+config_group.new_reference('Penwise.entitlements')
 
 target.build_configurations.each do |config|
   s = config.build_settings
@@ -67,6 +68,7 @@ target.build_configurations.each do |config|
   s['PRODUCT_BUNDLE_IDENTIFIER'] = 'app.penwise.dev'
   s['MARKETING_VERSION'] = '0.1.0'
   s['CURRENT_PROJECT_VERSION'] = '1'
+  s['CODE_SIGN_ENTITLEMENTS'] = 'Config/Penwise.entitlements'
   s['INFOPLIST_FILE'] = 'Config/Info.plist'
   s['GENERATE_INFOPLIST_FILE'] = 'YES'
   s['INFOPLIST_KEY_CFBundleDisplayName'] = 'Penwise'

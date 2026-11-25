@@ -1,11 +1,22 @@
 import Foundation
 
 enum LetterStyle: String, CaseIterable, Identifiable {
+    /// Ball-and-stick print, shown as "Normal".
     case print = "print-modern"
+    /// Upright joined letters with plain ascenders.
     case cursive = "cursive-modern"
+    /// Slanted joined letters with loops.
+    case traditional = "cursive-traditional"
 
     var id: String { rawValue }
-    var title: String { self == .print ? "Print" : "Cursive" }
+
+    var title: String {
+        switch self {
+        case .print: return "Normal"
+        case .cursive: return "Classic"
+        case .traditional: return "Traditional"
+        }
+    }
 }
 
 enum WritingSize: String, CaseIterable, Identifiable {

@@ -1,0 +1,111 @@
+{
+  "id": "traditional-foundations",
+  "title": "Traditional cursive",
+  "subtitle": "Slanted letters with loops",
+  "style": "cursive-traditional",
+  "chapters": [
+    {
+      "id": "round",
+      "title": "Round letters",
+      "letters": [
+        "c",
+        "o",
+        "a",
+        "d"
+      ],
+      "goal": "Start with an open curve, close it, then reuse the shape in a and d."
+    },
+    {
+      "id": "tall",
+      "title": "Tall and finishing strokes",
+      "letters": [
+        "l",
+        "t",
+        "i"
+      ],
+      "goal": "Practice a tall downstroke, then work on the crossbar and dot."
+    },
+    {
+      "id": "tails",
+      "title": "Tails below the line",
+      "letters": [
+        "g",
+        "q",
+        "j",
+        "y"
+      ],
+      "goal": "Carry the stroke below the baseline and finish it cleanly."
+    },
+    {
+      "id": "bridges",
+      "title": "Bridges and humps",
+      "letters": [
+        "n",
+        "m",
+        "h",
+        "r",
+        "b",
+        "p"
+      ],
+      "goal": "Go back up the stroke and over the top in one smooth movement."
+    },
+    {
+      "id": "curves",
+      "title": "More curves",
+      "letters": [
+        "e",
+        "s",
+        "f",
+        "u"
+      ],
+      "goal": "Control loops and S-curves, and keep the bottoms round."
+    },
+    {
+      "id": "diagonals",
+      "title": "Diagonals",
+      "letters": [
+        "k",
+        "v",
+        "w",
+        "x",
+        "z"
+      ],
+      "goal": "Keep slanted lines straight and meeting at sharp points."
+    },
+    {
+      "id": "checkpoint",
+      "title": "Checkpoint",
+      "checkpoint": true,
+      "pick": 6,
+      "letters": [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+        "v",
+        "w",
+        "x",
+        "y",
+        "z"
+      ],
+      "goal": "Write from memory, including a letter that needs another look."
+    }
+  ]
+}

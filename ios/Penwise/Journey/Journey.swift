@@ -4,18 +4,20 @@ import Foundation
 enum LessonStep: String, Codable, CaseIterable {
     case watch
     case trace
+    case guided
     case memory
 
     var title: String {
         switch self {
         case .watch: return "Watch"
         case .trace: return "Trace"
+        case .guided: return "Light guide"
         case .memory: return "Write from memory"
         }
     }
 
     /// The scoring mode used for this step.
-    var mode: WritingMode { self == .memory ? .test : .learn }
+    var mode: WritingMode { self == .memory ? .test : (self == .guided ? .practice : .learn) }
 }
 
 /// A course of chapters, loaded from /content/journeys (shared with Android).
@@ -31,7 +33,7 @@ struct Journey: Codable, Identifiable, Hashable {
         var isCheckpoint: Bool { checkpoint ?? false }
 
         /// Steps the learner goes through for each letter.
-        var steps: [LessonStep] { isCheckpoint ? [.memory] : [.watch, .trace, .memory] }
+        var steps: [LessonStep] { isCheckpoint ? [.memory] : [.watch, .trace, .guided, .memory] }
 
         /// Steps that count towards completing a letter (Watch is not scored).
         var scoredSteps: [LessonStep] { isCheckpoint ? [.memory] : [.trace, .memory] }

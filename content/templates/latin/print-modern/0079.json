@@ -1,0 +1,33 @@
+{
+ "id": "latin.print-modern.y",
+ "glyph": "y",
+ "script": "latin",
+ "style": "print-modern",
+ "width": 0.44,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.0,
+     0.5
+    ],
+    [
+     0.22,
+     1.0
+    ]
+   ]
+  },
+  {
+   "points": [
+    [
+     0.44,
+     0.5
+    ],
+    [
+     0.1,
+     1.5
+    ]
+   ]
+  }
+ ]
+}

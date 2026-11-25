@@ -11,6 +11,7 @@ enum Route: Hashable {
     case entry(EntryTarget)
     case letters(WritingMode)
     case write(WritingMode, String)
+    case set(WritingMode, String, [String])
     case journeyMap(String)
     case lesson(LessonPosition, review: Bool)
     case recap(String)

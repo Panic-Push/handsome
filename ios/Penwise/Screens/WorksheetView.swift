@@ -5,6 +5,7 @@ import UIKit
 /// of a journey lesson.
 enum WorksheetContext: Hashable {
     case free(WritingMode, String)
+    case set(WritingMode, String, [String])
     case lesson(LessonPosition, review: Bool)
 }
 
@@ -12,13 +13,7 @@ enum WorksheetContext: Hashable {
 /// pause, with one specific correction. The page never moves when feedback
 /// appears; the learner decides when to retry or move on.
 struct WorksheetView: View {
-    enum PracticeGuide: String, CaseIterable, Identifiable {
-        case faint = "Faint model"
-        case lines = "Lines only"
-        var id: String { rawValue }
-    }
-
-    private enum GuideKind { case learn, faint, lines, memory }
+    private enum GuideKind { case learn, faint, memory }
 
     struct Attempt {
         let strokes: [CapturedStroke]
@@ -33,6 +28,13 @@ struct WorksheetView: View {
 
     @Binding var path: [Route]
     private let review: Bool
+    private let setTitle: String?
+    @State private var setLetters: [String] = []
+    @State private var setIndex = 0
+    @State private var setScores: [Int] = []
+    @State private var completedSet = false
+    @State private var rowIndex = 0
+    @State private var rowSamples: [Int: [CapturedStroke]] = [:]
 
     @StateObject private var ink = InkModel()
     @ObservedObject private var progress = ProgressStore.shared
@@ -43,13 +45,13 @@ struct WorksheetView: View {
     @State private var freeTemplateID: String
     @State private var position: LessonPosition?
 
-    @State private var practiceGuide: PracticeGuide = .faint
     @State private var peek = false
     @State private var usedHint = false
     @State private var canvasSize: CGSize = .zero
 
     @State private var result: ScoreResult?
     @State private var currentAttempt: Attempt?
+    @State private var rowTip: String?
     @State private var previousAttempt: Attempt?
     @State private var committed = false
     @State private var comparison: Comparison?
@@ -65,18 +67,25 @@ struct WorksheetView: View {
     @State private var showDetails = false
 
     private let library = TemplateLibrary.shared
-    private let railWidth: CGFloat = 340
-    private let portraitRailHeight: CGFloat = 220
 
     init(context: WorksheetContext, path: Binding<[Route]>) {
         _path = path
         switch context {
+        case .set(let mode, let title, let ids):
+            setTitle = title
+            _setLetters = State(initialValue: mode == .test ? ids.shuffled() : ids)
+            _freeMode = State(initialValue: mode)
+            _freeTemplateID = State(initialValue: "")
+            _position = State(initialValue: nil)
+            review = false
         case .free(let mode, let id):
+            setTitle = nil
             _freeMode = State(initialValue: mode)
             _freeTemplateID = State(initialValue: id)
             _position = State(initialValue: nil)
             review = false
         case .lesson(let p, let isReview):
+            setTitle = nil
             _freeMode = State(initialValue: p.step.mode)
             _freeTemplateID = State(initialValue: "")
             _position = State(initialValue: p)
@@ -105,11 +114,30 @@ struct WorksheetView: View {
 
     private var templateID: String {
         if let j = journey, let g = lessonGlyph { return j.templateID(g) }
+        if setLetters.indices.contains(setIndex) { return setLetters[setIndex] }
         return freeTemplateID
     }
 
     private var selected: LetterTemplate? { library.template(id: templateID) }
-    private var mode: WritingMode { position?.step.mode ?? freeMode }
+    private var mode: WritingMode {
+        if let step = position?.step { return step.mode }
+        if usesRow {
+            let modes: [WritingMode] = [.learn, .practice, .test]
+            return modes[slot]
+        }
+        return freeMode
+    }
+
+    private var usesRow: Bool { position == nil ? freeMode != .test : chapter?.isCheckpoint == false }
+
+    private var slot: Int {
+        guard let step = position?.step else { return rowIndex }
+        switch step {
+        case .watch, .trace: return 0
+        case .guided: return 1
+        case .memory: return 2
+        }
+    }
     private var isLesson: Bool { position != nil }
 
     private var freeLetters: [LetterTemplate] {
@@ -117,15 +145,13 @@ struct WorksheetView: View {
     }
 
     private var guideKind: GuideKind {
-        if let step = position?.step { return step == .memory ? .memory : .learn }
-        switch freeMode {
-        case .learn: return .learn
-        case .practice: return practiceGuide == .faint ? .faint : .lines
-        case .test: return .memory
-        }
+        if !usesRow { return .memory }
+        let guides: [GuideKind] = [.learn, .faint, .memory]
+        return guides[slot]
     }
 
     private var title: String {
+        if let setTitle { return "\(setTitle) · \(setIndex + 1) of \(setLetters.count)" }
         if let p = position, let c = chapter, let g = lessonGlyph {
             return "\(c.title) · \(g) · \(p.step.title)"
         }
@@ -153,30 +179,30 @@ struct WorksheetView: View {
     // MARK: - Body
 
     var body: some View {
-        GeometryReader { outer in
-            let landscape = outer.size.width > outer.size.height
-            Group {
-                if landscape {
-                    HStack(spacing: 0) {
-                        if settings.handedness == .right {
-                            rail(landscape: true).frame(width: railWidth)
-                            Divider()
-                            page
-                        } else {
-                            page
-                            Divider()
-                            rail(landscape: true).frame(width: railWidth)
-                        }
-                    }
-                } else {
-                    VStack(spacing: 0) {
+        Group {
+            if completedSet {
+                setRecap
+            } else {
+                VStack(spacing: 12) {
+                    if usesRow {
+                        practiceRow
+                    } else {
                         page
-                        Divider()
-                        rail(landscape: false).frame(height: portraitRailHeight)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
+                    VStack(spacing: 8) {
+                        ScrollView {
+                            status.frame(maxWidth: 740, alignment: .leading)
+                        }
+                        .frame(maxHeight: result == nil ? 110 : 100)
+                        actions.frame(maxWidth: 550)
+                    }
+                    .padding(12)
+                    .background(Color.paperCard, in: RoundedRectangle(cornerRadius: 18))
                 }
+                .padding(14)
+                .background(Color.courseViolet.opacity(0.85))
             }
-            .onChange(of: outer.size) { _, _ in startOver() }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
             if let position, let steps = chapter?.steps, let index = steps.firstIndex(of: position.step) {
@@ -188,7 +214,7 @@ struct WorksheetView: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { toolbarContent }
+        .toolbar { if !completedSet { toolbarContent } }
         .onAppear(perform: appear)
         .onDisappear {
             cancelPending()
@@ -203,6 +229,72 @@ struct WorksheetView: View {
     }
 
     // MARK: - Page
+
+    private var practiceRow: some View {
+        GeometryReader { bounds in
+            let gap: CGFloat = 4
+            let width = (bounds.size.width - 2 * gap) / 3
+            let height = max(48, min(bounds.size.height - 30, width * 1.8))
+            let area = CGSize(width: width, height: height)
+            let guides = makeLayout(area)
+            VStack(spacing: 6) {
+                HStack(spacing: gap) {
+                    ForEach(0..<3) { index in
+                        Text(["Trace", "Light guide", "Memory"][index])
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(index == slot ? Color.white : Color.white.opacity(0.8))
+                            .frame(width: width)
+                    }
+                }
+                ZStack(alignment: .leading) {
+                    HStack(spacing: gap) {
+                        ForEach(0..<3) { index in
+                            ZStack {
+                                Color.paper
+                                RuledLinesView(layout: guides)
+                                if let sample = rowSamples[index] {
+                                    Canvas { context, _ in
+                                        for stroke in sample {
+                                            var path = Path()
+                                            path.addLines(stroke.points.map {
+                                                guides.toScreen(CGPoint(x: $0.x, y: $0.y))
+                                            })
+                                            context.stroke(path, with: .color(.ink), style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                                        }
+                                    }
+                                } else if index != slot, index < 2, let template = selected {
+                                    TemplateOverlay(template: template, layout: guides, showArrows: false,
+                                                    showDots: false, pathOpacity: 0.16, solidPath: true)
+                                }
+                            }
+                            .frame(width: width, height: height)
+                            .clipped()
+                        }
+                    }
+                    page
+                        .frame(width: width, height: height)
+                        .clipped()
+                        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.courseViolet, lineWidth: 3)
+                            .allowsHitTesting(false))
+                        .offset(x: CGFloat(slot) * (width + gap))
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+            .frame(maxHeight: .infinity)
+        }
+    }
+
+    private var setRecap: some View {
+        VStack(spacing: 18) {
+            Image(systemName: "checkmark.seal.fill").font(.largeTitle).foregroundStyle(Color.courseViolet)
+            Text("\(setTitle ?? "Session") complete").font(.workbook(.largeTitle))
+            Text("\(setScores.count) letters · Average \(setScores.reduce(0, +) / max(1, setScores.count)) / 100")
+            Button("Back to activities") { if !path.isEmpty { path.removeLast() } }
+                .buttonStyle(.borderedProminent).controlSize(.large)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.paper)
+    }
 
     private var page: some View {
         GeometryReader { geo in
@@ -220,7 +312,7 @@ struct WorksheetView: View {
                     }
                 }
                 InkCanvas(model: ink)
-                if mode == .test, let template = selected {
+                if !usesRow, mode == .test, let template = selected {
                     TargetLetterCard(template: template, hinted: usedHint)
                         .padding(16)
                 }
@@ -245,9 +337,6 @@ struct WorksheetView: View {
         case .faint:
             TemplateOverlay(template: template, layout: layout, showArrows: false, showDots: false,
                             pathOpacity: 0.22, solidPath: true, highlight: highlight)
-        case .lines:
-            TemplateOverlay(template: template, layout: layout, showPath: false, showArrows: false,
-                            showDots: false, highlight: highlight)
         case .memory:
             TemplateOverlay(template: template, layout: layout, showPath: peek, showArrows: peek,
                             showDots: peek, highlight: highlight)
@@ -269,7 +358,7 @@ struct WorksheetView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
-            if !isLesson {
+            if !isLesson && setTitle == nil {
                 letterMenu
             }
 
@@ -313,7 +402,7 @@ struct WorksheetView: View {
 
     private var optionsMenu: some View {
         Menu {
-            if !isLesson {
+            if !isLesson && setTitle == nil {
                 Picker("Mode", selection: freeModeBinding) {
                     ForEach(WritingMode.allCases) { Label($0.rawValue, systemImage: $0.symbol).tag($0) }
                 }
@@ -337,8 +426,9 @@ struct WorksheetView: View {
             set: { newMode in
                 guard newMode != freeMode else { return }
                 commitIfNeeded()
+                rowIndex = 0
+                rowSamples.removeAll()
                 freeMode = newMode
-                practiceGuide = .faint
                 resetLetter()
                 if newMode == .learn { startDemo() }
             }
@@ -404,14 +494,18 @@ struct WorksheetView: View {
         if let step = position?.step {
             switch step {
             case .watch: return "Watch how the \(name) is written. Start tracing whenever you're ready."
+            case .guided: return "Follow the faint letter. The next space is yours to write from memory."
             case .trace: return "Trace the \(name) from the green dot, following the arrow."
             case .memory: return "Write the \(name) from memory."
             }
         }
+        if usesRow {
+            return ["Trace the \(name) from the start dot.", "Follow the light guide for \(name).", "Write \(name) from memory."][slot]
+        }
         switch freeMode {
         case .learn: return "Trace the \(name) from the green dot, following the arrow."
         case .practice:
-            return practiceGuide == .faint ? "Write over the faint letter." : "Now write it on the lines, with no model."
+            return "Follow the guide."
         case .test: return "Write the \(selected?.spokenName ?? name) from memory."
         }
     }
@@ -422,6 +516,9 @@ struct WorksheetView: View {
                 Label(notice, systemImage: "flag.checkered")
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.green)
+            }
+            if let rowTip, usesRow && slot > 0 {
+                Label(rowTip, systemImage: "pencil.tip").font(.callout)
             }
             Text(instruction)
                 .font(.workbook(.title2))
@@ -438,13 +535,6 @@ struct WorksheetView: View {
                 Text("It's checked automatically when you pause.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
-            }
-            if !isLesson && freeMode == .practice {
-                Picker("Guide", selection: $practiceGuide) {
-                    ForEach(PracticeGuide.allCases) { Text($0.rawValue).tag($0) }
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 300)
             }
             if guideKind == .memory && usedHint {
                 Text("You peeked, so this try is saved as With hint.")
@@ -493,24 +583,12 @@ struct WorksheetView: View {
         }
     }
 
-    /// Try again leads when there is a correction; moving on leads otherwise.
     @ViewBuilder
     private var actions: some View {
-        if let r = result {
-            VStack(spacing: 10) {
-                if r.tip != nil {
-                    primaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
-                    secondaryButton(nextLabel, "arrow.right", action: goNext)
-                } else {
-                    primaryButton(nextLabel, "arrow.right", action: goNext)
-                    secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
-                }
-                if !isLesson && freeMode == .practice && practiceGuide == .faint {
-                    secondaryButton("Try with less guide", "eye.slash") {
-                        practiceGuide = .lines
-                        tryAgain()
-                    }
-                }
+        if result != nil {
+            VStack(spacing: 8) {
+                primaryButton(nextLabel, "arrow.right", action: goNext)
+                secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
             }
         }
     }
@@ -535,17 +613,21 @@ struct WorksheetView: View {
     }
 
     private var nextLabel: String {
-        guard let p = position, let j = journey else { return "Next letter" }
-        let next = journeys.next(after: p, in: j)
-        if review {
-            if let next, next.chapterID == p.chapterID, next.letterIndex == p.letterIndex {
-                return "Next step: \(next.step.title)"
-            }
-            return "Back to map"
+        if usesRow && slot < 2 { return "Continue practice" }
+        if setTitle != nil {
+            guard setIndex + 1 < setLetters.count else { return "Finish session" }
+            return "Next letter · " + (library.template(id: setLetters[setIndex + 1])?.glyph ?? "")
         }
+        guard let p = position, let j = journey else {
+            let list = freeLetters
+            guard let index = list.firstIndex(where: { $0.id == templateID }), !list.isEmpty else { return "Next letter" }
+            return "Next letter · " + list[(index + 1) % list.count].glyph
+        }
+        let next = journeys.next(after: p, in: j)
+        if review && next?.chapterID != p.chapterID { return "Back to map" }
         guard let next else { return "See recap" }
         if next.chapterID != p.chapterID { return "Finish chapter" }
-        if next.letterIndex != p.letterIndex { return "Next letter" }
+        if next.letterIndex != p.letterIndex { return "Next letter · " + lessonLetters[next.letterIndex] }
         return "Next step: \(next.step.title)"
     }
 
@@ -565,6 +647,7 @@ struct WorksheetView: View {
         if drawing {
             cancelPending()
             result = nil
+            currentAttempt = nil
             demoStart = nil
             notice = nil
             if ink.strokeCount == 0 { usedHint = peek } // a new attempt begins
@@ -578,6 +661,7 @@ struct WorksheetView: View {
         cancelPending()
         let revision = ink.revision
         let token = exercise
+        guard !completedSet else { return }
         let delay = expectsMoreStrokes ? WorksheetView.finishingPause : WorksheetView.pause
         checking = true
         let work = DispatchWorkItem { scoreNow(revision: revision, token: token) }
@@ -615,6 +699,9 @@ struct WorksheetView: View {
             committed = false
             result = score
             react(to: score.overall)
+            if usesRow && slot < 2 && !expectsMoreStrokes && score.primaryKind != "MISSING_STROKE" && score.primaryKind != "INCOMPLETE" {
+                advanceWithinRow()
+            }
         } catch {
             errorText = "Could not score this letter: \(error.localizedDescription)"
         }
@@ -622,7 +709,7 @@ struct WorksheetView: View {
 
     /// Saves the latest scored version of this attempt to progress, once.
     private func commitIfNeeded() {
-        guard let attempt = currentAttempt, !committed else { return }
+        guard let attempt = currentAttempt, result != nil, !committed else { return }
         committed = true
         progress.record(score: attempt.result.overall, mode: mode, templateID: templateID,
                         hinted: attempt.hinted, issue: attempt.result.primaryKind)
@@ -675,12 +762,46 @@ struct WorksheetView: View {
     }
 
     private func resetLetter() {
+        demoStart = nil
+        celebrationStart = nil
+        errorText = nil
         peek = false
         usedHint = false
         startOver()
     }
 
+    private func advanceWithinRow() {
+        guard let attempt = currentAttempt, slot < 2 else { return }
+        rowTip = attempt.result.tip
+        rowSamples[slot] = attempt.strokes
+        if isLesson {
+            advanceLesson()
+        } else {
+            commitIfNeeded()
+            rowIndex += 1
+            resetLetter()
+        }
+    }
+
     private func goNext() {
+        if usesRow && slot < 2 {
+            advanceWithinRow()
+            return
+        }
+        if setTitle != nil {
+            guard let attempt = currentAttempt else { return }
+            commitIfNeeded()
+            setScores.append(attempt.result.overall)
+            if setIndex + 1 == setLetters.count {
+                completedSet = true
+            } else {
+                setIndex += 1
+                rowIndex = 0
+                rowSamples.removeAll()
+                resetLetter()
+            }
+            return
+        }
         if isLesson {
             advanceLesson()
         } else {
@@ -693,8 +814,9 @@ struct WorksheetView: View {
     private func selectFree(_ id: String) {
         guard id != freeTemplateID else { return }
         commitIfNeeded()
+        rowIndex = 0
+        rowSamples.removeAll()
         freeTemplateID = id
-        practiceGuide = .faint
         resetLetter()
         if freeMode == .learn { startDemo() }
     }
@@ -705,13 +827,17 @@ struct WorksheetView: View {
         guard let p = position, let j = journey, let glyph = lessonGlyph else { return }
         cancelPending()
         commitIfNeeded()
-        journeys.markComplete(p, glyph: glyph)
+        if !review { journeys.markComplete(p, glyph: glyph) }
 
         guard let next = journeys.next(after: p, in: j) else {
-            replaceRoute(with: review ? .journeyMap(j.id) : .recap(j.id))
+            if review {
+                if !path.isEmpty { path.removeLast() }
+                return
+            }
+            replaceRoute(with: .recap(j.id))
             return
         }
-        if review && (next.chapterID != p.chapterID || next.letterIndex != p.letterIndex) {
+        if review && next.chapterID != p.chapterID {
             if !path.isEmpty { path.removeLast() } // back to the map; the journey place is unchanged
             return
         }
@@ -720,8 +846,8 @@ struct WorksheetView: View {
             notice = "\(chapter?.title ?? "Chapter") complete. Next: \(nextChapter.title)"
         }
         if !review { journeys.setPosition(next) }
+        if next.chapterID != p.chapterID || next.letterIndex != p.letterIndex { rowSamples.removeAll() }
         position = next
-        practiceGuide = .faint
         resetLetter()
         if next.step == .watch { startDemo() }
     }

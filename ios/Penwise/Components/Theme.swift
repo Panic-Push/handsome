@@ -13,6 +13,7 @@ extension Color {
     static let courseViolet = Color(red: 0.42, green: 0.19, blue: 0.66)
     static let courseApricot = dynamic(light: (1.0, 0.78, 0.64), dark: (0.34, 0.22, 0.17))
     static let courseMint = dynamic(light: (0.65, 0.89, 0.85), dark: (0.12, 0.29, 0.27))
+    static let courseRose = dynamic(light: (0.95, 0.74, 0.80), dark: (0.33, 0.17, 0.22))
 
     /// Page background.
     static let paper = dynamic(light: (0.980, 0.965, 0.930), dark: (0.110, 0.102, 0.094))

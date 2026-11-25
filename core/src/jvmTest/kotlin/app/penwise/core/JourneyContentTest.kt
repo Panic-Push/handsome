@@ -9,6 +9,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /** Every letter a journey uses must have a template in the journey's style. */
@@ -29,7 +30,11 @@ class JourneyContentTest {
             val style = j["style"]!!.jsonPrimitive.content
             val available = glyphsByStyle[style].orEmpty()
             val chapters = j["chapters"]!!.jsonArray
-            assertTrue(chapters.isNotEmpty(), "${file.name}: no chapters")
+            val units = chapters.map { it.jsonObject }.filter { it["checkpoint"]?.jsonPrimitive?.boolean != true }
+            val activityLetters = units.flatMap { unit -> unit["letters"]!!.jsonArray.map { it.jsonPrimitive.content } }
+            assertEquals(6, units.size, "${file.name}: expected six practice and six memory sets")
+            assertEquals(('a'..'z').map { it.toString() }, activityLetters.sorted(),
+                "${file.name}: full-alphabet test needs every lowercase letter exactly once")
             for (c in chapters) {
                 val chapter = c.jsonObject
                 val letters = chapter["letters"]!!.jsonArray.map { it.jsonPrimitive.content }

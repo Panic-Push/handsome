@@ -23,12 +23,12 @@ struct HomeView: View {
                         if let journey, journeys.hasStarted(journey) {
                             journeyCard(journey)
                         }
-                        courseShelf(compact: compact)
                         modeShortcuts
                         if settings.showAdPlaceholders {
                             AdSlot(placement: .home)
                                 .frame(maxWidth: .infinity)
                         }
+                        courseShelf(compact: compact)
                     }
                     .padding(.horizontal, 32)
                     .padding(.vertical, 20)
@@ -40,7 +40,7 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
-                        Label("Settings", systemImage: "gearshape")
+                        Label("Account", systemImage: "person.crop.circle").labelStyle(.titleAndIcon)
                     }
                 }
             }
@@ -61,6 +61,8 @@ struct HomeView: View {
             LetterPickerView(mode: mode)
         case .write(let mode, let templateID):
             WorksheetView(context: .free(mode, templateID), path: $path)
+        case .set(let mode, let title, let ids):
+            WorksheetView(context: .set(mode, title, ids), path: $path)
         case .journeyMap(let id):
             JourneyMapView(journeyID: id, path: $path)
         case .lesson(let position, let review):
@@ -112,35 +114,32 @@ struct HomeView: View {
         let chapterLetters = journeys.letters(chapter, in: journey)
         let glyph = p.letterIndex < chapterLetters.count ? chapterLetters[p.letterIndex] : (chapterLetters.first ?? "")
         let done = journeys.completedCount(chapter, in: journey)
-        let action = "Review your letters"
-        let detail = finished ? "Journey complete" : "\(chapter.title) · \(done) of \(chapterLetters.count) complete"
-
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("Continue \(settings.style.title)")
-                    .font(.workbook(.largeTitle, weight: .bold))
-                Spacer()
-                Button { go(.journeyMap(journey.id)) } label: {
-                    Image(systemName: "map").padding(8)
+        return Button {
+            path.append(.journeyMap(journey.id))
+        } label: {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Text(finished ? journey.title : "Continue \(journey.title)")
+                        .font(.workbook(.largeTitle, weight: .bold))
+                    Spacer()
+                    Image(systemName: "map.fill")
                 }
-                .accessibilityLabel("Open chapter map")
-            }
-            Text(detail).font(.headline)
-            HStack {
-                specimen(Array(chapterLetters.prefix(3)), in: journey, current: glyph)
-                Spacer(minLength: 0)
-                FoxBookmark().frame(width: 62, height: 66).accessibilityHidden(true)
-            }
-            Button { go(finished ? .journeyMap(journey.id) : .journeyResume(journey.id)) } label: {
-                Label(finished ? action : "\(p.step.title) \(glyph)", systemImage: "arrow.right")
+                Text("\(chapter.title) · \(done) of \(chapterLetters.count) complete")
                     .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 32)
+                HStack {
+                    specimen(Array(chapterLetters.prefix(3)), in: journey, current: glyph)
+                    Spacer()
+                    FoxBookmark().frame(width: 54, height: 58).accessibilityHidden(true)
+                }
+                Label("Open timeline", systemImage: "arrow.right")
+                    .font(.headline)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Color.courseViolet)
+            .padding(22)
+            .foregroundStyle(.white)
+            .background(Color.courseViolet, in: RoundedRectangle(cornerRadius: 24))
+            .contentShape(Rectangle())
         }
-        .padding(22)
-        .background(Color.courseViolet.opacity(0.13), in: RoundedRectangle(cornerRadius: 26))
+        .buttonStyle(PressableStyle())
     }
 
     /// The chapter's letters drawn from the real templates on a ruled strip.
@@ -172,7 +171,7 @@ struct HomeView: View {
     private func courseShelf(compact: Bool) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Your courses").font(.workbook(.title))
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: compact ? 1 : 2), spacing: 14) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: compact ? 1 : 3), spacing: 14) {
                 ForEach(LetterStyle.allCases) { style in
                     if let course = JourneyLibrary.shared.journey(style: style) {
                         courseCover(style, course: course)
@@ -183,11 +182,17 @@ struct HomeView: View {
     }
 
     private func courseCover(_ style: LetterStyle, course: Journey) -> some View {
-        let color = style == .print ? Color.courseApricot : Color.courseMint
+        let color: Color = {
+            switch style {
+            case .print: return .courseApricot
+            case .cursive: return .courseMint
+            case .traditional: return .courseRose
+            }
+        }()
         let position = journeys.position(in: course)
         return Button {
             settings.style = style
-            go(.journeyMap(course.id))
+            path.append(.journeyMap(course.id))
         } label: {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
@@ -196,7 +201,7 @@ struct HomeView: View {
                     Image(systemName: "arrow.up.right")
                 }
                 HStack(spacing: 3) {
-                    ForEach(library.templates(style: style).prefix(3)) { template in
+                    ForEach(["a", "l", "g"].compactMap { library.template(id: course.templateID($0)) }) { template in
                         LetterThumbnail(template: template, lineWidth: 3, color: .ink)
                             .frame(maxWidth: 62)
                     }

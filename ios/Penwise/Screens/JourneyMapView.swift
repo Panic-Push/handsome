@@ -45,7 +45,8 @@ struct JourneyMapView: View {
             .background(Color.paper)
             .onAppear {
                 if let journey {
-                    proxy.scrollTo(store.position(in: journey).chapterID, anchor: .top)
+                    let p = store.position(in: journey)
+                    proxy.scrollTo("\(p.chapterID)-\(p.letterIndex)", anchor: .center)
                 }
             }
         }
@@ -131,12 +132,13 @@ struct JourneyMapView: View {
                              needsReview: isDone && store.needsReview(glyph, in: journey), in: journey) {
                             if isCurrent {
                                 path.append(.lesson(current, review: false))
-                            } else if isDone {
+                            } else {
                                 let start = LessonPosition(journeyID: journey.id, chapterID: chapter.id,
                                                            letterIndex: index, step: chapter.steps[0])
                                 path.append(.lesson(start, review: true))
                             }
                         }
+                        .id("\(chapter.id)-\(index)")
                         .position(centers[index])
                     }
                 }
@@ -189,7 +191,6 @@ struct JourneyMapView: View {
             }
         }
         .buttonStyle(PressableStyle())
-        .disabled(!isCurrent && !isDone)
         .accessibilityLabel("\(glyph), \(isCurrent ? "up next" : isDone ? "complete" : "upcoming")")
     }
 

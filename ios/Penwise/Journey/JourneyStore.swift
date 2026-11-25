@@ -26,9 +26,38 @@ final class JourneyStore: ObservableObject {
         if let data = UserDefaults.standard.data(forKey: storageKey),
            let decoded = try? JSONDecoder().decode(Saved.self, from: data) {
             saved = decoded
+            migrateExpandedCourses()
         } else {
             saved = Saved()
         }
+    }
+
+    private func migrateExpandedCourses() {
+        var changed = false
+        for journey in JourneyLibrary.shared.journeys {
+            guard let checkpoint = journey.chapters.first(where: { $0.isCheckpoint }),
+                  let position = saved.positions[journey.id],
+                  position.chapterID == checkpoint.id else { continue }
+            let key = pickKey(journey, checkpoint)
+            if let picks = saved.checkpointPicks[key], picks.count < (checkpoint.pick ?? picks.count) {
+                let extra = suggestedPicks(checkpoint, in: journey) + checkpoint.letters
+                var expanded = picks
+                for glyph in extra where !expanded.contains(glyph) && expanded.count < (checkpoint.pick ?? 4) {
+                    expanded.append(glyph)
+                }
+                saved.checkpointPicks[key] = expanded
+                changed = true
+            }
+            for chapter in journey.chapters where !chapter.isCheckpoint {
+                if let index = chapter.letters.firstIndex(where: { !isComplete($0, chapter, in: journey) }) {
+                    saved.positions[journey.id] = LessonPosition(journeyID: journey.id, chapterID: chapter.id,
+                                                                 letterIndex: index, step: .watch)
+                    changed = true
+                    break
+                }
+            }
+        }
+        if changed { persist() }
     }
 
     // MARK: - Letters and completion
