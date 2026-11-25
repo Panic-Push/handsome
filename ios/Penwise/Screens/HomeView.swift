@@ -11,8 +11,8 @@ struct HomeView: View {
                         TracingView()
                     } label: {
                         MenuRow(
-                            title: "Trace letters",
-                            detail: "Milestone 1: writing canvas with guide lines",
+                            title: "Write letters",
+                            detail: "Learn, Practice and Test, scored by the shared engine",
                             symbol: "pencil.tip"
                         )
                     }
@@ -27,7 +27,7 @@ struct HomeView: View {
                     }
                 }
                 Section("This build") {
-                    LabeledContent("Version", value: "Phase 0 · 0.1")
+                    LabeledContent("Version", value: "Phase 0 · 0.2")
                     LabeledContent("Letter templates", value: "\(templateCount) loaded")
                 }
             }

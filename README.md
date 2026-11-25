@@ -21,41 +21,68 @@ The full product plan lives in the "Handwriting App — Development Plan" doc.
 | --- | --- |
 | 1. Writing canvas on iPad (ruled lines, dotted guide, undo/redo/clear, Pencil-only mode) | Ready to test |
 | 2. Recorder (save letter templates and handwriting samples as JSON) | Ready to test |
-| 3. First score on the iPad (link the shared engine into the app) | Next |
+| 3. Scores on the iPad: Learn, Practice and Test modes using the shared engine | Ready to test (needs Java, see below) |
 | 4. Sample test (score 10–20 people's handwriting, tune the engine) | After 3 |
 
 The scoring engine itself is built and covered by 21 automated tests (`core/`).
 
 ## Run the iPad app (Mac)
 
-You need: a Mac with Xcode, your iPad, its cable, and your Apple ID. A free
-Apple ID is enough for testing on your own iPad.
+You need: a Mac with Xcode, Java, your iPad, its cable, and your Apple ID. A
+free Apple ID is enough for testing on your own iPad.
 
 1. **Install Xcode** from the Mac App Store. Open it once and let it install
    the iOS platform when asked.
-2. **Get the code.** In Terminal:
+2. **Install Java** (needed to build the shared engine). Download the
+   **Temurin 21 JDK** for macOS, *aarch64*, as a `.pkg` from
+   [adoptium.net](https://adoptium.net/temurin/releases/?os=mac&arch=aarch64&package=jdk)
+   and run the installer. Check it in Terminal:
    ```bash
-   git clone <this repository's URL>
+   /usr/libexec/java_home
    ```
-3. **Open the project:** double-click `ios/Penwise.xcodeproj`.
-4. **Set up signing:** click the blue *Penwise* project at the top of the left
+   It should print a path. If it prints an error, Java is not installed yet.
+3. **Get the code.** In Terminal:
+   ```bash
+   git clone https://github.com/Panic-Push/handsome.git
+   ```
+4. **Open the project:** double-click `ios/Penwise.xcodeproj`.
+5. **Set up signing:** click the blue *Penwise* project at the top of the left
    sidebar → target *Penwise* → *Signing & Capabilities* → *Team* → *Add an
    Account…* → sign in → pick *(Personal Team)*.
    If Xcode says the bundle identifier is unavailable, change
    `app.penwise.dev` to something unique, such as `app.penwise.dev.yourname`.
-5. **Connect the iPad** with the cable, unlock it and tap *Trust*.
-6. **Pick the iPad** as the run destination in Xcode's top bar, then press
+6. **Connect the iPad** with the cable, unlock it and tap *Trust*.
+7. **Pick the iPad** as the run destination in Xcode's top bar, then press
    **⌘R** (Product › Run).
-7. **First run only, on the iPad:**
+   The **first build takes 5–15 minutes**: it downloads Gradle and the Kotlin
+   compiler for iOS (around 1 GB) and builds the engine. Later builds take
+   seconds. Progress shows in Xcode's Report navigator (⌘9).
+8. **First run only, on the iPad:**
    - If asked, turn on *Settings › Privacy & Security › Developer Mode* and restart.
    - If the app won't open, go to *Settings › General › VPN & Device
      Management*, tap your Apple ID and choose *Trust*.
 
 With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 
-## What to test (Milestones 1 and 2)
+### If the build fails
 
-**Trace letters**
+| Message | Fix |
+| --- | --- |
+| `Java was not found` | Install Java (step 2), then quit and reopen Xcode |
+| `xcrun: error` or `xcode-select` | In Terminal: `sudo xcode-select -s /Applications/Xcode.app` |
+| `No such module 'PenwiseCore'` | The engine step failed earlier: open the Report navigator (⌘9) and send me the red lines from *Build shared engine (Kotlin)* |
+| Anything else | Send me a screenshot of the error |
+
+## What to test
+
+**Write letters (Milestone 3)**
+- [ ] Pick a letter and a mode, write it, tap **Check**: a score from 0 to 100 appears with one tip.
+- [ ] **Learn:** trace neatly → 85+. Trace in the wrong direction → the tip says so and the stroke turns red.
+- [ ] **Practice:** the letter is faint with no arrows. Write the strokes of **t** in the wrong order → the tip mentions the order.
+- [ ] **Test:** no guide (the eye button peeks). Write the letter from memory; size and baseline count.
+- [ ] Does the score feel fair? Tell me where it is too strict or too generous.
+
+**Write letters (Milestone 1 basics)**
 - [ ] The ruled lines and the dotted letter appear; green numbered dots mark stroke starts, orange arrows show direction.
 - [ ] Writing with the Pencil feels smooth with no visible lag.
 - [ ] With *Pencil only* on, your palm and finger don't draw. With it off, your finger draws.

@@ -27,24 +27,37 @@ final class TemplateLibrary {
 
     let templates: [LetterTemplate]
 
+    /// The original JSON text of each template, keyed by template id.
+    /// The shared engine reads templates from this text.
+    private let jsonByID: [String: String]
+
     private init() {
-        templates = TemplateLibrary.loadBundled()
+        let loaded = TemplateLibrary.loadBundled()
+        templates = loaded.map { $0.template }.sorted { $0.glyph < $1.glyph }
+        var json: [String: String] = [:]
+        for item in loaded { json[item.template.id] = item.json }
+        jsonByID = json
     }
 
-    private static func loadBundled() -> [LetterTemplate] {
+    func json(for id: String) -> String? {
+        jsonByID[id]
+    }
+
+    private static func loadBundled() -> [(template: LetterTemplate, json: String)] {
         guard let root = Bundle.main.url(forResource: "templates", withExtension: nil),
               let files = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil)
         else { return [] }
 
         let decoder = JSONDecoder()
-        var result: [LetterTemplate] = []
+        var result: [(template: LetterTemplate, json: String)] = []
         for case let url as URL in files where url.pathExtension == "json" {
             guard let data = try? Data(contentsOf: url),
+                  let text = String(data: data, encoding: .utf8),
                   let template = try? decoder.decode(LetterTemplate.self, from: data)
             else { continue }
-            result.append(template)
+            result.append((template: template, json: text))
         }
-        return result.sorted { $0.glyph < $1.glyph }
+        return result
     }
 }
 

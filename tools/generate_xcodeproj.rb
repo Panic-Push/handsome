@@ -12,6 +12,27 @@ Dir.chdir(ios_dir)
 project = Xcodeproj::Project.new(project_path)
 target = project.new_target(:application, 'Penwise', :ios, '17.0')
 
+# Build the shared Kotlin engine (core/) into PenwiseCore.framework before
+# Swift compiles, so `import PenwiseCore` always sees the latest engine.
+kotlin = target.new_shell_script_build_phase('Build shared engine (Kotlin)')
+kotlin.shell_path = '/bin/sh'
+kotlin.always_out_of_date = '1'
+kotlin.shell_script = <<~'SH'
+  set -e
+  if [ -z "$JAVA_HOME" ]; then
+    JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null || true)"
+    export JAVA_HOME
+  fi
+  if [ -z "$JAVA_HOME" ]; then
+    echo "error: Java was not found. Install a JDK (17 or newer): see README, Milestone 3."
+    exit 1
+  fi
+  cd "$SRCROOT/.."
+  ./gradlew :core:embedAndSignAppleFrameworkForXcode
+SH
+target.build_phases.delete(kotlin)
+target.build_phases.unshift(kotlin)
+
 # Source files and assets, mirroring the folder structure as groups.
 app_group = project.main_group.new_group('Penwise', 'Penwise')
 Dir.glob('Penwise/**/*').sort.each do |path|
@@ -61,6 +82,11 @@ target.build_configurations.each do |config|
   s['ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME'] = 'AccentColor'
   s['ENABLE_PREVIEWS'] = 'YES'
   s['LD_RUNPATH_SEARCH_PATHS'] = ['$(inherited)', '@executable_path/Frameworks']
+  # Shared engine produced by the "Build shared engine (Kotlin)" phase.
+  s['FRAMEWORK_SEARCH_PATHS'] = ['$(inherited)', '$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)']
+  s['OTHER_LDFLAGS'] = ['$(inherited)', '-framework', 'PenwiseCore']
+  # The Kotlin build writes outside the Xcode sandbox.
+  s['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
 end
 
 project.save

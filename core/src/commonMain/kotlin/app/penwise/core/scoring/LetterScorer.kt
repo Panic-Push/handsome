@@ -16,7 +16,10 @@ import kotlin.math.roundToInt
  * smoothness, and in Practice/Test also size and baseline. The best-scoring
  * accepted form of the letter is used, so alternative forms are not punished.
  */
-class LetterScorer(private val samplesPerStroke: Int = 32) {
+class LetterScorer(private val samplesPerStroke: Int) {
+
+    /** Default settings. (Swift cannot see Kotlin default arguments, so this is explicit.) */
+    constructor() : this(32)
 
     fun score(ink: Ink, template: LetterTemplate, mode: Mode): LetterScore {
         val user = ink.strokes

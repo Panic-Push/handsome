@@ -39,6 +39,8 @@ object TemplateCodec {
         encodeDefaults = false
     }
 
+    /** Throws (a Swift error on iOS) if the JSON is not a valid template. */
+    @Throws(Exception::class)
     fun decode(text: String): LetterTemplate = json.decodeFromString(LetterTemplate.serializer(), text)
 
     fun encode(template: LetterTemplate): String = json.encodeToString(LetterTemplate.serializer(), template)

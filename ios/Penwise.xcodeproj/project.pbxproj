@@ -7,193 +7,206 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		009F386FB290C70B2020DA28 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD73B7851F3C93228B17EE70 /* Assets.xcassets */; };
-		043F2F50032C584E6F801808 /* InkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0813BD260035802AE33D1B0C /* InkModel.swift */; };
-		2FE7B09FB938A7D191B21712 /* RecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BA7D0D0613FA85A573171ED /* RecorderView.swift */; };
-		32454187E3149E540F1025A9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 31F5C867D3179A8725EF3080 /* Foundation.framework */; };
-		35509495DF185B42A0502601 /* TemplateOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B698C5FAC0ECF570BD825C7 /* TemplateOverlay.swift */; };
-		60EE0A090C057B658E0D6376 /* LetterTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A500CED7AB1AAC82167AA04 /* LetterTemplate.swift */; };
-		747FEC32ADB44D93A1FCB7C1 /* PenwiseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3D52277402619C69755713B /* PenwiseApp.swift */; };
-		96632F3337DC021CD0D737F4 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23DCE6C75CF0836A29A7D483 /* HomeView.swift */; };
-		A046C9CBC2F76959308FDDC2 /* GuideLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5164DCF0AAEFEE8BCB8457 /* GuideLayout.swift */; };
-		A5C7325481A0632450AC977A /* templates in Resources */ = {isa = PBXBuildFile; fileRef = 319BCE1A9B8C994BA66E1C8C /* templates */; };
-		B55FCD0ED8BFC7720FC25D5D /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303892344CF7691EB2A7ED5 /* FileStore.swift */; };
-		BDB0889BEC48D8BFFB28944B /* InkCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2984DF6909A5EDEF9B505872 /* InkCanvas.swift */; };
-		C05B0F7A1A1365FA4D602A73 /* PathMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9C1468D46F6D11E0D897FB /* PathMath.swift */; };
-		E301BD0D2378E3EB9793BB9F /* RuledLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF2217B604F2B485145EE2D /* RuledLinesView.swift */; };
-		F1E133AB361043A8964BD22F /* TracingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C7D3EFBDA98F65D327EBD0 /* TracingView.swift */; };
+		3D412F3D3388F0E2B9B2E4CA /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1551F6A780D91BE4B9F31DC /* HomeView.swift */; };
+		4988F3440A8B89786F62F74C /* LetterTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A31A73F27BB301D196AE0BBA /* LetterTemplate.swift */; };
+		4D7278C3ABC4F98819A72D18 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5C605DCF228F710674CF65F6 /* Assets.xcassets */; };
+		5140565BEF439262B8EE25EB /* TracingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 130A69CF426FCBC40C36125A /* TracingView.swift */; };
+		631B3EC6F30388F8463E4F29 /* templates in Resources */ = {isa = PBXBuildFile; fileRef = 67B1CAFBF04F840FEEEBF3BE /* templates */; };
+		695C7CA9F50FF94FB8E89545 /* TemplateOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D81B6AFD2739CEB02B4AB9E /* TemplateOverlay.swift */; };
+		83858F214CD05D2D6195D072 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2CC9A234118FBB9F3DF40E2 /* Foundation.framework */; };
+		84747825B8A37CEAAED8A01A /* InkCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D09B65AFAAEEC3B8CA447F /* InkCanvas.swift */; };
+		978D6004745563DD312347DC /* PenwiseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F609CFC46F4983DCC8923 /* PenwiseApp.swift */; };
+		9FDA663CC1FF0A6B2D998D85 /* RuledLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02379F07A4D971CF3C2F5C6A /* RuledLinesView.swift */; };
+		BB8DBB7ED3B1C3DDE1141AA2 /* InkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8695E8CD8E46B00F9D40609 /* InkModel.swift */; };
+		D1D3F9F77FADA4274DA4E533 /* GuideLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AD670FB789E6E51D55C0CD /* GuideLayout.swift */; };
+		D4C53A987E0D3080B2DCB4EC /* RecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96939F9D629FC6FDABB0D56 /* RecorderView.swift */; };
+		E63700E02838823F40FFD5B3 /* PathMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21C66E2600AC993933F45ED /* PathMath.swift */; };
+		EE07DB104DC8A64FA71C9A90 /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638D4C292CA2022ABBFDED02 /* FileStore.swift */; };
+		F2540831E9D7444EE7A75CCD /* CoreBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97618EF55E72AC0F2B37BD7A /* CoreBridge.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0813BD260035802AE33D1B0C /* InkModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkModel.swift; sourceTree = "<group>"; };
-		23DCE6C75CF0836A29A7D483 /* HomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		2984DF6909A5EDEF9B505872 /* InkCanvas.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkCanvas.swift; sourceTree = "<group>"; };
-		319BCE1A9B8C994BA66E1C8C /* templates */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = templates; sourceTree = "<group>"; };
-		31F5C867D3179A8725EF3080 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		344A8007188DF7B4CED023E1 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4B698C5FAC0ECF570BD825C7 /* TemplateOverlay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TemplateOverlay.swift; sourceTree = "<group>"; };
-		4E9C1468D46F6D11E0D897FB /* PathMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PathMath.swift; sourceTree = "<group>"; };
-		6A500CED7AB1AAC82167AA04 /* LetterTemplate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LetterTemplate.swift; sourceTree = "<group>"; };
-		6DF2217B604F2B485145EE2D /* RuledLinesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RuledLinesView.swift; sourceTree = "<group>"; };
-		8BA7D0D0613FA85A573171ED /* RecorderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecorderView.swift; sourceTree = "<group>"; };
-		95C7D3EFBDA98F65D327EBD0 /* TracingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TracingView.swift; sourceTree = "<group>"; };
-		B303892344CF7691EB2A7ED5 /* FileStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
-		DD73B7851F3C93228B17EE70 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F3D52277402619C69755713B /* PenwiseApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PenwiseApp.swift; sourceTree = "<group>"; };
-		FC52BE56A7D08C3466E4A15D /* Penwise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penwise.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FF5164DCF0AAEFEE8BCB8457 /* GuideLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GuideLayout.swift; sourceTree = "<group>"; };
+		02379F07A4D971CF3C2F5C6A /* RuledLinesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RuledLinesView.swift; sourceTree = "<group>"; };
+		130A69CF426FCBC40C36125A /* TracingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TracingView.swift; sourceTree = "<group>"; };
+		35D09B65AFAAEEC3B8CA447F /* InkCanvas.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkCanvas.swift; sourceTree = "<group>"; };
+		4F8F609CFC46F4983DCC8923 /* PenwiseApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PenwiseApp.swift; sourceTree = "<group>"; };
+		5C605DCF228F710674CF65F6 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		5D81B6AFD2739CEB02B4AB9E /* TemplateOverlay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TemplateOverlay.swift; sourceTree = "<group>"; };
+		638D4C292CA2022ABBFDED02 /* FileStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
+		67B1CAFBF04F840FEEEBF3BE /* templates */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = templates; sourceTree = "<group>"; };
+		85AD670FB789E6E51D55C0CD /* GuideLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GuideLayout.swift; sourceTree = "<group>"; };
+		8DDFBDC693B54B153FA549F6 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		97618EF55E72AC0F2B37BD7A /* CoreBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreBridge.swift; sourceTree = "<group>"; };
+		A31A73F27BB301D196AE0BBA /* LetterTemplate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LetterTemplate.swift; sourceTree = "<group>"; };
+		A96939F9D629FC6FDABB0D56 /* RecorderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecorderView.swift; sourceTree = "<group>"; };
+		B1551F6A780D91BE4B9F31DC /* HomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		C8695E8CD8E46B00F9D40609 /* InkModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkModel.swift; sourceTree = "<group>"; };
+		E21C66E2600AC993933F45ED /* PathMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PathMath.swift; sourceTree = "<group>"; };
+		E2CC9A234118FBB9F3DF40E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		FD3B0953A0A129265677AADC /* Penwise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penwise.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		22DFF64885EC02E4966A799F /* Frameworks */ = {
+		BE8B4833F96DAA013B04A314 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32454187E3149E540F1025A9 /* Foundation.framework in Frameworks */,
+				83858F214CD05D2D6195D072 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1171743B33DFFDA7A3440354 /* Content */ = {
+		17AE415CA1274FB21C71E212 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				319BCE1A9B8C994BA66E1C8C /* templates */,
-			);
-			name = Content;
-			path = ../content;
-			sourceTree = "<group>";
-		};
-		13BC11028233A59B55764C24 /* Penwise */ = {
-			isa = PBXGroup;
-			children = (
-				F4CF162184A3B3BAD2F9C960 /* App */,
-				DD73B7851F3C93228B17EE70 /* Assets.xcassets */,
-				F1D67A3B290E020854A2C37C /* Canvas */,
-				14D977F506F07B6E4B81300F /* Guides */,
-				A8DA6FE15795EA2930BFEFE2 /* Screens */,
-				E080BDDB17116C907558CD05 /* Storage */,
-				4575C0517E67A55CB2344E8A /* Templates */,
-			);
-			name = Penwise;
-			path = Penwise;
-			sourceTree = "<group>";
-		};
-		14D977F506F07B6E4B81300F /* Guides */ = {
-			isa = PBXGroup;
-			children = (
-				FF5164DCF0AAEFEE8BCB8457 /* GuideLayout.swift */,
-				4E9C1468D46F6D11E0D897FB /* PathMath.swift */,
-				6DF2217B604F2B485145EE2D /* RuledLinesView.swift */,
-				4B698C5FAC0ECF570BD825C7 /* TemplateOverlay.swift */,
-			);
-			name = Guides;
-			path = Guides;
-			sourceTree = "<group>";
-		};
-		1D05975A5028CE497A25AE3A /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				31F5C867D3179A8725EF3080 /* Foundation.framework */,
-			);
-			name = iOS;
-			sourceTree = "<group>";
-		};
-		4575C0517E67A55CB2344E8A /* Templates */ = {
-			isa = PBXGroup;
-			children = (
-				6A500CED7AB1AAC82167AA04 /* LetterTemplate.swift */,
-			);
-			name = Templates;
-			path = Templates;
-			sourceTree = "<group>";
-		};
-		493174AF28DB05B193F730AA = {
-			isa = PBXGroup;
-			children = (
-				5FED92A2AA4D87D87EB1E91E /* Products */,
-				E4C893517D7147A91B000AFC /* Frameworks */,
-				13BC11028233A59B55764C24 /* Penwise */,
-				1171743B33DFFDA7A3440354 /* Content */,
-				E383BCFD4D7CD169F95CD078 /* Config */,
-			);
-			sourceTree = "<group>";
-		};
-		5FED92A2AA4D87D87EB1E91E /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				FC52BE56A7D08C3466E4A15D /* Penwise.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		A8DA6FE15795EA2930BFEFE2 /* Screens */ = {
-			isa = PBXGroup;
-			children = (
-				23DCE6C75CF0836A29A7D483 /* HomeView.swift */,
-				8BA7D0D0613FA85A573171ED /* RecorderView.swift */,
-				95C7D3EFBDA98F65D327EBD0 /* TracingView.swift */,
-			);
-			name = Screens;
-			path = Screens;
-			sourceTree = "<group>";
-		};
-		E080BDDB17116C907558CD05 /* Storage */ = {
-			isa = PBXGroup;
-			children = (
-				B303892344CF7691EB2A7ED5 /* FileStore.swift */,
-			);
-			name = Storage;
-			path = Storage;
-			sourceTree = "<group>";
-		};
-		E383BCFD4D7CD169F95CD078 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				344A8007188DF7B4CED023E1 /* Info.plist */,
-			);
-			name = Config;
-			path = Config;
-			sourceTree = "<group>";
-		};
-		E4C893517D7147A91B000AFC /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				1D05975A5028CE497A25AE3A /* iOS */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		F1D67A3B290E020854A2C37C /* Canvas */ = {
-			isa = PBXGroup;
-			children = (
-				2984DF6909A5EDEF9B505872 /* InkCanvas.swift */,
-				0813BD260035802AE33D1B0C /* InkModel.swift */,
-			);
-			name = Canvas;
-			path = Canvas;
-			sourceTree = "<group>";
-		};
-		F4CF162184A3B3BAD2F9C960 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				F3D52277402619C69755713B /* PenwiseApp.swift */,
+				4F8F609CFC46F4983DCC8923 /* PenwiseApp.swift */,
 			);
 			name = App;
 			path = App;
 			sourceTree = "<group>";
 		};
+		3324B4C2B6F844121957E4C9 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				638D4C292CA2022ABBFDED02 /* FileStore.swift */,
+			);
+			name = Storage;
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		5F0916842A11EB787316F657 /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				67B1CAFBF04F840FEEEBF3BE /* templates */,
+			);
+			name = Content;
+			path = ../content;
+			sourceTree = "<group>";
+		};
+		6626583386EA22697381574F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FD3B0953A0A129265677AADC /* Penwise.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9950A8DE7DC854E17B1A29B3 = {
+			isa = PBXGroup;
+			children = (
+				6626583386EA22697381574F /* Products */,
+				B40F73351A80038E5EC3F714 /* Frameworks */,
+				FCBFE454695616512DA9D4D6 /* Penwise */,
+				5F0916842A11EB787316F657 /* Content */,
+				F531583AFDC130EA6A75B048 /* Config */,
+			);
+			sourceTree = "<group>";
+		};
+		9AB7A3CE8D217AD82B1E4B5C /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				B1551F6A780D91BE4B9F31DC /* HomeView.swift */,
+				A96939F9D629FC6FDABB0D56 /* RecorderView.swift */,
+				130A69CF426FCBC40C36125A /* TracingView.swift */,
+			);
+			name = Screens;
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		9BFAE467139362EEB7235B9E /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				97618EF55E72AC0F2B37BD7A /* CoreBridge.swift */,
+			);
+			name = Engine;
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		B40F73351A80038E5EC3F714 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C7A9902F71EC2CEE52F2D88F /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B4CF077ABA8DD670FD76D47A /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				A31A73F27BB301D196AE0BBA /* LetterTemplate.swift */,
+			);
+			name = Templates;
+			path = Templates;
+			sourceTree = "<group>";
+		};
+		C7A9902F71EC2CEE52F2D88F /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				E2CC9A234118FBB9F3DF40E2 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		E62B94B3EB367B205BB060BF /* Canvas */ = {
+			isa = PBXGroup;
+			children = (
+				35D09B65AFAAEEC3B8CA447F /* InkCanvas.swift */,
+				C8695E8CD8E46B00F9D40609 /* InkModel.swift */,
+			);
+			name = Canvas;
+			path = Canvas;
+			sourceTree = "<group>";
+		};
+		F531583AFDC130EA6A75B048 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				8DDFBDC693B54B153FA549F6 /* Info.plist */,
+			);
+			name = Config;
+			path = Config;
+			sourceTree = "<group>";
+		};
+		FBCA34E32FE43D6633E76026 /* Guides */ = {
+			isa = PBXGroup;
+			children = (
+				85AD670FB789E6E51D55C0CD /* GuideLayout.swift */,
+				E21C66E2600AC993933F45ED /* PathMath.swift */,
+				02379F07A4D971CF3C2F5C6A /* RuledLinesView.swift */,
+				5D81B6AFD2739CEB02B4AB9E /* TemplateOverlay.swift */,
+			);
+			name = Guides;
+			path = Guides;
+			sourceTree = "<group>";
+		};
+		FCBFE454695616512DA9D4D6 /* Penwise */ = {
+			isa = PBXGroup;
+			children = (
+				17AE415CA1274FB21C71E212 /* App */,
+				5C605DCF228F710674CF65F6 /* Assets.xcassets */,
+				E62B94B3EB367B205BB060BF /* Canvas */,
+				9BFAE467139362EEB7235B9E /* Engine */,
+				FBCA34E32FE43D6633E76026 /* Guides */,
+				9AB7A3CE8D217AD82B1E4B5C /* Screens */,
+				3324B4C2B6F844121957E4C9 /* Storage */,
+				B4CF077ABA8DD670FD76D47A /* Templates */,
+			);
+			name = Penwise;
+			path = Penwise;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C81D064A42E29EEC93EC1747 /* Penwise */ = {
+		93A1B258DCE2CDC0AA612B3D /* Penwise */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3535A1A6DA00DA7A0784D744 /* Build configuration list for PBXNativeTarget "Penwise" */;
+			buildConfigurationList = A9DD22CB268B4130969EBC8C /* Build configuration list for PBXNativeTarget "Penwise" */;
 			buildPhases = (
-				7455B8C73B5A5F29655360E1 /* Sources */,
-				22DFF64885EC02E4966A799F /* Frameworks */,
-				45A15ADD613947C23D09A6D9 /* Resources */,
+				2036E22221654884D19D942C /* Build shared engine (Kotlin) */,
+				37B102E3663660E2CC260647 /* Sources */,
+				BE8B4833F96DAA013B04A314 /* Frameworks */,
+				2A739E4B3B0F7FAC870B35B8 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -201,19 +214,19 @@
 			);
 			name = Penwise;
 			productName = Penwise;
-			productReference = FC52BE56A7D08C3466E4A15D /* Penwise.app */;
+			productReference = FD3B0953A0A129265677AADC /* Penwise.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		93A66A548C87B59075857B69 /* Project object */ = {
+		6E2E89FFF7F07A69BAE44EDF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 			};
-			buildConfigurationList = D078E511C3231468E6F7978A /* Build configuration list for PBXProject "Penwise" */;
+			buildConfigurationList = 4AC441829D5F2C79092B0EA8 /* Build configuration list for PBXProject "Penwise" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -221,54 +234,170 @@
 				en,
 				Base,
 			);
-			mainGroup = 493174AF28DB05B193F730AA;
+			mainGroup = 9950A8DE7DC854E17B1A29B3;
 			minimizedProjectReferenceProxies = 0;
 			preferredProjectObjectVersion = 100;
-			productRefGroup = 5FED92A2AA4D87D87EB1E91E /* Products */;
+			productRefGroup = 6626583386EA22697381574F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C81D064A42E29EEC93EC1747 /* Penwise */,
+				93A1B258DCE2CDC0AA612B3D /* Penwise */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		45A15ADD613947C23D09A6D9 /* Resources */ = {
+		2A739E4B3B0F7FAC870B35B8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				009F386FB290C70B2020DA28 /* Assets.xcassets in Resources */,
-				A5C7325481A0632450AC977A /* templates in Resources */,
+				4D7278C3ABC4F98819A72D18 /* Assets.xcassets in Resources */,
+				631B3EC6F30388F8463E4F29 /* templates in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		2036E22221654884D19D942C /* Build shared engine (Kotlin) */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build shared engine (Kotlin)";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nif [ -z \"$JAVA_HOME\" ]; then\n  JAVA_HOME=\"$(/usr/libexec/java_home 2>/dev/null || true)\"\n  export JAVA_HOME\nfi\nif [ -z \"$JAVA_HOME\" ]; then\n  echo \"error: Java was not found. Install a JDK (17 or newer): see README, Milestone 3.\"\n  exit 1\nfi\ncd \"$SRCROOT/..\"\n./gradlew :core:embedAndSignAppleFrameworkForXcode\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
-		7455B8C73B5A5F29655360E1 /* Sources */ = {
+		37B102E3663660E2CC260647 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				747FEC32ADB44D93A1FCB7C1 /* PenwiseApp.swift in Sources */,
-				BDB0889BEC48D8BFFB28944B /* InkCanvas.swift in Sources */,
-				043F2F50032C584E6F801808 /* InkModel.swift in Sources */,
-				A046C9CBC2F76959308FDDC2 /* GuideLayout.swift in Sources */,
-				C05B0F7A1A1365FA4D602A73 /* PathMath.swift in Sources */,
-				E301BD0D2378E3EB9793BB9F /* RuledLinesView.swift in Sources */,
-				35509495DF185B42A0502601 /* TemplateOverlay.swift in Sources */,
-				96632F3337DC021CD0D737F4 /* HomeView.swift in Sources */,
-				2FE7B09FB938A7D191B21712 /* RecorderView.swift in Sources */,
-				F1E133AB361043A8964BD22F /* TracingView.swift in Sources */,
-				B55FCD0ED8BFC7720FC25D5D /* FileStore.swift in Sources */,
-				60EE0A090C057B658E0D6376 /* LetterTemplate.swift in Sources */,
+				978D6004745563DD312347DC /* PenwiseApp.swift in Sources */,
+				84747825B8A37CEAAED8A01A /* InkCanvas.swift in Sources */,
+				BB8DBB7ED3B1C3DDE1141AA2 /* InkModel.swift in Sources */,
+				F2540831E9D7444EE7A75CCD /* CoreBridge.swift in Sources */,
+				D1D3F9F77FADA4274DA4E533 /* GuideLayout.swift in Sources */,
+				E63700E02838823F40FFD5B3 /* PathMath.swift in Sources */,
+				9FDA663CC1FF0A6B2D998D85 /* RuledLinesView.swift in Sources */,
+				695C7CA9F50FF94FB8E89545 /* TemplateOverlay.swift in Sources */,
+				3D412F3D3388F0E2B9B2E4CA /* HomeView.swift in Sources */,
+				D4C53A987E0D3080B2DCB4EC /* RecorderView.swift in Sources */,
+				5140565BEF439262B8EE25EB /* TracingView.swift in Sources */,
+				EE07DB104DC8A64FA71C9A90 /* FileStore.swift in Sources */,
+				4988F3440A8B89786F62F74C /* LetterTemplate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0DD1A97B208854890F2133BE /* Debug */ = {
+		3CBC96E5442823621D235857 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		728BF7D63440939856D79A31 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					PenwiseCore,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		853A6C8DDC2CED05D4B65C3F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -329,61 +458,7 @@
 			};
 			name = Debug;
 		};
-		484853982E273789340B08A0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		B80F4D8C88628A7936B178EE /* Release */ = {
+		CBC7B29F9D508B1BE78CDDE2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -393,6 +468,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
@@ -402,35 +482,11 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		EA9DF368E1EAA2E7355D2710 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Config/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					PenwiseCore,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -443,25 +499,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3535A1A6DA00DA7A0784D744 /* Build configuration list for PBXNativeTarget "Penwise" */ = {
+		4AC441829D5F2C79092B0EA8 /* Build configuration list for PBXProject "Penwise" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B80F4D8C88628A7936B178EE /* Release */,
-				EA9DF368E1EAA2E7355D2710 /* Debug */,
+				853A6C8DDC2CED05D4B65C3F /* Debug */,
+				3CBC96E5442823621D235857 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D078E511C3231468E6F7978A /* Build configuration list for PBXProject "Penwise" */ = {
+		A9DD22CB268B4130969EBC8C /* Build configuration list for PBXNativeTarget "Penwise" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DD1A97B208854890F2133BE /* Debug */,
-				484853982E273789340B08A0 /* Release */,
+				728BF7D63440939856D79A31 /* Release */,
+				CBC7B29F9D508B1BE78CDDE2 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 93A66A548C87B59075857B69 /* Project object */;
+	rootObject = 6E2E89FFF7F07A69BAE44EDF /* Project object */;
 }
