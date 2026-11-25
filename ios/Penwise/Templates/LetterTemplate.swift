@@ -33,7 +33,11 @@ final class TemplateLibrary {
 
     private init() {
         let loaded = TemplateLibrary.loadBundled()
-        templates = loaded.map { $0.template }.sorted { $0.glyph < $1.glyph }
+        templates = loaded.map { $0.template }.sorted { a, b in
+            let ra = TemplateLibrary.rank(a.glyph)
+            let rb = TemplateLibrary.rank(b.glyph)
+            return ra != rb ? ra < rb : a.glyph < b.glyph
+        }
         var json: [String: String] = [:]
         for item in loaded { json[item.template.id] = item.json }
         jsonByID = json
@@ -41,6 +45,19 @@ final class TemplateLibrary {
 
     func json(for id: String) -> String? {
         jsonByID[id]
+    }
+
+    func template(id: String) -> LetterTemplate? {
+        templates.first { $0.id == id }
+    }
+
+    /// Teaching order: letters that share strokes are learned together
+    /// (c o a d g q e s f), then straight letters, bridges, diagonals.
+    private static let teachingOrder = Array("coadgqesfltijhnmrbpkuvwxyz")
+
+    private static func rank(_ glyph: String) -> Int {
+        guard let first = glyph.first, let index = teachingOrder.firstIndex(of: first) else { return 1_000 }
+        return index
     }
 
     private static func loadBundled() -> [(template: LetterTemplate, json: String)] {

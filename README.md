@@ -75,6 +75,15 @@ With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 
 ## What to test
 
+**Home and navigation (UI update)**
+- [ ] Home shows a greeting, streak, letters today, and big Learn / Practice / Test cards with progress rings.
+- [ ] The ad banner placeholder sits at the bottom of Home only.
+- [ ] Tapping a mode opens its letters with stars, best scores and an "Up next" letter.
+- [ ] After a few letters, "Continue where you left off" and "Your letters" appear and update.
+- [ ] Learn plays an animated demo of the letter; **Watch** replays it.
+- [ ] A score of 85+ gives confetti and a haptic tap; stars pop in; **Next letter** moves on.
+- [ ] The Recorder is under the wrench button (top right of Home).
+
 **Write letters (Milestone 3)**
 - [ ] Pick a letter and a mode, write it, tap **Check**: a score from 0 to 100 appears with one tip.
 - [ ] **Learn:** trace neatly → 85+. Trace in the wrong direction → the tip says so and the stroke turns red.

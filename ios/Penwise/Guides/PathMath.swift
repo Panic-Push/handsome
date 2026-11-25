@@ -37,6 +37,28 @@ enum PathMath {
         return nil
     }
 
+    /// The first `fraction` (0...1) of the path, ending exactly at that point.
+    static func prefix(_ p: [CGPoint], fraction: CGFloat) -> [CGPoint] {
+        guard p.count >= 2 else { return p }
+        if fraction >= 1 { return p }
+        let target = length(p) * max(0, fraction)
+        var out = [p[0]]
+        var acc: CGFloat = 0
+        for i in 1..<p.count {
+            let a = p[i - 1]
+            let b = p[i]
+            let d = hypot(b.x - a.x, b.y - a.y)
+            if acc + d >= target {
+                let t = d > 0 ? (target - acc) / d : 0
+                out.append(CGPoint(x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t))
+                return out
+            }
+            out.append(b)
+            acc += d
+        }
+        return out
+    }
+
     /// Evenly spaced points about `spacing` apart along the path.
     static func resample(_ p: [CGPoint], spacing: CGFloat) -> [CGPoint] {
         guard p.count >= 2, let last = p.last else { return p }
