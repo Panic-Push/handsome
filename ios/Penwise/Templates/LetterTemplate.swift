@@ -51,6 +51,21 @@ final class TemplateLibrary {
         templates.first { $0.id == id }
     }
 
+    /// Letters of one style, in teaching order.
+    func templates(style: String) -> [LetterTemplate] {
+        templates.filter { $0.style == style }
+    }
+
+    func templates(style: LetterStyle) -> [LetterTemplate] {
+        templates(style: style.rawValue)
+    }
+
+    /// The letter used for worksheet previews on Home.
+    func previewTemplate(style: LetterStyle) -> LetterTemplate? {
+        let list = templates(style: style)
+        return list.first { $0.glyph == "a" } ?? list.first
+    }
+
     /// Teaching order: letters that share strokes are learned together
     /// (c o a d g q e s f), then straight letters, bridges, diagonals.
     private static let teachingOrder = Array("coadgqesfltijhnmrbpkuvwxyz")
@@ -75,6 +90,23 @@ final class TemplateLibrary {
             result.append((template: template, json: text))
         }
         return result
+    }
+}
+
+extension LetterTemplate {
+    var isCursive: Bool { style.hasPrefix("cursive") }
+
+    /// Top of the letter in line units (0 = ascender line, 0.5 = x-height).
+    var topY: CGFloat {
+        strokes.flatMap { $0.cgPoints }.map(\.y).min() ?? 0.5
+    }
+
+    /// "lowercase a", "capital A", "cursive a".
+    var spokenName: String {
+        if isCursive { return "cursive \(glyph)" }
+        if glyph.lowercased() == glyph && glyph.uppercased() != glyph { return "lowercase \(glyph)" }
+        if glyph.uppercased() == glyph && glyph.lowercased() != glyph { return "capital \(glyph)" }
+        return glyph
     }
 }
 

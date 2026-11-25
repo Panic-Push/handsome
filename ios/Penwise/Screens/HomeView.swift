@@ -2,37 +2,46 @@ import SwiftUI
 
 struct HomeView: View {
     @ObservedObject private var progress = ProgressStore.shared
+    @ObservedObject private var settings = AppSettings.shared
+    @State private var path: [Route] = []
+    @State private var showSettings = false
+
     private let library = TemplateLibrary.shared
 
-    private var templateIDs: [String] { library.templates.map(\.id) }
+    private var letters: [LetterTemplate] { library.templates(style: settings.style) }
+    private var letterIDs: [String] { letters.map(\.id) }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
                     header
-                    modeCards
-                    if let last = progress.lastPlayed, let template = library.template(id: last.templateID) {
-                        continueCard(mode: last.mode, template: template)
+                    primaryAction
+                    modes
+                    if settings.showAdPlaceholders {
+                        AdSlot(placement: .home)
+                            .frame(maxWidth: .infinity)
                     }
                     lettersOverview
                 }
-                .padding(.horizontal, 28)
+                .padding(.horizontal, 32)
                 .padding(.vertical, 24)
+                .frame(maxWidth: 1180)
+                .frame(maxWidth: .infinity)
             }
-            .background(Color(uiColor: .systemGroupedBackground))
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                AdBannerSlot()
-            }
+            .background(Color.paper)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: Route.recorder) {
-                        Label("Recorder (developer)", systemImage: "wrench.and.screwdriver")
+                    Button { showSettings = true } label: {
+                        Label("Settings", systemImage: "gearshape")
                     }
                 }
             }
+            .sheet(isPresented: $showSettings) { SettingsView() }
             .navigationDestination(for: Route.self) { route in
                 switch route {
+                case .modeEntry(let mode):
+                    ModeEntryView(mode: mode, path: $path)
                 case .letters(let mode):
                     LetterPickerView(mode: mode)
                 case .write(let mode, let templateID):
@@ -42,47 +51,106 @@ struct HomeView: View {
                 }
             }
         }
+        .tint(Color.ink)
+    }
+
+    /// Goes to a mode: through the ad screen when an ad is available, straight
+    /// to the letters otherwise.
+    private func open(_ mode: WritingMode) {
+        path.append(settings.showAdPlaceholders ? .modeEntry(mode) : .letters(mode))
     }
 
     // MARK: - Header
 
-    private var greeting: String {
-        let hour = Calendar.current.component(.hour, from: Date())
-        if hour < 12 { return "Good morning" }
-        if hour < 17 { return "Good afternoon" }
-        return "Good evening"
-    }
-
     private var header: some View {
-        HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(greeting)
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
-                Text("Let's make your handwriting beautiful today.")
-                    .font(.title3)
+        HStack(alignment: .center, spacing: 20) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Penwise")
+                    .font(.system(size: 42, weight: .bold, design: .serif))
+                    .foregroundStyle(Color.ink)
+                Text("Your handwriting workbook")
+                    .font(.workbook(.title3, weight: .regular))
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            StatPill(symbol: "flame.fill", color: .orange, value: "\(progress.streak)",
-                     label: progress.streak == 1 ? "day streak" : "days streak")
-            StatPill(symbol: "pencil.line", color: .blue, value: "\(progress.attemptsToday)",
-                     label: "letters today")
+            Picker("Letter style", selection: $settings.style) {
+                ForEach(LetterStyle.allCases) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .frame(width: 220)
+            if progress.streak > 0 {
+                Label("\(progress.streak) day\(progress.streak == 1 ? "" : "s")", systemImage: "flame.fill")
+                    .font(.headline)
+                    .foregroundStyle(Color.orange)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .paperCard(radius: 14)
+            }
         }
     }
 
-    // MARK: - Mode cards
+    // MARK: - First tap
 
-    private var modeCards: some View {
+    @ViewBuilder
+    private var primaryAction: some View {
+        if let last = progress.lastPlayed, let template = library.template(id: last.templateID) {
+            actionCard(
+                eyebrow: "Pick up where you left off",
+                title: "Continue \(last.mode.rawValue) · \(template.spokenName)",
+                template: template,
+                color: last.mode.color,
+                route: .write(last.mode, template.id)
+            )
+        } else if let first = letters.first {
+            actionCard(
+                eyebrow: "New here? Begin with the first letter",
+                title: "Start with \(first.glyph)",
+                template: first,
+                color: WritingMode.learn.color,
+                route: .write(.learn, first.id)
+            )
+        }
+    }
+
+    private func actionCard(eyebrow: String, title: String, template: LetterTemplate, color: Color, route: Route) -> some View {
+        Button { path.append(route) } label: {
+            HStack(spacing: 20) {
+                LetterThumbnail(template: template, lineWidth: 4, color: .white)
+                    .frame(width: 76, height: 80)
+                    .background(Color.white.opacity(0.18), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(eyebrow)
+                        .font(.subheadline.weight(.semibold))
+                        .opacity(0.85)
+                    Text(title)
+                        .font(.workbook(.title))
+                }
+                Spacer()
+                Image(systemName: "arrow.right.circle.fill")
+                    .font(.system(size: 40))
+            }
+            .foregroundStyle(.white)
+            .padding(20)
+            .background(color, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        }
+        .buttonStyle(PressableStyle())
+    }
+
+    // MARK: - Modes
+
+    private var modes: some View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Choose a mode")
-                .font(.title2.weight(.bold))
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 280), spacing: 20)], spacing: 20) {
+                .font(.workbook(.title2))
+                .foregroundStyle(Color.ink)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: 20)], spacing: 20) {
                 ForEach(WritingMode.allCases) { mode in
-                    NavigationLink(value: Route.letters(mode)) {
+                    Button { open(mode) } label: {
                         ModeCard(
                             mode: mode,
-                            passed: progress.passedCount(mode, templateIDs: templateIDs),
-                            total: templateIDs.count
+                            preview: library.previewTemplate(style: settings.style),
+                            practiced: progress.practicedCount(mode, templateIDs: letterIDs),
+                            total: letterIDs.count
                         )
                     }
                     .buttonStyle(PressableStyle())
@@ -91,48 +159,20 @@ struct HomeView: View {
         }
     }
 
-    // MARK: - Continue
-
-    private func continueCard(mode: WritingMode, template: LetterTemplate) -> some View {
-        NavigationLink(value: Route.write(mode, template.id)) {
-            HStack(spacing: 18) {
-                Text(template.glyph)
-                    .font(.system(size: 44, weight: .semibold, design: .rounded))
-                    .foregroundStyle(mode.color)
-                    .frame(width: 72, height: 72)
-                    .background(mode.color.opacity(0.12), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Continue where you left off")
-                        .font(.headline)
-                        .foregroundStyle(Color.primary)
-                    Text("\(mode.rawValue) · letter \(template.glyph) · best \(progress.best(mode, template.id) ?? 0)")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                Image(systemName: "play.circle.fill")
-                    .font(.system(size: 40))
-                    .foregroundStyle(mode.color)
-            }
-            .padding(18)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        }
-        .buttonStyle(PressableStyle())
-    }
-
     // MARK: - Letters overview
 
     private var lettersOverview: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
-                Text("Your letters")
-                    .font(.title2.weight(.bold))
+                Text("Your \(settings.style.title.lowercased()) letters")
+                    .font(.workbook(.title2))
+                    .foregroundStyle(Color.ink)
                 Spacer()
                 HStack(spacing: 14) {
                     ForEach(WritingMode.allCases) { mode in
                         HStack(spacing: 5) {
                             Circle().fill(mode.color).frame(width: 9, height: 9)
-                            Text(mode.rawValue)
+                            Text("\(mode.rawValue) passed")
                         }
                     }
                 }
@@ -141,27 +181,26 @@ struct HomeView: View {
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(library.templates) { template in
-                        NavigationLink(value: Route.write(suggestedMode(for: template), template.id)) {
+                    ForEach(letters) { template in
+                        Button { path.append(.write(suggestedMode(for: template), template.id)) } label: {
                             VStack(spacing: 8) {
-                                Text(template.glyph)
-                                    .font(.system(size: 40, weight: .medium, design: .rounded))
-                                    .foregroundStyle(Color.primary)
+                                LetterThumbnail(template: template, lineWidth: 3)
+                                    .frame(width: 56, height: 60)
                                 HStack(spacing: 5) {
                                     ForEach(WritingMode.allCases) { mode in
                                         Circle()
                                             .fill(isPassed(mode, template) ? mode.color : Color.secondary.opacity(0.25))
-                                            .frame(width: 9, height: 9)
+                                            .frame(width: 8, height: 8)
                                     }
                                 }
                             }
                             .frame(width: 84, height: 100)
-                            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .paperCard(radius: 18)
                         }
                         .buttonStyle(PressableStyle())
                     }
                 }
-                .padding(.vertical, 2)
+                .padding(2)
             }
         }
     }
@@ -176,79 +215,38 @@ struct HomeView: View {
     }
 }
 
-private struct StatPill: View {
-    let symbol: String
-    let color: Color
-    let value: String
-    let label: String
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: symbol)
-                .font(.title2)
-                .foregroundStyle(color)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(value)
-                    .font(.title2.weight(.bold).monospacedDigit())
-                Text(label)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-}
-
 private struct ModeCard: View {
     let mode: WritingMode
-    let passed: Int
+    let preview: LetterTemplate?
+    let practiced: Int
     let total: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(alignment: .top) {
+            WorksheetPreview(template: preview, mode: mode)
+                .frame(height: 170)
+            HStack(spacing: 10) {
                 Image(systemName: mode.symbol)
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 58, height: 58)
-                    .background(Color.white.opacity(0.2), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(mode.color)
+                Text(mode.rawValue)
+                    .font(.workbook(.title))
+                    .foregroundStyle(Color.ink)
                 Spacer()
-                ProgressRing(
-                    fraction: total == 0 ? 0 : Double(passed) / Double(total),
-                    label: "\(passed)/\(total)"
-                )
+                Image(systemName: "chevron.right")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
             }
-            Text(mode.rawValue)
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
             Text(mode.subtitle)
                 .font(.callout)
-                .foregroundStyle(Color.white.opacity(0.92))
+                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
-            Spacer(minLength: 0)
-            HStack(spacing: 8) {
-                Text(mode.callToAction)
-                Image(systemName: "arrow.right")
-            }
-            .font(.headline)
-            .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(Color.white.opacity(0.2), in: Capsule())
+            Text("\(practiced) of \(total) letters practised")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(mode.color)
         }
-        .padding(22)
-        .frame(maxWidth: .infinity, minHeight: 280, alignment: .topLeading)
-        .background(
-            LinearGradient(
-                colors: [mode.color, mode.color.opacity(0.72)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            ),
-            in: RoundedRectangle(cornerRadius: 26, style: .continuous)
-        )
-        .shadow(color: mode.color.opacity(0.3), radius: 14, y: 8)
+        .padding(16)
+        .paperCard(radius: 24)
     }
 }

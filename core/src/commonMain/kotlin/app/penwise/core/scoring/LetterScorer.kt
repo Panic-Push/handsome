@@ -30,14 +30,20 @@ class LetterScorer(private val samplesPerStroke: Int) {
 
         val forms = listOf(template.strokes) + template.alternates
         return forms
-            .map { form -> scoreForm(user, form.map { it.toVecs() }, mode, tol) }
+            .map { form -> scoreForm(user, form.map { it.toVecs() }, mode, tol, template.glyph) }
             .maxByOrNull { it.overall }!!
     }
 
-    private fun scoreForm(rawUser: List<List<Vec>>, rawTemplate: List<List<Vec>>, mode: Mode, tol: Tolerances): LetterScore {
-        // In Test mode the user writes freely, so judge shape after fitting the
-        // letter onto the template; size and baseline are judged separately.
-        val shapeUser = if (mode == Mode.TEST) fitOnto(rawUser, rawTemplate) else rawUser
+    private fun scoreForm(
+        rawUser: List<List<Vec>>,
+        rawTemplate: List<List<Vec>>,
+        mode: Mode,
+        tol: Tolerances,
+        glyph: String,
+    ): LetterScore {
+        // Outside Learn, judge shape after fitting the letter onto the template:
+        // size and baseline have their own scores, so position is not counted twice.
+        val shapeUser = if (mode == Mode.LEARN) rawUser else fitOnto(rawUser, rawTemplate)
 
         val u = shapeUser.map { Geometry.resample(it, samplesPerStroke) }
         val t = rawTemplate.map { Geometry.resample(it, samplesPerStroke) }
@@ -126,9 +132,12 @@ class LetterScorer(private val samplesPerStroke: Int) {
         }
         val overall = if (weight == 0.0) 0 else (sum / weight).roundToInt()
 
-        val issues = buildIssues(
-            mode, u.size, t.size, strokes, orderCorrect, incomplete, smoothness, sizeRatio, baselineOffset, tol,
-        )
+        val issues = IssueWriter(
+            mode = mode,
+            glyph = glyph,
+            templateStrokes = rawTemplate,
+            shapeScore = shapeScore,
+        ).write(u.size, strokes, orderCorrect, incomplete, smoothness, sizeRatio, baselineOffset, tol)
 
         return LetterScore(
             overall = overall,
@@ -142,59 +151,6 @@ class LetterScorer(private val samplesPerStroke: Int) {
             strokes = strokes,
             issues = issues,
         )
-    }
-
-    private fun buildIssues(
-        mode: Mode,
-        userCount: Int,
-        templateCount: Int,
-        strokes: List<StrokeFeedback>,
-        orderCorrect: Boolean?,
-        incomplete: Boolean,
-        smoothness: Int?,
-        sizeRatio: Double,
-        baselineOffset: Double,
-        tol: Tolerances,
-    ): List<Issue> {
-        val issues = mutableListOf<Issue>()
-        if (userCount != templateCount && mode != Mode.TEST) {
-            val noun = if (templateCount == 1) "stroke" else "strokes"
-            issues += Issue(IssueKind.STROKE_COUNT, -1, "This letter is written with $templateCount $noun; you used $userCount.")
-        }
-        if (incomplete) {
-            issues += Issue(IssueKind.INCOMPLETE, -1, "Part of the letter is missing. Follow the whole dotted path.")
-        }
-        strokes.filter { it.directionOk == false }.forEach {
-            issues += Issue(
-                IssueKind.STROKE_DIRECTION, it.templateIndex,
-                "Stroke ${it.templateIndex + 1} goes the wrong way. Start at the green dot and follow the arrow.",
-            )
-        }
-        if (orderCorrect == false && mode != Mode.LEARN) {
-            issues += Issue(IssueKind.STROKE_ORDER, -1, "Good shape, but the strokes are in the wrong order. Follow the numbers.")
-        }
-        if (mode != Mode.TEST) {
-            strokes.filter { it.startOk == false && it.directionOk != false }.forEach {
-                issues += Issue(IssueKind.START_POINT, it.templateIndex, "Start stroke ${it.templateIndex + 1} at the green dot.")
-            }
-        }
-        strokes.filter { it.distance > tol.shape * 0.5 }.forEach {
-            issues += Issue(
-                IssueKind.OFF_PATH, it.templateIndex,
-                "Stroke ${it.templateIndex + 1} drifts away from the letter shape. Slow down and follow the path.",
-            )
-        }
-        if (mode != Mode.LEARN) {
-            if (abs(baselineOffset) > 0.08) {
-                issues += Issue(IssueKind.OFF_BASELINE, -1, "Rest the letter on the baseline.")
-            }
-            if (sizeRatio > 1.25) issues += Issue(IssueKind.TOO_BIG, -1, "The letter is too big. Match the height of the guide lines.")
-            if (sizeRatio < 0.8) issues += Issue(IssueKind.TOO_SMALL, -1, "The letter is too small. Match the height of the guide lines.")
-        }
-        if (smoothness != null && smoothness < 70) {
-            issues += Issue(IssueKind.SHAKY, -1, "Your line is a little shaky. Try a steadier, more relaxed movement.")
-        }
-        return issues
     }
 
     private fun smoothnessScore(user: List<List<Vec>>, tol: Tolerances): Int {

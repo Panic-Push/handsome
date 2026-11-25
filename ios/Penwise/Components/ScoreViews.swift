@@ -102,7 +102,7 @@ struct PartChip: View {
 
 /// A letter with its stars and best score, used in grids.
 struct LetterTile: View {
-    let glyph: String
+    let template: LetterTemplate
     let best: Int?
     let color: Color
 
@@ -110,21 +110,19 @@ struct LetterTile: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(glyph)
-                .font(.system(size: 60, weight: .medium, design: .rounded))
-                .foregroundStyle(Color.primary)
-                .frame(height: 72)
+            LetterThumbnail(template: template, lineWidth: 4)
+                .frame(width: 80, height: 84)
             StarsView(count: ProgressStore.stars(for: best), size: 16)
             Text(best.map { "Best \($0)" } ?? "New")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 18)
-        .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .padding(.vertical, 16)
+        .background(Color.paperCard, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(passed ? color : Color.clear, lineWidth: 2.5)
+                .stroke(passed ? color : Color.cardBorder, lineWidth: passed ? 2.5 : 1)
         )
         .overlay(alignment: .topTrailing) {
             if passed {

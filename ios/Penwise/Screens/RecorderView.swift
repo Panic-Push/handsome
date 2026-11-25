@@ -16,7 +16,7 @@ struct RecorderView: View {
     @StateObject private var ink = InkModel()
     @State private var kind: Kind = .template
     @State private var glyph = "a"
-    @State private var style = "print-modern"
+    @State private var style = AppSettings.shared.style.rawValue
     @State private var canvasSize: CGSize = .zero
     @State private var savedFiles: [URL] = []
     @State private var message: String?

@@ -8,9 +8,17 @@ final class ProgressStore: ObservableObject {
     static let passMark = 80
 
     struct Entry: Codable {
+        /// Best score without hints.
         var best: Int
         var attempts: Int
         var last: Date
+    }
+
+    struct Attempt: Codable {
+        var score: Int
+        var date: Date
+        /// True when the guide was peeked at during a Test attempt.
+        var hinted: Bool
     }
 
     private struct Saved: Codable {
@@ -19,6 +27,8 @@ final class ProgressStore: ObservableObject {
         var attemptsByDay: [String: Int] = [:]
         var lastMode: String?
         var lastTemplateID: String?
+        /// Recent attempts per letter and mode (newest last).
+        var history: [String: [Attempt]]?
     }
 
     @Published private var saved: Saved
@@ -35,13 +45,19 @@ final class ProgressStore: ObservableObject {
 
     // MARK: - Recording
 
-    func record(score: Int, mode: WritingMode, templateID: String) {
+    func record(score: Int, mode: WritingMode, templateID: String, hinted: Bool = false) {
         let key = ProgressStore.key(mode, templateID)
         var entry = saved.entries[key] ?? Entry(best: 0, attempts: 0, last: Date())
-        entry.best = max(entry.best, score)
+        if !hinted { entry.best = max(entry.best, score) }
         entry.attempts += 1
         entry.last = Date()
         saved.entries[key] = entry
+
+        var history = saved.history ?? [:]
+        var list = history[key] ?? []
+        list.append(Attempt(score: score, date: Date(), hinted: hinted))
+        history[key] = Array(list.suffix(20))
+        saved.history = history
 
         let today = ProgressStore.dayString(Date())
         saved.attemptsByDay[today, default: 0] += 1
@@ -58,6 +74,23 @@ final class ProgressStore: ObservableObject {
 
     func best(_ mode: WritingMode, _ templateID: String) -> Int? {
         entry(mode, templateID)?.best
+    }
+
+    /// Most recent attempts first.
+    func recentAttempts(_ mode: WritingMode, _ templateID: String, limit: Int = 5) -> [Attempt] {
+        Array((saved.history?[ProgressStore.key(mode, templateID)] ?? []).suffix(limit).reversed())
+    }
+
+    /// Letters with at least one attempt in this mode.
+    func practicedCount(_ mode: WritingMode, templateIDs: [String]) -> Int {
+        templateIDs.filter { entry(mode, $0) != nil }.count
+    }
+
+    var isFirstVisit: Bool { saved.lastTemplateID == nil }
+
+    func reset() {
+        saved = Saved()
+        persist()
     }
 
     func passedCount(_ mode: WritingMode, templateIDs: [String]) -> Int {

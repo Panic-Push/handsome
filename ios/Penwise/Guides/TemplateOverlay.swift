@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Draws a letter template as a dotted path with numbered green start dots
+/// Draws a letter template as a dotted (or faint solid) path with numbered green start dots
 /// and an orange arrow showing which way each stroke goes. Strokes listed in
 /// `highlight` are drawn solid red so a mistake is easy to see.
 struct TemplateOverlay: View {
@@ -10,6 +10,8 @@ struct TemplateOverlay: View {
     var showArrows = true
     var showDots = true
     var pathOpacity: Double = 0.55
+    /// Draw the path as a solid faint line (a model to write over) instead of dots.
+    var solidPath = false
     var highlight: Set<Int> = []
 
     var body: some View {
@@ -30,10 +32,16 @@ struct TemplateOverlay: View {
                             with: .color(Color.red.opacity(0.7)),
                             style: StrokeStyle(lineWidth: max(5, unit * 0.04), lineCap: .round, lineJoin: .round)
                         )
+                    } else if solidPath {
+                        context.stroke(
+                            path,
+                            with: .color(Color.ink.opacity(pathOpacity)),
+                            style: StrokeStyle(lineWidth: max(5, unit * 0.045), lineCap: .round, lineJoin: .round)
+                        )
                     } else {
                         context.stroke(
                             path,
-                            with: .color(Color.gray.opacity(pathOpacity)),
+                            with: .color(Color.ink.opacity(pathOpacity * 0.8)),
                             style: StrokeStyle(
                                 lineWidth: max(4, unit * 0.035),
                                 lineCap: .round,

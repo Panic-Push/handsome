@@ -4,9 +4,9 @@ import SwiftUI
 extension WritingMode {
     var color: Color {
         switch self {
-        case .learn: return Color(red: 0.16, green: 0.45, blue: 0.96)
-        case .practice: return Color(red: 0.98, green: 0.55, blue: 0.12)
-        case .test: return Color(red: 0.55, green: 0.32, blue: 0.92)
+        case .learn: return Color(red: 0.18, green: 0.38, blue: 0.72)
+        case .practice: return Color(red: 0.80, green: 0.46, blue: 0.12)
+        case .test: return Color(red: 0.48, green: 0.28, blue: 0.62)
         }
     }
 
@@ -20,17 +20,17 @@ extension WritingMode {
 
     var subtitle: String {
         switch self {
-        case .learn: return "Watch each letter being written, then trace it with arrows and dots to guide you."
-        case .practice: return "Write over a faint letter and build muscle memory for shape and stroke order."
-        case .test: return "Write from memory on plain lines. Size, slant and baseline all count."
+        case .learn: return "Watch the letter, then trace it from the start dot."
+        case .practice: return "Write over a faint model, then with less guide."
+        case .test: return "Write from memory on blank lines."
         }
     }
 
     var callToAction: String {
         switch self {
-        case .learn: return "Start tracing"
-        case .practice: return "Start practising"
-        case .test: return "Take a test"
+        case .learn: return "Continue to Learn"
+        case .practice: return "Continue to Practice"
+        case .test: return "Continue to Test"
         }
     }
 }

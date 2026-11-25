@@ -23,18 +23,20 @@ struct GuideLayout: Equatable {
         origin.y + lineUnits * unit
     }
 
-    /// Centres a letter of the given width (in line units) in the available space.
-    static func fit(in size: CGSize, letterWidth: CGFloat) -> GuideLayout {
+    /// Places a letter of the given width (in line units) in the available space.
+    /// `large` uses bigger writing lines. The letter sits a little away from the
+    /// writing hand's side, leaving room for the palm.
+    static func fit(in size: CGSize, letterWidth: CGFloat, large: Bool = false, leftHanded: Bool = false) -> GuideLayout {
         guard size.width > 0, size.height > 0 else {
             return GuideLayout(origin: .zero, unit: 1)
         }
-        let byHeight = size.height / 1.9
+        let byHeight = size.height / 1.75
         let byWidth = size.width / max(letterWidth + 0.8, 1.4)
-        let unit = max(80, min(byHeight, byWidth, 340))
-        let origin = CGPoint(
-            x: (size.width - letterWidth * unit) / 2,
-            y: (size.height - 1.5 * unit) / 2
-        )
-        return GuideLayout(origin: origin, unit: unit)
+        let cap: CGFloat = large ? 380 : 260
+        let unit = max(60, min(byHeight, byWidth, cap))
+        let letter = letterWidth * unit
+        let centre = size.width * (leftHanded ? 0.58 : 0.42)
+        let x = min(max(centre - letter / 2, 16), max(16, size.width - letter - 16))
+        return GuideLayout(origin: CGPoint(x: x, y: (size.height - 1.5 * unit) / 2), unit: unit)
     }
 }

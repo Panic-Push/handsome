@@ -75,14 +75,17 @@ With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 
 ## What to test
 
-**Home and navigation (UI update)**
-- [ ] Home shows a greeting, streak, letters today, and big Learn / Practice / Test cards with progress rings.
-- [ ] The ad banner placeholder sits at the bottom of Home only.
-- [ ] Tapping a mode opens its letters with stars, best scores and an "Up next" letter.
-- [ ] After a few letters, "Continue where you left off" and "Your letters" appear and update.
-- [ ] Learn plays an animated demo of the letter; **Watch** replays it.
-- [ ] A score of 85+ gives confetti and a haptic tap; stars pop in; **Next letter** moves on.
-- [ ] The Recorder is under the wrench button (top right of Home).
+**Workbook redesign**
+- [ ] Home: cream paper look; Print / Cursive switch; three mode cards with worksheet previews drawn from the real letter (Learn: dot and arrow, Practice: faint model, Test: blank lines).
+- [ ] First visit shows **Start with c**; after writing, it changes to **Continue Practice · lowercase a** (or similar).
+- [ ] Cards say "3 of 7 letters practised"; the ad space sits below the cards.
+- [ ] Tapping a mode shows the mode screen with the second ad space and **Continue to …**; Back from the letters returns to Home. With *Settings › Show ad placeholders* off, it goes straight to the letters.
+- [ ] Writing: the page fills the screen; Letter, Watch again, Undo, Clear and Options are in the top bar; **Check** stays in the same place.
+- [ ] After Check: one correction in large text (for example "Bring the bottom of the o down to the baseline", with the baseline turned red). **Try again** is the main button; the score is under **Details**.
+- [ ] After a retry: your first try appears dotted grey, with a note such as "Your new o sits on the baseline."
+- [ ] Practice: **Try with less guide** switches to lines only. Test: the target letter is in the corner; peeking marks the try **With hint**.
+- [ ] Options: Large writing size and Left hand move the letter and make room for your palm.
+- [ ] Cursive: c o a d l t i in cursive, with lead-ins and exit strokes.
 
 **Write letters (Milestone 3)**
 - [ ] Pick a letter and a mode, write it, tap **Check**: a score from 0 to 100 appears with one tip.

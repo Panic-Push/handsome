@@ -7,7 +7,7 @@ enum class Mode {
     /** Trace over the dotted letter. Judges path, start point and direction. */
     LEARN,
 
-    /** Write with fading guides. Adds stroke order, smoothness, size and baseline. */
+    /** Write over a faint model. Adds stroke order, smoothness, size and baseline; shape is judged after fitting. */
     PRACTICE,
 
     /** Free writing on ruled lines. Shape is judged after scaling, size and baseline separately. */

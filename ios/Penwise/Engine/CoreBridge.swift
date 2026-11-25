@@ -15,9 +15,9 @@ enum WritingMode: String, CaseIterable, Identifiable {
 
     var instruction: String {
         switch self {
-        case .learn: return "Trace the dotted letter. Start at the green dot and follow the arrow."
-        case .practice: return "Write over the faint letter. Remember the stroke order."
-        case .test: return "Write the letter on the lines from memory."
+        case .learn: return "Watch the demo, then trace the dotted letter from the green dot."
+        case .practice: return "Write over the faint letter."
+        case .test: return "Write the letter from memory."
         }
     }
 
@@ -42,8 +42,17 @@ struct ScoreResult {
     /// The single most useful tip, or nil when the letter is good.
     let tip: String?
     let issues: [String]
+    /// Issue kinds, most important first, e.g. "OFF_BASELINE".
+    let issueKinds: [String]
     /// Template strokes (0-based) to highlight as needing work.
     let problemStrokes: Set<Int>
+
+    /// The kind of the issue the tip is about.
+    var primaryKind: String? { issueKinds.first }
+
+    func part(_ name: String) -> Int? {
+        parts.first { $0.name == name }?.value
+    }
 }
 
 enum CoreBridge {
@@ -101,6 +110,7 @@ enum CoreBridge {
             parts: parts,
             tip: s.tip,
             issues: s.issues.map { $0.message },
+            issueKinds: s.issues.map { $0.kind.name },
             problemStrokes: problems
         )
     }
