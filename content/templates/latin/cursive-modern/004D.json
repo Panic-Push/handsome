@@ -1,0 +1,41 @@
+{
+ "id": "latin.cursive-modern.M",
+ "glyph": "M",
+ "script": "latin",
+ "style": "cursive-modern",
+ "width": 0.72,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "points": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.36,
+     0.72
+    ],
+    [
+     0.72,
+     0.0
+    ],
+    [
+     0.72,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

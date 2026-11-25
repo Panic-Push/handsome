@@ -1,0 +1,33 @@
+{
+ "id": "latin.cursive-traditional.T",
+ "glyph": "T",
+ "script": "latin",
+ "style": "cursive-traditional",
+ "width": 0.6449,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.0049,
+     0.0
+    ],
+    [
+     0.6449,
+     0.0
+    ]
+   ]
+  },
+  {
+   "points": [
+    [
+     0.3249,
+     0.0
+    ],
+    [
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

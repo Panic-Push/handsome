@@ -1,0 +1,37 @@
+{
+ "id": "latin.print-modern.N",
+ "glyph": "N",
+ "script": "latin",
+ "style": "print-modern",
+ "width": 0.62,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "points": [
+    [
+     0.0,
+     0.0
+    ],
+    [
+     0.62,
+     1.0
+    ],
+    [
+     0.62,
+     0.0
+    ]
+   ]
+  }
+ ]
+}

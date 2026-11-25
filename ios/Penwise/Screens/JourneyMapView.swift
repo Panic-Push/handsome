@@ -6,8 +6,7 @@ struct JourneyMapView: View {
     let journeyID: String
     @Binding var path: [Route]
 
-    @State private var choice: LessonPosition?
-    @State private var choosingMode = false
+    @State private var choice: LetterChoice?
     @ObservedObject private var store = JourneyStore.shared
     @ObservedObject private var progress = ProgressStore.shared
     private let library = TemplateLibrary.shared
@@ -63,24 +62,16 @@ struct JourneyMapView: View {
                 }
             }
         }
-        .confirmationDialog("How would you like to write?", isPresented: $choosingMode, titleVisibility: .visible) {
-            if let p = choice, let journey, let chapter = journey.chapter(p.chapterID) {
-                let letters = store.letters(chapter, in: journey)
-                if letters.indices.contains(p.letterIndex) {
-                    ForEach(WritingMode.allCases) { mode in
-                        Button("\(mode.rawValue) \(letters[p.letterIndex])") {
-                            if mode == .learn && !chapter.isCheckpoint {
-                                path.append(.lesson(p, review: p != store.position(in: journey)))
-                            } else {
-                                let glyph = letters[p.letterIndex]
-                                path.append(.write(mode, journey.templateID(glyph)))
-                            }
-                        }
-                    }
-                    if chapter.isCheckpoint {
-                        Button("Take checkpoint") { path.append(.lesson(p, review: p != store.position(in: journey))) }
-                    }
+        .sheet(item: $choice) { picked in
+            if let journey {
+                ModeChoiceSheet(choice: picked, journey: journey) { route in
+                    choice = nil
+                    // Navigate once the card has started to close.
+                    DispatchQueue.main.async { path.append(route) }
                 }
+                .presentationDetents([.height(picked.isCheckpoint ? 470 : 430)])
+                .presentationDragIndicator(.visible)
+                .presentationCornerRadius(28)
             }
         }
         .navigationTitle(journey?.title ?? "Journey")
@@ -163,9 +154,11 @@ struct JourneyMapView: View {
                         let isDone = store.isComplete(glyph, chapter, in: journey)
                         tile(glyph: glyph, order: index + 1, isCurrent: isCurrent, isDone: isDone,
                              needsReview: isDone && store.needsReview(glyph, in: journey), in: journey) {
-                            choice = isCurrent ? current : LessonPosition(journeyID: journey.id, chapterID: chapter.id,
-                                                                          letterIndex: index, step: chapter.steps[0])
-                            choosingMode = true
+                            let position = isCurrent ? current : LessonPosition(journeyID: journey.id, chapterID: chapter.id,
+                                                                                letterIndex: index, step: chapter.steps[0])
+                            choice = LetterChoice(position: position, glyph: glyph, chapterTitle: chapter.title,
+                                                  isCheckpoint: chapter.isCheckpoint,
+                                                  isSavedPlace: position == store.position(in: journey))
                         }
                         .id("\(chapter.id)-\(index)")
                         .position(centers[index])
@@ -225,5 +218,101 @@ struct JourneyMapView: View {
 
     private func chapterColor(_ number: Int) -> Color {
         [WritingMode.learn.color, WritingMode.practice.color, WritingMode.test.color][(number - 1) % 3]
+    }
+}
+
+/// The letter tapped on the map, and where it sits in the course.
+struct LetterChoice: Identifiable {
+    let position: LessonPosition
+    let glyph: String
+    let chapterTitle: String
+    let isCheckpoint: Bool
+    let isSavedPlace: Bool
+
+    var id: String { "\(position.chapterID)-\(position.letterIndex)" }
+}
+
+/// A card for choosing how to write the tapped letter. Each choice keeps
+/// going from this letter through the rest of the course, one after another.
+private struct ModeChoiceSheet: View {
+    let choice: LetterChoice
+    let journey: Journey
+    let open: (Route) -> Void
+
+    private let library = TemplateLibrary.shared
+
+    private var template: LetterTemplate? { library.template(id: journey.templateID(choice.glyph)) }
+
+    /// Course letters from the tapped one to the end, in course order.
+    private var remaining: [String] {
+        let all = journey.chapters.filter { !$0.isCheckpoint }.flatMap(\.letters)
+        guard let start = all.firstIndex(of: choice.glyph) else { return [choice.glyph] }
+        return Array(all[start...])
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 16) {
+                if let template {
+                    LetterThumbnail(template: template, lineWidth: 4)
+                        .frame(width: 72, height: 80)
+                        .background(Color.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Write \(choice.glyph)")
+                        .font(.workbook(.largeTitle, weight: .bold))
+                        .foregroundStyle(Color.ink)
+                    Text("\(choice.chapterTitle) · then on through the course, one letter after another")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 0)
+            }
+
+            HStack(spacing: 14) {
+                ForEach(WritingMode.allCases) { mode in
+                    Button { pick(mode) } label: {
+                        VStack(alignment: .leading, spacing: 10) {
+                            WorksheetPreview(template: template, mode: mode)
+                                .frame(height: 110)
+                            Label(mode.rawValue, systemImage: mode.symbol)
+                                .font(.headline)
+                                .foregroundStyle(mode.color)
+                            Text(mode.cardLabel)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(12)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(mode.color.opacity(0.08), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(mode.color.opacity(0.35), lineWidth: 1.5))
+                    }
+                    .buttonStyle(PressableStyle())
+                    .accessibilityHint(mode == .learn ? "Starts the guided lesson" : "Writes the letters in a row")
+                }
+            }
+
+            if choice.isCheckpoint {
+                Button { open(.lesson(choice.position, review: !choice.isSavedPlace)) } label: {
+                    Label("Take the checkpoint", systemImage: "flag.checkered")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color.courseViolet)
+            }
+        }
+        .padding(24)
+        .background(Color.paperCard)
+    }
+
+    private func pick(_ mode: WritingMode) {
+        if mode == .learn && !choice.isCheckpoint {
+            open(.lesson(choice.position, review: !choice.isSavedPlace))
+        } else {
+            let ids = remaining.map { journey.templateID($0) }
+            open(.set(mode, "\(mode.rawValue) from \(choice.glyph)", ids, shuffled: false))
+        }
     }
 }

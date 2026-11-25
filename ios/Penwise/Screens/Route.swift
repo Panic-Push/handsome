@@ -12,7 +12,8 @@ enum Route: Hashable {
     case letters(WritingMode)
     case sentences(LetterStyle, WritingMode, String?)
     case write(WritingMode, String)
-    case set(WritingMode, String, [String])
+    /// A run of letters written one after another. Memory tests may shuffle them.
+    case set(WritingMode, String, [String], shuffled: Bool = false)
     case journeyMap(String)
     case lesson(LessonPosition, review: Bool)
     case recap(String)

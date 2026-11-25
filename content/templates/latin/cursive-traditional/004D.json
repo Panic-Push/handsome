@@ -1,0 +1,41 @@
+{
+ "id": "latin.cursive-traditional.M",
+ "glyph": "M",
+ "script": "latin",
+ "style": "cursive-traditional",
+ "width": 1.0449,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.3249,
+     0.0
+    ],
+    [
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "points": [
+    [
+     0.3249,
+     0.0
+    ],
+    [
+     0.451,
+     0.72
+    ],
+    [
+     1.0449,
+     0.0
+    ],
+    [
+     0.72,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

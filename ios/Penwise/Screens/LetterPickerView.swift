@@ -33,7 +33,7 @@ struct LetterPickerView: View {
     }
 
     private func activity(_ title: String, glyphs: [String], course: Journey) -> some View {
-        NavigationLink(value: Route.set(mode, title, glyphs.map { course.templateID($0) })) {
+        NavigationLink(value: Route.set(mode, title, glyphs.map { course.templateID($0) }, shuffled: mode == .test)) {
             VStack(alignment: .leading, spacing: 8) {
                 Image(systemName: mode.symbol).foregroundStyle(mode.color)
                 Text(title).font(.headline)
@@ -305,7 +305,8 @@ struct SentenceWorksheet: View {
     }
 }
 
-/// Uses bundled lowercase pen paths; capitals and punctuation retain their printed form.
+/// Draws the sentence from the letter templates (lowercase and capitals);
+/// punctuation keeps its printed form. Capitals don't join on to the next letter.
 private struct SentenceModel: View {
     let text: String
     let style: LetterStyle
@@ -341,7 +342,7 @@ private struct SentenceModel: View {
                             path.addLine(to: first)
                         } else { path.move(to: first) }
                         for point in points.dropFirst() { path.addLine(to: point) }
-                        if j == 0 { lastExit = points.last }
+                        if j == 0 { lastExit = t.glyph.lowercased() == t.glyph ? points.last : nil }
                     }
                     context.stroke(path.trimmedPath(from: 0, to: part), with: .color(.ink),
                                    style: StrokeStyle(lineWidth: max(1.5, unit * 0.045), lineCap: .round, lineJoin: .round))

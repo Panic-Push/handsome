@@ -75,6 +75,11 @@ With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 
 ## What to test
 
+**Capitals, letter card and continuous writing**
+- [ ] Capitals A–Z exist in Normal, Classic and Traditional; the sentence worksheet draws "Rain taps the roof." with a handwritten R (no typed letters).
+- [ ] Tapping a letter on the chapter map opens a card with three worksheet previews (Learn, Practice, Test) instead of the plain action sheet.
+- [ ] Practice or Test from the card keeps going through the rest of the course, one letter after another, in order.
+
 **Full lowercase alphabet**
 - [ ] Three course books on Home: Normal, Classic and Traditional; each opens a 6-chapter journey covering a–z plus a checkpoint.
 - [ ] Every letter a–z appears in Learn, Practice and Test for each style.

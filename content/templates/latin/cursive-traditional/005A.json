@@ -1,0 +1,29 @@
+{
+ "id": "latin.cursive-traditional.Z",
+ "glyph": "Z",
+ "script": "latin",
+ "style": "cursive-traditional",
+ "width": 0.9449,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.3249,
+     0.0
+    ],
+    [
+     0.9449,
+     0.0
+    ],
+    [
+     0.0,
+     1.0
+    ],
+    [
+     0.64,
+     1.0
+    ]
+   ]
+  }
+ ]
+}

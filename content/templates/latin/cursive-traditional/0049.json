@@ -1,0 +1,61 @@
+{
+ "id": "latin.cursive-traditional.I",
+ "glyph": "I",
+ "script": "latin",
+ "style": "cursive-traditional",
+ "width": 0.5649,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.4449,
+     0.0
+    ],
+    [
+     0.12,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "alternates": [
+  [
+   {
+    "points": [
+     [
+      0.4449,
+      0.0
+     ],
+     [
+      0.12,
+      1.0
+     ]
+    ]
+   },
+   {
+    "points": [
+     [
+      0.3249,
+      0.0
+     ],
+     [
+      0.5649,
+      0.0
+     ]
+    ]
+   },
+   {
+    "points": [
+     [
+      0.0,
+      1.0
+     ],
+     [
+      0.24,
+      1.0
+     ]
+    ]
+   }
+  ]
+ ]
+}

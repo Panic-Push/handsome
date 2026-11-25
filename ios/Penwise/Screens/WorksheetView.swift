@@ -5,7 +5,7 @@ import UIKit
 /// of a journey lesson.
 enum WorksheetContext: Hashable {
     case free(WritingMode, String)
-    case set(WritingMode, String, [String])
+    case set(WritingMode, String, [String], shuffled: Bool = false)
     case lesson(LessonPosition, review: Bool)
 }
 
@@ -72,9 +72,9 @@ struct WorksheetView: View {
     init(context: WorksheetContext, path: Binding<[Route]>) {
         _path = path
         switch context {
-        case .set(let mode, let title, let ids):
+        case .set(let mode, let title, let ids, let shuffled):
             setTitle = title
-            _setLetters = State(initialValue: mode == .test ? ids.shuffled() : ids)
+            _setLetters = State(initialValue: shuffled ? ids.shuffled() : ids)
             _freeMode = State(initialValue: mode)
             _freeTemplateID = State(initialValue: "")
             _position = State(initialValue: nil)

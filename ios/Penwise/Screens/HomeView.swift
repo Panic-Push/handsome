@@ -63,8 +63,8 @@ struct HomeView: View {
             SentenceWorksheet(style: style, mode: mode, focus: glyph)
         case .write(let mode, let templateID):
             WorksheetView(context: .free(mode, templateID), path: $path)
-        case .set(let mode, let title, let ids):
-            WorksheetView(context: .set(mode, title, ids), path: $path)
+        case .set(let mode, let title, let ids, let shuffled):
+            WorksheetView(context: .set(mode, title, ids, shuffled: shuffled), path: $path)
         case .journeyMap(let id):
             JourneyMapView(journeyID: id, path: $path)
         case .lesson(let position, let review):

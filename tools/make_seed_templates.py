@@ -11,6 +11,7 @@ Styles:
   cursive-traditional  "Traditional": slanted joined letters with loops
 Each cursive style also accepts the other's looped/plain form of b f h k l
 and the descender letters as an alternate, so either is scored as correct.
+Capitals A-Z are shared by Normal and Classic, and slanted for Traditional.
 """
 import json
 import math
@@ -220,6 +221,63 @@ def cursive_letters(looped):
     return letters
 
 
+
+# ---------------------------------------------------------------- capitals
+# Clean capitals for every style; they reach from the baseline (1.0) to the
+# top line (0.0). Classic uses them upright and Traditional slanted, as in
+# italic handwriting, where capitals stay close to print.
+
+def capital_letters():
+    return {
+        "A": dict(strokes=[line((0.32, 0.0), (0.0, 1.0)), line((0.32, 0.0), (0.64, 1.0)),
+                           line((0.12, 0.62), (0.52, 0.62))]),
+        "B": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)),
+                           J(line((0.0, 0.0), (0.26, 0.0)), arc(0.26, 0.24, 0.22, 0.24, 90, -90, n=16),
+                             line((0.26, 0.48), (0.0, 0.48))),
+                           J(line((0.0, 0.48), (0.3, 0.48)), arc(0.3, 0.74, 0.25, 0.26, 90, -90, n=16),
+                             line((0.3, 1.0), (0.0, 1.0)))]),
+        "C": dict(strokes=[arc(0.44, 0.5, 0.44, 0.5, 45, 315, n=36)]),
+        "D": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)),
+                           J(line((0.0, 0.0), (0.24, 0.0)), arc(0.24, 0.5, 0.38, 0.5, 90, -90, n=28),
+                             line((0.24, 1.0), (0.0, 1.0)))]),
+        "E": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)), line((0.0, 0.0), (0.5, 0.0)),
+                           line((0.0, 0.5), (0.42, 0.5)), line((0.0, 1.0), (0.52, 1.0))],
+                  alternates=[[line((0.5, 0.0), (0.0, 0.0), (0.0, 1.0), (0.52, 1.0)), line((0.0, 0.5), (0.42, 0.5))]]),
+        "F": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)), line((0.0, 0.0), (0.5, 0.0)), line((0.0, 0.5), (0.42, 0.5))],
+                  alternates=[[line((0.5, 0.0), (0.0, 0.0), (0.0, 1.0)), line((0.0, 0.5), (0.42, 0.5))]]),
+        "G": dict(strokes=[J(arc(0.45, 0.5, 0.45, 0.5, 45, 352, n=36), line((0.896, 0.57), (0.896, 0.57)),
+                             line((0.896, 0.57), (0.56, 0.57)))]),
+        "H": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)), line((0.62, 0.0), (0.62, 1.0)), line((0.0, 0.5), (0.62, 0.5))]),
+        "I": dict(strokes=[line((0.12, 0.0), (0.12, 1.0))],
+                  alternates=[[line((0.12, 0.0), (0.12, 1.0)), line((0.0, 0.0), (0.24, 0.0)), line((0.0, 1.0), (0.24, 1.0))]]),
+        "J": dict(strokes=[J(line((0.42, 0.0), (0.42, 0.74)), arc(0.22, 0.74, 0.2, 0.26, 0, -180, n=20))]),
+        "K": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)), line((0.56, 0.0), (0.02, 0.56), (0.6, 1.0))],
+                  alternates=[[line((0.0, 0.0), (0.0, 1.0)), line((0.56, 0.0), (0.02, 0.56)), line((0.2, 0.4), (0.6, 1.0))]]),
+        "L": dict(strokes=[line((0.0, 0.0), (0.0, 1.0), (0.5, 1.0))]),
+        "M": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)), line((0.0, 0.0), (0.36, 0.72), (0.72, 0.0), (0.72, 1.0))]),
+        "N": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)), line((0.0, 0.0), (0.62, 1.0), (0.62, 0.0))]),
+        "O": dict(strokes=[arc(0.46, 0.5, 0.46, 0.5, 90, 450, n=40)]),
+        "P": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)),
+                           J(line((0.0, 0.0), (0.28, 0.0)), arc(0.28, 0.26, 0.24, 0.26, 90, -90, n=16),
+                             line((0.28, 0.52), (0.0, 0.52)))]),
+        "Q": dict(strokes=[arc(0.46, 0.5, 0.46, 0.5, 90, 450, n=40), line((0.56, 0.72), (0.92, 1.06))]),
+        "R": dict(strokes=[line((0.0, 0.0), (0.0, 1.0)),
+                           J(line((0.0, 0.0), (0.28, 0.0)), arc(0.28, 0.26, 0.24, 0.26, 90, -90, n=16),
+                             line((0.28, 0.52), (0.0, 0.52))),
+                           line((0.24, 0.52), (0.58, 1.0))]),
+        "S": dict(strokes=[S((0.6, 0.12), (0.4, 0.0), (0.14, 0.04), (0.05, 0.22), (0.2, 0.42), (0.46, 0.55),
+                             (0.62, 0.74), (0.56, 0.94), (0.32, 1.0), (0.08, 0.95), (0.0, 0.85))]),
+        "T": dict(strokes=[line((0.0, 0.0), (0.64, 0.0)), line((0.32, 0.0), (0.32, 1.0))]),
+        "U": dict(strokes=[J(line((0.0, 0.0), (0.0, 0.68)), arc(0.3, 0.68, 0.3, 0.32, 180, 360, n=20),
+                             line((0.6, 0.68), (0.6, 0.0)))]),
+        "V": dict(strokes=[line((0.0, 0.0), (0.32, 1.0), (0.64, 0.0))]),
+        "W": dict(strokes=[line((0.0, 0.0), (0.21, 1.0), (0.42, 0.3), (0.63, 1.0), (0.84, 0.0))]),
+        "X": dict(strokes=[line((0.0, 0.0), (0.62, 1.0)), line((0.62, 0.0), (0.0, 1.0))]),
+        "Y": dict(strokes=[line((0.0, 0.0), (0.32, 0.5)), line((0.64, 0.0), (0.32, 0.5), (0.32, 1.0))],
+                  alternates=[[line((0.0, 0.0), (0.32, 0.5)), line((0.64, 0.0), (0.32, 0.5)), line((0.32, 0.5), (0.32, 1.0))]]),
+        "Z": dict(strokes=[line((0.0, 0.0), (0.62, 0.0), (0.0, 1.0), (0.64, 1.0))]),
+    }
+
 # Letters whose looped and plain forms differ (each style accepts the other).
 LOOP_LETTERS = set("bfhklgjyz")
 
@@ -236,6 +294,11 @@ def styles():
         out["cursive-modern"][g] = dict(strokes=plain[g], alternates=alt_plain)
         alt_trad = [slanted(plain[g])] if g in LOOP_LETTERS else []
         out["cursive-traditional"][g] = dict(strokes=slanted(loops[g]), alternates=alt_trad)
+    for g, spec in capital_letters().items():
+        alts = spec.get("alternates", [])
+        out["print-modern"][g] = dict(strokes=spec["strokes"], alternates=alts)
+        out["cursive-modern"][g] = dict(strokes=spec["strokes"], alternates=alts)
+        out["cursive-traditional"][g] = dict(strokes=slanted(spec["strokes"]), alternates=[slanted(a) for a in alts])
     return out
 
 
@@ -259,6 +322,8 @@ def main():
     for style, letters in styles().items():
         out = ROOT / style
         out.mkdir(parents=True, exist_ok=True)
+        for old in out.glob("*.json"):
+            old.unlink()
         for glyph, spec in letters.items():
             strokes, alternates, width = normalise(spec)
             doc = {"id": f"latin.{style}.{glyph}", "glyph": glyph, "script": "latin", "style": style,
