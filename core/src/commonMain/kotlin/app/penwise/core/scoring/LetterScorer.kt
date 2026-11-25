@@ -90,7 +90,8 @@ class LetterScorer(private val samplesPerStroke: Int) {
 
         val missing = Geometry.directedDistance(tAll, uAll)
         val extra = Geometry.directedDistance(uAll, tAll)
-        val incomplete = missing > tol.shape * 0.6 && missing > extra * 2
+        val missingStrokes = if (u.size < t.size) findMissing(rawUser, rawTemplate, t.size - u.size) else emptyList()
+        val incomplete = missingStrokes.isEmpty() && missing > tol.shape * 0.6 && missing > extra * 2
 
         val orderScore: Int? = when {
             mode == Mode.LEARN -> null
@@ -107,8 +108,10 @@ class LetterScorer(private val samplesPerStroke: Int) {
         var sizeRatio = 1.0
         var baselineOffset = 0.0
         if (mode != Mode.LEARN) {
-            val ub = Geometry.bounds(rawUser.flatten())
-            val tb = Geometry.bounds(rawTemplate.flatten())
+            // Dots are left out of size and baseline, so a missing or high dot
+            // does not make the letter look too small or too big.
+            val ub = boundsWithoutDots(rawUser)
+            val tb = boundsWithoutDots(rawTemplate)
             sizeRatio = if (tb.height > 0.05 && ub.height > 1e-6) ub.height / tb.height
             else if (ub.diagonal > 1e-6) ub.diagonal / tb.diagonal else 1.0
             sizeScore = toScore(abs(ln(sizeRatio)), tol.sizeLog)
@@ -137,7 +140,7 @@ class LetterScorer(private val samplesPerStroke: Int) {
             glyph = glyph,
             templateStrokes = rawTemplate,
             shapeScore = shapeScore,
-        ).write(u.size, strokes, orderCorrect, incomplete, smoothness, sizeRatio, baselineOffset, tol)
+        ).write(u.size, strokes, missingStrokes, orderCorrect, incomplete, smoothness, sizeRatio, baselineOffset, tol)
 
         return LetterScore(
             overall = overall,
@@ -167,9 +170,33 @@ class LetterScorer(private val samplesPerStroke: Int) {
     }
 
     /** Scales and moves the user's letter so its bounding box matches the template's. */
+    /**
+     * Template strokes the user left out (e.g. the dot on i, the crossbar on t).
+     * The ink is lined up horizontally with the letter but kept on its ruled
+     * lines, then the [count] template strokes it covers worst are reported,
+     * as long as they are clearly uncovered.
+     */
+    private fun findMissing(user: List<List<Vec>>, template: List<List<Vec>>, count: Int): List<Int> {
+        val ink = user.flatten()
+        if (ink.isEmpty()) return emptyList()
+        val dx = boundsWithoutDots(template).center.x - Geometry.bounds(ink).center.x
+        val shifted = ink.map { Vec(it.x + dx, it.y) }
+        return template.indices
+            .map { i -> i to Geometry.directedDistance(Geometry.resample(template[i], 16), shifted) }
+            .filter { it.second > MISSING_DISTANCE }
+            .sortedByDescending { it.second }
+            .take(count)
+            .map { it.first }
+            .sorted()
+    }
+
+    /** Bounds of the strokes that are not dots (falls back to everything). */
+    private fun boundsWithoutDots(strokes: List<List<Vec>>) =
+        Geometry.bounds(strokes.filter { Geometry.pathLength(it) >= TINY_STROKE }.flatten().ifEmpty { strokes.flatten() })
+
     private fun fitOnto(user: List<List<Vec>>, template: List<List<Vec>>): List<List<Vec>> {
-        val ub = Geometry.bounds(user.flatten())
-        val tb = Geometry.bounds(template.flatten())
+        val ub = boundsWithoutDots(user)
+        val tb = boundsWithoutDots(template)
         if (ub.diagonal < 1e-9) return user
         val s = tb.diagonal / ub.diagonal
         return user.map { stroke -> stroke.map { (it - ub.center) * s + tb.center } }
@@ -184,6 +211,9 @@ class LetterScorer(private val samplesPerStroke: Int) {
     companion object {
         /** Strokes shorter than this (dots, e.g. on i and j) skip direction and start checks. */
         const val TINY_STROKE = 0.06
+
+        /** A template stroke this far (line units) from any ink counts as left out. */
+        const val MISSING_DISTANCE = 0.05
 
         /** Distance → 0..100. Within 15% of the tolerance counts as perfect. */
         fun toScore(distance: Double, tolerance: Double): Int {

@@ -42,3 +42,8 @@ tasks.withType<Test>().configureEach {
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
 }
+
+// Content tests read ../content; declare it so edits there re-run the tests.
+tasks.named<Test>("jvmTest") {
+    inputs.dir(rootProject.file("content")).withPropertyName("content")
+}

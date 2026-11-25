@@ -29,6 +29,8 @@ final class InkModel: ObservableObject {
     @Published var pencilOnly = true
     @Published private(set) var strokeCount = 0
     @Published private(set) var revision = 0
+    /// True while the pen or finger is down (a stroke is being drawn).
+    @Published private(set) var isDrawing = false
 
     weak var canvas: PKCanvasView?
 
@@ -44,6 +46,10 @@ final class InkModel: ObservableObject {
         }
         strokeCount = drawing.strokes.count
         revision += 1
+    }
+
+    func setDrawing(_ drawing: Bool) {
+        if isDrawing != drawing { isDrawing = drawing }
     }
 
     func undo() {

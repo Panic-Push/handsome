@@ -38,9 +38,12 @@ struct SettingsView: View {
                 }
             }
             .confirmationDialog("Reset all progress?", isPresented: $confirmReset, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) { ProgressStore.shared.reset() }
+                Button("Reset", role: .destructive) {
+                    ProgressStore.shared.reset()
+                    JourneyStore.shared.reset()
+                }
             } message: {
-                Text("Best scores, attempts and streak will be cleared on this iPad.")
+                Text("Best scores, attempts, streak and journey progress will be cleared on this iPad.")
             }
         }
     }

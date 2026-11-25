@@ -120,10 +120,35 @@ class LetterScorerTest {
     }
 
     @Test
-    fun missingStrokeIsReportedAsStrokeCount() {
+    fun missingCrossbarIsNamedInEveryMode() {
         val onlyStem = listOf(strokesOf(TestInk.t).first())
-        val s = scorer.score(ink(onlyStem), TestInk.t, Mode.PRACTICE)
-        assertEquals(IssueKind.STROKE_COUNT, s.issues.first().kind)
+        for (mode in Mode.entries) {
+            val s = scorer.score(ink(onlyStem), TestInk.t, mode)
+            val first = s.issues.first()
+            assertEquals(IssueKind.MISSING_STROKE, first.kind, "$mode: ${s.issues}")
+            assertEquals(1, first.strokeIndex)
+            assertEquals("Add the crossbar.", first.message)
+        }
+    }
+
+    @Test
+    fun missingDotIsNamedEvenWhenWrittenElsewhere() {
+        // The stem is written further right than the guide, as in Test mode.
+        val stem = transform(listOf(strokesOf(TestInk.i).first())) { Vec(it.x + 0.6, it.y) }
+        for (mode in Mode.entries) {
+            val s = scorer.score(ink(stem), TestInk.i, mode)
+            assertEquals("Add a dot above the stem.", s.tip, "$mode: ${s.issues}")
+            assertFalse(s.issues.any { it.kind == IssueKind.TOO_SMALL }, "a missing dot is not a size problem")
+        }
+    }
+
+    @Test
+    fun joinedStrokesAreNotReportedAsMissing() {
+        // t written in one stroke: down, then back up and across.
+        val t = strokesOf(TestInk.t)
+        val joined = listOf(t[0] + listOf(Vec(0.15, 0.5)) + t[1])
+        val s = scorer.score(ink(joined), TestInk.t, Mode.PRACTICE)
+        assertFalse(s.issues.any { it.kind == IssueKind.MISSING_STROKE }, "${s.issues}")
     }
 
     @Test

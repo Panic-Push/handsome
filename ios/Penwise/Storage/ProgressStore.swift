@@ -19,6 +19,8 @@ final class ProgressStore: ObservableObject {
         var date: Date
         /// True when the guide was peeked at during a Test attempt.
         var hinted: Bool
+        /// The main issue kind, if any (e.g. "OFF_BASELINE").
+        var issue: String?
     }
 
     private struct Saved: Codable {
@@ -45,7 +47,7 @@ final class ProgressStore: ObservableObject {
 
     // MARK: - Recording
 
-    func record(score: Int, mode: WritingMode, templateID: String, hinted: Bool = false) {
+    func record(score: Int, mode: WritingMode, templateID: String, hinted: Bool = false, issue: String? = nil) {
         let key = ProgressStore.key(mode, templateID)
         var entry = saved.entries[key] ?? Entry(best: 0, attempts: 0, last: Date())
         if !hinted { entry.best = max(entry.best, score) }
@@ -55,7 +57,7 @@ final class ProgressStore: ObservableObject {
 
         var history = saved.history ?? [:]
         var list = history[key] ?? []
-        list.append(Attempt(score: score, date: Date(), hinted: hinted))
+        list.append(Attempt(score: score, date: Date(), hinted: hinted, issue: issue))
         history[key] = Array(list.suffix(20))
         saved.history = history
 

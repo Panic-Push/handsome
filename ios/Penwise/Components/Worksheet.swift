@@ -33,9 +33,9 @@ struct LetterThumbnail: View {
     }
 }
 
-/// A small worksheet showing how a mode looks: same letter and ruling,
-/// with a start dot and arrow (Learn), a faint model (Practice) or blank
-/// lines (Test).
+/// A small worksheet showing how a mode looks: same letter and ruling, with
+/// a solid letter, start dot and arrow (Learn), a faint model (Practice) or
+/// blank lines (Test).
 struct WorksheetPreview: View {
     let template: LetterTemplate?
     let mode: WritingMode
@@ -49,7 +49,7 @@ struct WorksheetPreview: View {
                 if let template {
                     switch mode {
                     case .learn:
-                        TemplateOverlay(template: template, layout: layout)
+                        TemplateOverlay(template: template, layout: layout, pathOpacity: 0.85, solidPath: true)
                     case .practice:
                         TemplateOverlay(template: template, layout: layout, showArrows: false, showDots: false,
                                         pathOpacity: 0.25, solidPath: true)

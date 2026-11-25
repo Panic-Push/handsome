@@ -75,17 +75,17 @@ With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 
 ## What to test
 
-**Workbook redesign**
-- [ ] Home: cream paper look; Print / Cursive switch; three mode cards with worksheet previews drawn from the real letter (Learn: dot and arrow, Practice: faint model, Test: blank lines).
-- [ ] First visit shows **Start with c**; after writing, it changes to **Continue Practice · lowercase a** (or similar).
-- [ ] Cards say "3 of 7 letters practised"; the ad space sits below the cards.
-- [ ] Tapping a mode shows the mode screen with the second ad space and **Continue to …**; Back from the letters returns to Home. With *Settings › Show ad placeholders* off, it goes straight to the letters.
-- [ ] Writing: the page fills the screen; Letter, Watch again, Undo, Clear and Options are in the top bar; **Check** stays in the same place.
-- [ ] After Check: one correction in large text (for example "Bring the bottom of the o down to the baseline", with the baseline turned red). **Try again** is the main button; the score is under **Details**.
-- [ ] After a retry: your first try appears dotted grey, with a note such as "Your new o sits on the baseline."
-- [ ] Practice: **Try with less guide** switches to lines only. Test: the target letter is in the corner; peeking marks the try **With hint**.
-- [ ] Options: Large writing size and Left hand move the letter and make room for your palm.
-- [ ] Cursive: c o a d l t i in cursive, with lead-ins and exit strokes.
+**Journey and automatic scoring (section 5)**
+- [ ] New learner: Home's journey card says **Start with c** and opens the chapter map (through the entry screen); c shows **Up next**.
+- [ ] Returning learner: the card says **Continue with o**, "Round letters · 1 of 4 complete" and "o · Write from memory", and resumes that exact step.
+- [ ] Each letter goes Watch → Trace → Write from memory; the header reads e.g. "Round letters · o · Trace".
+- [ ] A finished o is scored with **no Check tap** about half a second after you lift the pen.
+- [ ] A normal pause before the i dot or t crossbar works; leaving the dot out gives "Add a dot above the stem." with the dot shown in red; adding the dot late re-scores the same try.
+- [ ] Undo, Clear, Back and quick taps never leave an old score on screen; ink stays visible when feedback appears.
+- [ ] Landscape: the feedback rail sits beside the page (on the left for right-handers, right for left-handers). Portrait: below the page.
+- [ ] Map: completed letters show a check and can be reviewed without changing your place; upcoming ones show their order; low scores show **Review**.
+- [ ] Checkpoint: four letters from memory (including one that needs work), then a recap with one suggestion and first vs latest tries.
+- [ ] All three modes and the journey go through the entry screen with the ad space; Settings › Show ad placeholders off goes straight through.
 
 **Write letters (Milestone 3)**
 - [ ] Pick a letter and a mode, write it, tap **Check**: a score from 0 to 100 appears with one tip.

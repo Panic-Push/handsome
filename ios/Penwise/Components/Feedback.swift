@@ -36,6 +36,7 @@ struct Comparison {
         case "START_POINT": return ("Start", "starts at the green dot")
         case "STROKE_ORDER": return ("Order", "has its strokes in the right order")
         case "STROKE_COUNT": return ("Order", "uses the right number of strokes")
+        case "MISSING_STROKE": return ("Shape", "has all its strokes")
         case "SHAKY": return ("Smoothness", "has a smoother line")
         default: return ("Shape", "follows the shape closely")
         }

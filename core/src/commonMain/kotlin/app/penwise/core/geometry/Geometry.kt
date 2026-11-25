@@ -119,10 +119,22 @@ object Geometry {
 
     /**
      * How well the user's travel direction agrees with the template's, 0..1.
-     * For every user segment we find the nearest template point and compare
-     * the two tangents. Works for loops and for strokes started mid-way.
+     * For every user segment we look at the nearest template segments and
+     * compare tangents. Works for loops and for strokes started mid-way.
+     * Where the template retraces itself (the stem of a cursive d goes up and
+     * back down), nearby segments point both ways; those user segments are
+     * ambiguous and are skipped.
      */
     fun directionAgreement(user: List<List<Vec>>, template: List<List<Vec>>): Double {
+        val segments = ArrayList<Pair<Vec, Vec>>() // (start point, tangent)
+        for (t in template) {
+            for (m in 0 until t.size - 1) {
+                val dt = t[m + 1] - t[m]
+                if (dt.length() > 1e-9) segments += t[m] to dt
+            }
+        }
+        if (segments.isEmpty()) return 1.0
+
         var aligned = 0.0
         var total = 0.0
         for (stroke in user) {
@@ -131,22 +143,32 @@ object Geometry {
                 val len = du.length()
                 if (len < 1e-9) continue
                 val mid = (stroke[k] + stroke[k + 1]) * 0.5
-                var bestD = Double.MAX_VALUE
-                var bestT: Vec? = null
-                for (t in template) {
-                    for (m in 0 until t.size - 1) {
-                        val d = mid.distanceTo(t[m])
-                        if (d < bestD) { bestD = d; bestT = t[m + 1] - t[m] }
-                    }
+                var best = Double.MAX_VALUE
+                for ((p, dt) in segments) best = min(best, distanceToSegment(mid, p, dt))
+                var agree = false
+                var disagree = false
+                for ((p, dt) in segments) {
+                    if (distanceToSegment(mid, p, dt) > best + AMBIGUITY) continue
+                    if (du.dot(dt) > 0) agree = true else disagree = true
                 }
-                val dt = bestT ?: continue
-                if (dt.length() < 1e-9) continue
+                if (agree && disagree) continue
                 total += len
-                if (du.dot(dt) > 0) aligned += len
+                if (agree) aligned += len
             }
         }
         return if (total == 0.0) 1.0 else aligned / total
     }
+
+    /** Distance from [q] to the segment that starts at [p] and runs along [d]. */
+    fun distanceToSegment(q: Vec, p: Vec, d: Vec): Double {
+        val len2 = d.dot(d)
+        if (len2 < 1e-12) return q.distanceTo(p)
+        val t = ((q - p).dot(d) / len2).coerceIn(0.0, 1.0)
+        return q.distanceTo(p + d * t)
+    }
+
+    /** Template segments this much further than the nearest still count as "nearby". */
+    private const val AMBIGUITY = 0.02
 
     /** Root-mean-square distance of a path from a smoothed copy of itself. */
     fun jitter(p: List<Vec>): Double {

@@ -26,6 +26,15 @@ extension WritingMode {
         }
     }
 
+    /// Short label under each Home card.
+    var cardLabel: String {
+        switch self {
+        case .learn: return "Watch and trace"
+        case .practice: return "Write with a guide"
+        case .test: return "Write from memory"
+        }
+    }
+
     var callToAction: String {
         switch self {
         case .learn: return "Continue to Learn"

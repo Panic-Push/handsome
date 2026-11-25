@@ -1,8 +1,11 @@
 import SwiftUI
 
+/// Home tells the learner what to write next: the journey card first, then
+/// Learn, Practice and Test as direct routes, then the banner ad.
 struct HomeView: View {
     @ObservedObject private var progress = ProgressStore.shared
     @ObservedObject private var settings = AppSettings.shared
+    @ObservedObject private var journeys = JourneyStore.shared
     @State private var path: [Route] = []
     @State private var showSettings = false
 
@@ -10,24 +13,29 @@ struct HomeView: View {
 
     private var letters: [LetterTemplate] { library.templates(style: settings.style) }
     private var letterIDs: [String] { letters.map(\.id) }
+    private var journey: Journey? { JourneyLibrary.shared.journey(style: settings.style) }
 
     var body: some View {
         NavigationStack(path: $path) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    header
-                    primaryAction
-                    modes
-                    if settings.showAdPlaceholders {
-                        AdSlot(placement: .home)
-                            .frame(maxWidth: .infinity)
+            GeometryReader { geo in
+                let landscape = geo.size.width > geo.size.height
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        header
+                        if let journey {
+                            journeyCard(journey)
+                        }
+                        modes(landscape: landscape)
+                        if settings.showAdPlaceholders {
+                            AdSlot(placement: .home)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
-                    lettersOverview
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: 1180)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 24)
-                .frame(maxWidth: 1180)
-                .frame(maxWidth: .infinity)
             }
             .background(Color.paper)
             .toolbar {
@@ -39,179 +47,185 @@ struct HomeView: View {
             }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .navigationDestination(for: Route.self) { route in
-                switch route {
-                case .modeEntry(let mode):
-                    ModeEntryView(mode: mode, path: $path)
-                case .letters(let mode):
-                    LetterPickerView(mode: mode)
-                case .write(let mode, let templateID):
-                    WritingView(mode: mode, templateID: templateID)
-                case .recorder:
-                    RecorderView()
-                }
+                destination(route)
             }
         }
         .tint(Color.ink)
     }
 
-    /// Goes to a mode: through the ad screen when an ad is available, straight
-    /// to the letters otherwise.
-    private func open(_ mode: WritingMode) {
-        path.append(settings.showAdPlaceholders ? .modeEntry(mode) : .letters(mode))
+    @ViewBuilder
+    private func destination(_ route: Route) -> some View {
+        switch route {
+        case .entry(let target):
+            EntryView(target: target, path: $path)
+        case .letters(let mode):
+            LetterPickerView(mode: mode)
+        case .write(let mode, let templateID):
+            WorksheetView(context: .free(mode, templateID), path: $path)
+        case .journeyMap(let id):
+            JourneyMapView(journeyID: id, path: $path)
+        case .lesson(let position, let review):
+            WorksheetView(context: .lesson(position, review: review), path: $path)
+        case .recap(let id):
+            CheckpointRecapView(journeyID: id, path: $path)
+        case .recorder:
+            RecorderView()
+        }
+    }
+
+    /// Goes through the entry (ad) screen when an ad is available, straight to
+    /// the destination otherwise. Extra taps while navigating are ignored.
+    private func go(_ target: EntryTarget) {
+        guard path.isEmpty else { return }
+        path.append(settings.showAdPlaceholders ? .entry(target) : target.destination)
     }
 
     // MARK: - Header
 
     private var header: some View {
-        HStack(alignment: .center, spacing: 20) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Penwise")
-                    .font(.system(size: 42, weight: .bold, design: .serif))
-                    .foregroundStyle(Color.ink)
-                Text("Your handwriting workbook")
-                    .font(.workbook(.title3, weight: .regular))
-                    .foregroundStyle(.secondary)
-            }
+        HStack(alignment: .center, spacing: 16) {
+            Text("Penwise")
+                .font(.system(size: 30, weight: .bold, design: .serif))
+                .foregroundStyle(Color.ink)
             Spacer()
             Picker("Letter style", selection: $settings.style) {
                 ForEach(LetterStyle.allCases) { Text($0.title).tag($0) }
             }
             .pickerStyle(.segmented)
-            .frame(width: 220)
-            if progress.streak > 0 {
-                Label("\(progress.streak) day\(progress.streak == 1 ? "" : "s")", systemImage: "flame.fill")
-                    .font(.headline)
+            .frame(width: 200)
+            HStack(spacing: 12) {
+                Label("\(progress.streak)", systemImage: "flame.fill")
                     .foregroundStyle(Color.orange)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .paperCard(radius: 14)
+                Divider().frame(height: 18)
+                Text("\(progress.attemptsToday) today")
+                    .foregroundStyle(.secondary)
             }
+            .font(.subheadline.weight(.semibold))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .paperCard(radius: 14)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(progress.streak) day streak, \(progress.attemptsToday) letters today")
         }
     }
 
-    // MARK: - First tap
+    // MARK: - Journey card
 
-    @ViewBuilder
-    private var primaryAction: some View {
-        if let last = progress.lastPlayed, let template = library.template(id: last.templateID) {
-            actionCard(
-                eyebrow: "Pick up where you left off",
-                title: "Continue \(last.mode.rawValue) · \(template.spokenName)",
-                template: template,
-                color: last.mode.color,
-                route: .write(last.mode, template.id)
-            )
-        } else if let first = letters.first {
-            actionCard(
-                eyebrow: "New here? Begin with the first letter",
-                title: "Start with \(first.glyph)",
-                template: first,
-                color: WritingMode.learn.color,
-                route: .write(.learn, first.id)
-            )
-        }
-    }
+    private func journeyCard(_ journey: Journey) -> some View {
+        let started = journeys.hasStarted(journey)
+        let finished = journeys.isFinished(journey)
+        let p = journeys.position(in: journey)
+        let chapter = journey.chapter(p.chapterID) ?? journey.chapters[0]
+        let chapterLetters = journeys.letters(chapter, in: journey)
+        let glyph = p.letterIndex < chapterLetters.count ? chapterLetters[p.letterIndex] : (chapterLetters.first ?? "")
+        let done = journeys.completedCount(chapter, in: journey)
+        let action = finished ? "Review your letters" : started ? "Continue with \(glyph)" : "Start with \(glyph)"
+        let detail = finished ? "Journey complete" : "\(chapter.title) · \(done) of \(chapterLetters.count) complete"
 
-    private func actionCard(eyebrow: String, title: String, template: LetterTemplate, color: Color, route: Route) -> some View {
-        Button { path.append(route) } label: {
-            HStack(spacing: 20) {
-                LetterThumbnail(template: template, lineWidth: 4, color: .white)
-                    .frame(width: 76, height: 80)
-                    .background(Color.white.opacity(0.18), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        return VStack(alignment: .leading, spacing: 18) {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(eyebrow)
-                        .font(.subheadline.weight(.semibold))
-                        .opacity(0.85)
-                    Text(title)
-                        .font(.workbook(.title))
+                    Text("YOUR JOURNEY")
+                        .font(.caption.weight(.semibold))
+                        .tracking(1)
+                        .foregroundStyle(.secondary)
+                    Text(journey.title)
+                        .font(.system(size: 30, weight: .bold, design: .serif))
+                        .foregroundStyle(Color.ink)
+                    Label(detail, systemImage: finished ? "checkmark.seal.fill" : "book.closed")
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(finished ? Color.green : Color.secondary)
                 }
                 Spacer()
-                Image(systemName: "arrow.right.circle.fill")
-                    .font(.system(size: 40))
+                Button { go(.journeyMap(journey.id)) } label: {
+                    Label("Chapter map", systemImage: "map")
+                }
+                .buttonStyle(.bordered)
             }
-            .foregroundStyle(.white)
-            .padding(20)
-            .background(color, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            HStack(alignment: .bottom, spacing: 20) {
+                specimen(chapter.isCheckpoint ? Array(chapter.letters.prefix(4)) : chapterLetters, in: journey, current: started ? glyph : nil)
+                Spacer(minLength: 0)
+                VStack(alignment: .trailing, spacing: 8) {
+                    if started && !finished {
+                        Text("\(glyph) · \(p.step.title)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    Button { go(finished ? .journeyMap(journey.id) : .journeyResume(journey.id)) } label: {
+                        Label(action, systemImage: "arrow.right")
+                            .font(.headline)
+                            .frame(minWidth: 220)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(WritingMode.learn.color)
+                    .controlSize(.large)
+                }
+            }
         }
-        .buttonStyle(PressableStyle())
+        .padding(24)
+        .paperCard(radius: 26)
     }
 
-    // MARK: - Modes
+    /// The chapter's letters drawn from the real templates on a ruled strip.
+    private func specimen(_ glyphs: [String], in journey: Journey, current: String?) -> some View {
+        HStack(spacing: 4) {
+            ForEach(glyphs, id: \.self) { g in
+                if let template = library.template(id: journey.templateID(g)) {
+                    LetterThumbnail(template: template, lineWidth: 3.5,
+                                    color: current == nil || current == g ? .ink : .ink.opacity(0.4))
+                        .frame(width: 60, height: 72)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
+        .background(
+            ZStack {
+                Color.paper
+                VStack(spacing: 0) {
+                    Spacer()
+                    Rectangle().fill(Color.rule.opacity(0.6)).frame(height: 1.5)
+                    Spacer().frame(height: 22)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        )
+    }
 
-    private var modes: some View {
+    // MARK: - Mode cards
+
+    private func modes(landscape: Bool) -> some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Choose a mode")
+            Text("Practice by mode")
                 .font(.workbook(.title2))
                 .foregroundStyle(Color.ink)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 300), spacing: 20)], spacing: 20) {
-                ForEach(WritingMode.allCases) { mode in
-                    Button { open(mode) } label: {
-                        ModeCard(
-                            mode: mode,
-                            preview: library.previewTemplate(style: settings.style),
-                            practiced: progress.practicedCount(mode, templateIDs: letterIDs),
-                            total: letterIDs.count
-                        )
-                    }
-                    .buttonStyle(PressableStyle())
-                }
-            }
-        }
-    }
-
-    // MARK: - Letters overview
-
-    private var lettersOverview: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Text("Your \(settings.style.title.lowercased()) letters")
-                    .font(.workbook(.title2))
-                    .foregroundStyle(Color.ink)
-                Spacer()
-                HStack(spacing: 14) {
+            if landscape {
+                HStack(alignment: .top, spacing: 20) {
                     ForEach(WritingMode.allCases) { mode in
-                        HStack(spacing: 5) {
-                            Circle().fill(mode.color).frame(width: 9, height: 9)
-                            Text("\(mode.rawValue) passed")
-                        }
+                        modeButton(mode, compact: false)
                     }
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    ForEach(letters) { template in
-                        Button { path.append(.write(suggestedMode(for: template), template.id)) } label: {
-                            VStack(spacing: 8) {
-                                LetterThumbnail(template: template, lineWidth: 3)
-                                    .frame(width: 56, height: 60)
-                                HStack(spacing: 5) {
-                                    ForEach(WritingMode.allCases) { mode in
-                                        Circle()
-                                            .fill(isPassed(mode, template) ? mode.color : Color.secondary.opacity(0.25))
-                                            .frame(width: 8, height: 8)
-                                    }
-                                }
-                            }
-                            .frame(width: 84, height: 100)
-                            .paperCard(radius: 18)
-                        }
-                        .buttonStyle(PressableStyle())
+            } else {
+                VStack(spacing: 14) {
+                    ForEach(WritingMode.allCases) { mode in
+                        modeButton(mode, compact: true)
                     }
                 }
-                .padding(2)
             }
         }
     }
 
-    private func isPassed(_ mode: WritingMode, _ template: LetterTemplate) -> Bool {
-        (progress.best(mode, template.id) ?? 0) >= ProgressStore.passMark
-    }
-
-    /// The first mode this letter has not passed yet.
-    private func suggestedMode(for template: LetterTemplate) -> WritingMode {
-        WritingMode.allCases.first { !isPassed($0, template) } ?? .test
+    private func modeButton(_ mode: WritingMode, compact: Bool) -> some View {
+        Button { go(.mode(mode)) } label: {
+            ModeCard(
+                mode: mode,
+                preview: library.previewTemplate(style: settings.style),
+                practiced: progress.practicedCount(mode, templateIDs: letterIDs),
+                total: letterIDs.count,
+                compact: compact
+            )
+        }
+        .buttonStyle(PressableStyle())
     }
 }
 
@@ -220,11 +234,35 @@ private struct ModeCard: View {
     let preview: LetterTemplate?
     let practiced: Int
     let total: Int
+    let compact: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            WorksheetPreview(template: preview, mode: mode)
-                .frame(height: 170)
+        Group {
+            if compact {
+                HStack(spacing: 18) {
+                    WorksheetPreview(template: preview, mode: mode)
+                        .frame(width: 220, height: 120)
+                    text
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 14) {
+                    WorksheetPreview(template: preview, mode: mode)
+                        .frame(height: 160)
+                    text
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .paperCard(radius: 24)
+    }
+
+    private var text: some View {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 Image(systemName: mode.symbol)
                     .font(.title3.weight(.semibold))
@@ -232,21 +270,13 @@ private struct ModeCard: View {
                 Text(mode.rawValue)
                     .font(.workbook(.title))
                     .foregroundStyle(Color.ink)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
             }
-            Text(mode.subtitle)
+            Text(mode.cardLabel)
                 .font(.callout)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-            Text("\(practiced) of \(total) letters practised")
+            Text("\(practiced) of \(total) practiced")
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(mode.color)
         }
-        .padding(16)
-        .paperCard(radius: 24)
     }
 }

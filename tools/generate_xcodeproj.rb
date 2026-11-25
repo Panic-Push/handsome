@@ -49,11 +49,14 @@ Dir.glob('Penwise/**/*').sort.each do |path|
   end
 end
 
-# Letter templates from /content, copied into the app as a folder.
+# Letter templates and journeys from /content, copied into the app as folders.
 content_group = project.main_group.new_group('Content', '../content')
 templates = content_group.new_reference('templates')
 templates.last_known_file_type = 'folder'
 target.resources_build_phase.add_file_reference(templates)
+journeys = content_group.new_reference('journeys')
+journeys.last_known_file_type = 'folder'
+target.resources_build_phase.add_file_reference(journeys)
 
 config_group = project.main_group.new_group('Config', 'Config')
 config_group.new_reference('Info.plist')

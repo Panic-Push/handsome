@@ -1,0 +1,45 @@
+{
+  "id": "cursive-foundations",
+  "title": "Cursive foundations",
+  "subtitle": "Smooth joined-up letters",
+  "style": "cursive-modern",
+  "chapters": [
+    {
+      "id": "round",
+      "title": "Round letters",
+      "letters": [
+        "c",
+        "o",
+        "a",
+        "d"
+      ],
+      "goal": "Start with an open curve, close it, then reuse the shape in a and d."
+    },
+    {
+      "id": "tall",
+      "title": "Tall and finishing strokes",
+      "letters": [
+        "l",
+        "t",
+        "i"
+      ],
+      "goal": "Practice a tall downstroke, then work on the crossbar and dot."
+    },
+    {
+      "id": "checkpoint",
+      "title": "Checkpoint",
+      "checkpoint": true,
+      "pick": 4,
+      "letters": [
+        "c",
+        "o",
+        "a",
+        "d",
+        "l",
+        "t",
+        "i"
+      ],
+      "goal": "Write from memory, including a letter that needs another look."
+    }
+  ]
+}

@@ -15,6 +15,8 @@ enum class Mode {
 }
 
 enum class IssueKind {
+    /** A stroke such as the dot on i or the crossbar on t was left out. */
+    MISSING_STROKE,
     STROKE_COUNT,
     INCOMPLETE,
     STROKE_DIRECTION,

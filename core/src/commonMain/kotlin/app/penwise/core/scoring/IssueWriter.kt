@@ -27,9 +27,24 @@ internal class IssueWriter(
 
     private fun motion(i: Int) = motions.getOrNull(i) ?: ""
 
+    /** "Add a dot above the stem.", "Add the crossbar.", or the stroke's motion. */
+    private fun missingText(i: Int): String {
+        val stroke = templateStrokes[i]
+        if (Geometry.pathLength(stroke) < LetterScorer.TINY_STROKE) {
+            val others = templateStrokes.filterIndexed { k, _ -> k != i }.flatten()
+            val dotY = Geometry.bounds(stroke).center.y
+            val above = others.isNotEmpty() && dotY < Geometry.bounds(others).minY
+            return if (above) "Add a dot above the stem." else "Add the dot."
+        }
+        val b = Geometry.bounds(stroke)
+        if (b.width > 2 * b.height) return "Add the crossbar."
+        return "Add stroke ${i + 1}. ${motion(i)}"
+    }
+
     fun write(
         userCount: Int,
         strokes: List<StrokeFeedback>,
+        missingStrokes: List<Int>,
         orderCorrect: Boolean?,
         incomplete: Boolean,
         smoothness: Int?,
@@ -39,7 +54,12 @@ internal class IssueWriter(
     ): List<Issue> {
         val issues = mutableListOf<Issue>()
 
-        if (userCount != strokeCount && mode != Mode.TEST) {
+        // A left-out dot or crossbar is reported in every mode, with what to add.
+        for (i in missingStrokes) {
+            issues += Issue(IssueKind.MISSING_STROKE, i, missingText(i))
+        }
+
+        if (missingStrokes.isEmpty() && userCount != strokeCount && mode != Mode.TEST) {
             val noun = if (strokeCount == 1) "stroke" else "strokes"
             issues += Issue(IssueKind.STROKE_COUNT, -1, "Write the $glyph with $strokeCount $noun. You used $userCount.")
         }
@@ -70,7 +90,7 @@ internal class IssueWriter(
             }
         }
 
-        strokes.filter { it.distance > tol.shape * 0.5 }.forEach {
+        strokes.filter { it.distance > tol.shape * 0.5 && it.templateIndex !in missingStrokes }.forEach {
             val how = when (mode) {
                 Mode.LEARN -> "drifts off the dotted path. Slow down and stay on the dots."
                 Mode.PRACTICE -> "drifts out of shape. Slow down and follow the faint letter."

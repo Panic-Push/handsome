@@ -39,5 +39,13 @@ struct InkCanvas: UIViewRepresentable {
         func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
             model.drawingDidChange(canvasView.drawing)
         }
+
+        func canvasViewDidBeginUsingTool(_ canvasView: PKCanvasView) {
+            model.setDrawing(true)
+        }
+
+        func canvasViewDidEndUsingTool(_ canvasView: PKCanvasView) {
+            model.setDrawing(false)
+        }
     }
 }
