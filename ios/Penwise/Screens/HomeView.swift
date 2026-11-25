@@ -1,0 +1,55 @@
+import SwiftUI
+
+struct HomeView: View {
+    private let templateCount = TemplateLibrary.shared.templates.count
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section("Phase 0 · Foundation") {
+                    NavigationLink {
+                        TracingView()
+                    } label: {
+                        MenuRow(
+                            title: "Trace letters",
+                            detail: "Milestone 1: writing canvas with guide lines",
+                            symbol: "pencil.tip"
+                        )
+                    }
+                    NavigationLink {
+                        RecorderView()
+                    } label: {
+                        MenuRow(
+                            title: "Recorder",
+                            detail: "Milestone 2: record letter templates and handwriting samples",
+                            symbol: "record.circle"
+                        )
+                    }
+                }
+                Section("This build") {
+                    LabeledContent("Version", value: "Phase 0 · 0.1")
+                    LabeledContent("Letter templates", value: "\(templateCount) loaded")
+                }
+            }
+            .navigationTitle("Penwise")
+        }
+    }
+}
+
+private struct MenuRow: View {
+    let title: String
+    let detail: String
+    let symbol: String
+
+    var body: some View {
+        Label {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.headline)
+                Text(detail).font(.subheadline).foregroundStyle(.secondary)
+            }
+        } icon: {
+            Image(systemName: symbol)
+        }
+        .padding(.vertical, 4)
+    }
+}
