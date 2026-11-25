@@ -31,7 +31,7 @@ struct AdSlot: View {
                     .fill(Color.secondary.opacity(0.07))
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(Color.secondary.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [6, 5]))
-                Text("Ad space · real ads arrive in Phase 2")
+                Text("Ad preview")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

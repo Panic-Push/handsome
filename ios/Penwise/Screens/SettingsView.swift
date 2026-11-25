@@ -9,9 +9,6 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("Writing") {
-                    Picker("Letter style", selection: $settings.style) {
-                        ForEach(LetterStyle.allCases) { Text($0.title).tag($0) }
-                    }
                     Picker("Writing size", selection: $settings.size) {
                         ForEach(WritingSize.allCases) { Text($0.title).tag($0) }
                     }

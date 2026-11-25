@@ -25,19 +25,14 @@ struct LetterPickerView: View {
                         .frame(width: 64, height: 64)
                         .background(mode.color, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(mode.rawValue)
-                            .font(.system(size: 34, weight: .bold, design: .serif))
+                        Text("\(settings.style.title) · \(mode.rawValue)")
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
                             .foregroundStyle(Color.ink)
                         Text(mode.subtitle)
                             .font(.workbook(.title3, weight: .regular))
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Picker("Letter style", selection: $settings.style) {
-                        ForEach(LetterStyle.allCases) { Text($0.title).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: 200)
                 }
 
                 if let next = upNext {

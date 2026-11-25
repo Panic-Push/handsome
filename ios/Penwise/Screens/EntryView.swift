@@ -10,7 +10,7 @@ struct EntryView: View {
 
     private var title: String {
         switch target {
-        case .mode(let mode): return mode.rawValue
+        case .mode(let mode): return "\(AppSettings.shared.style.title) · \(mode.rawValue)"
         case .journeyMap(let id), .journeyResume(let id): return JourneyLibrary.shared.journey(id: id)?.title ?? "Journey"
         }
     }
@@ -60,12 +60,15 @@ struct EntryView: View {
                     .frame(width: 72, height: 72)
                     .background(color, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                 Text(title)
-                    .font(.system(size: 40, weight: .bold, design: .serif))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.ink)
                 Text(subtitle)
                     .font(.workbook(.title3, weight: .regular))
                     .foregroundStyle(.secondary)
             }
+            .padding(22)
+            .frame(maxWidth: 520)
+            .background(color.opacity(0.10), in: RoundedRectangle(cornerRadius: 24))
             AdSlot(placement: .modeEntry)
             Button(action: proceed) {
                 Text(continueLabel)

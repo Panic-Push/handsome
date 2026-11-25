@@ -4,9 +4,9 @@ import SwiftUI
 extension WritingMode {
     var color: Color {
         switch self {
-        case .learn: return Color(red: 0.18, green: 0.38, blue: 0.72)
-        case .practice: return Color(red: 0.80, green: 0.46, blue: 0.12)
-        case .test: return Color(red: 0.48, green: 0.28, blue: 0.62)
+        case .learn: return Color.courseViolet
+        case .practice: return Color(red: 0.10, green: 0.43, blue: 0.42)
+        case .test: return Color(red: 0.62, green: 0.29, blue: 0.14)
         }
     }
 

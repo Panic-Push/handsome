@@ -18,6 +18,17 @@ struct JourneyMapView: View {
                 if let journey {
                     VStack(alignment: .leading, spacing: 28) {
                         header(journey)
+                        HStack {
+                            ForEach(WritingMode.allCases) { mode in
+                                Button {
+                                    path.append(.letters(mode))
+                                } label: {
+                                    Label(mode.rawValue, systemImage: mode.symbol)
+                                        .frame(maxWidth: .infinity, minHeight: 44)
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
                         ForEach(Array(journey.chapters.enumerated()), id: \.element.id) { index, chapter in
                             chapterSection(chapter, number: index + 1, in: journey)
                                 .id(chapter.id)
@@ -46,7 +57,7 @@ struct JourneyMapView: View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(journey.title)
-                    .font(.system(size: 36, weight: .bold, design: .serif))
+                    .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.ink)
                 Text(journey.subtitle)
                     .font(.workbook(.title3, weight: .regular))
@@ -94,20 +105,25 @@ struct JourneyMapView: View {
                     .foregroundStyle(done == letters.count ? Color.green : Color.secondary)
             }
 
-            ZStack(alignment: .leading) {
-                // The ruled row and the line joining the tiles.
-                VStack(spacing: 0) {
-                    Rectangle().fill(Color.rule.opacity(0.35)).frame(height: 1)
-                    Spacer()
-                    Rectangle().fill(Color.rule.opacity(0.7)).frame(height: 2)
+            GeometryReader { bounds in
+                let middle = bounds.size.width / 2
+                let swing = min(bounds.size.width * 0.18, 92)
+                let row: CGFloat = 126
+                let centers = letters.indices.map { index in
+                    CGPoint(x: middle + (index.isMultiple(of: 2) ? -swing : swing),
+                            y: CGFloat(index) * row + row / 2)
                 }
-                .frame(height: 132)
-                Rectangle()
-                    .fill(Color.rule.opacity(0.5))
-                    .frame(width: CGFloat(max(letters.count - 1, 0)) * 132, height: 2)
-                    .padding(.leading, 56)
-
-                HStack(spacing: 20) {
+                ZStack(alignment: .topLeading) {
+                    Path { trail in
+                        guard let first = centers.first else { return }
+                        trail.move(to: first)
+                        for (from, to) in zip(centers, centers.dropFirst()) {
+                            let midY = (from.y + to.y) / 2
+                            trail.addCurve(to: to, control1: CGPoint(x: from.x, y: midY),
+                                           control2: CGPoint(x: to.x, y: midY))
+                        }
+                    }
+                    .stroke(Color.courseViolet.opacity(0.32), style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     ForEach(Array(letters.enumerated()), id: \.offset) { index, glyph in
                         let isCurrent = !finished && current.chapterID == chapter.id && current.letterIndex == index
                         let isDone = store.isComplete(glyph, chapter, in: journey)
@@ -121,9 +137,11 @@ struct JourneyMapView: View {
                                 path.append(.lesson(start, review: true))
                             }
                         }
+                        .position(centers[index])
                     }
                 }
             }
+            .frame(height: CGFloat(letters.count) * 126)
         }
         .padding(22)
         .paperCard(radius: 24)
@@ -132,21 +150,21 @@ struct JourneyMapView: View {
     private func tile(glyph: String, order: Int, isCurrent: Bool, isDone: Bool, needsReview: Bool,
                       in journey: Journey, action: @escaping () -> Void) -> some View {
         let template = library.template(id: journey.templateID(glyph))
-        let accent = WritingMode.learn.color
+        let accent = Color.courseViolet
         return Button(action: action) {
             VStack(spacing: 6) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.paperCard)
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    Circle()
+                        .fill(isCurrent ? Color.courseViolet : isDone ? Color.courseMint : Color.paperCard)
+                    Circle()
                         .stroke(isCurrent ? accent : Color.cardBorder, lineWidth: isCurrent ? 3 : 1)
                     if let template {
                         LetterThumbnail(template: template, lineWidth: 3.5,
-                                        color: isDone || isCurrent ? .ink : .ink.opacity(0.35))
+                                        color: isCurrent ? .white : isDone ? .ink : .ink.opacity(0.55))
                             .padding(10)
                     }
                 }
-                .frame(width: 112, height: 112)
+                .frame(width: 80, height: 80)
                 .overlay(alignment: .topTrailing) {
                     if isDone {
                         Image(systemName: "checkmark.circle.fill")

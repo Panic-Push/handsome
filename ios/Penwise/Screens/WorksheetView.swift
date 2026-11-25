@@ -178,6 +178,14 @@ struct WorksheetView: View {
             }
             .onChange(of: outer.size) { _, _ in startOver() }
         }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if let position, let steps = chapter?.steps, let index = steps.firstIndex(of: position.step) {
+                ProgressView(value: Double(index + 1), total: Double(steps.count))
+                    .tint(Color.courseViolet)
+                    .accessibilityLabel("Lesson step")
+                    .accessibilityValue("\(index + 1) of \(steps.count)")
+            }
+        }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { toolbarContent }
