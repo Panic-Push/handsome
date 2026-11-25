@@ -6,6 +6,8 @@ struct JourneyMapView: View {
     let journeyID: String
     @Binding var path: [Route]
 
+    @State private var choice: LessonPosition?
+    @State private var choosingMode = false
     @ObservedObject private var store = JourneyStore.shared
     @ObservedObject private var progress = ProgressStore.shared
     private let library = TemplateLibrary.shared
@@ -18,6 +20,17 @@ struct JourneyMapView: View {
                 if let journey {
                     VStack(alignment: .leading, spacing: 28) {
                         header(journey)
+                        if let style = LetterStyle(rawValue: journey.style) {
+                            Menu {
+                                ForEach(WritingMode.allCases) { mode in
+                                    Button(mode.rawValue) { path.append(.sentences(style, mode, nil)) }
+                                }
+                            } label: {
+                                Label("Write sentences", systemImage: "pencil.and.scribble")
+                                    .font(.headline).frame(maxWidth: .infinity, minHeight: 46)
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
                         HStack {
                             ForEach(WritingMode.allCases) { mode in
                                 Button {
@@ -50,6 +63,26 @@ struct JourneyMapView: View {
                 }
             }
         }
+        .confirmationDialog("How would you like to write?", isPresented: $choosingMode, titleVisibility: .visible) {
+            if let p = choice, let journey, let chapter = journey.chapter(p.chapterID) {
+                let letters = store.letters(chapter, in: journey)
+                if letters.indices.contains(p.letterIndex) {
+                    ForEach(WritingMode.allCases) { mode in
+                        Button("\(mode.rawValue) \(letters[p.letterIndex])") {
+                            if mode == .learn && !chapter.isCheckpoint {
+                                path.append(.lesson(p, review: p != store.position(in: journey)))
+                            } else {
+                                let glyph = letters[p.letterIndex]
+                                path.append(.write(mode, journey.templateID(glyph)))
+                            }
+                        }
+                    }
+                    if chapter.isCheckpoint {
+                        Button("Take checkpoint") { path.append(.lesson(p, review: p != store.position(in: journey))) }
+                    }
+                }
+            }
+        }
         .navigationTitle(journey?.title ?? "Journey")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -60,7 +93,7 @@ struct JourneyMapView: View {
                 Text(journey.title)
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.ink)
-                Text(journey.subtitle)
+                Text("\(journey.subtitle) · \(Set(journey.chapters.flatMap(\.letters)).count) letters")
                     .font(.workbook(.title3, weight: .regular))
                     .foregroundStyle(.secondary)
             }
@@ -91,7 +124,7 @@ struct JourneyMapView: View {
                     .frame(width: 44, height: 44)
                     .background(chapterColor(number), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(chapter.title)
+                    Text(chapter.isCheckpoint ? chapter.title : "Chapter \(number) of \(journey.chapters.filter { !$0.isCheckpoint }.count) · \(chapter.title)")
                         .font(.workbook(.title2))
                         .foregroundStyle(Color.ink)
                     Text(chapter.goal)
@@ -130,13 +163,9 @@ struct JourneyMapView: View {
                         let isDone = store.isComplete(glyph, chapter, in: journey)
                         tile(glyph: glyph, order: index + 1, isCurrent: isCurrent, isDone: isDone,
                              needsReview: isDone && store.needsReview(glyph, in: journey), in: journey) {
-                            if isCurrent {
-                                path.append(.lesson(current, review: false))
-                            } else {
-                                let start = LessonPosition(journeyID: journey.id, chapterID: chapter.id,
-                                                           letterIndex: index, step: chapter.steps[0])
-                                path.append(.lesson(start, review: true))
-                            }
+                            choice = isCurrent ? current : LessonPosition(journeyID: journey.id, chapterID: chapter.id,
+                                                                          letterIndex: index, step: chapter.steps[0])
+                            choosingMode = true
                         }
                         .id("\(chapter.id)-\(index)")
                         .position(centers[index])

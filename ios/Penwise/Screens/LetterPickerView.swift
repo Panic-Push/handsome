@@ -1,3 +1,4 @@
+import PencilKit
 import SwiftUI
 
 /// All letters for one mode in the chosen style, with stars and best scores.
@@ -66,6 +67,12 @@ struct LetterPickerView: View {
                     Spacer()
                 }
 
+                NavigationLink(value: Route.sentences(settings.style, mode, nil)) {
+                    Label("Write sentences", systemImage: "text.line.first.and.arrowtriangle.forward")
+                        .font(.headline).frame(maxWidth: .infinity, minHeight: 48)
+                }
+                .buttonStyle(.bordered)
+
                 if mode != .learn, let course = JourneyLibrary.shared.journey(style: settings.style) {
                     activities(course)
                 }
@@ -112,5 +119,241 @@ struct LetterPickerView: View {
         .background(Color.paper)
         .navigationTitle(mode.rawValue)
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+
+/// Original offline prompts, shared by the three styles.
+private let sentencePrompts = [
+    "The little bell fell silent.", "Rain taps the roof.", "We pack a picnic.",
+    "A quiet fox crossed the yard.", "Keep the blue pencil.", "The kite rose slowly.",
+    "My sister made a map.", "Look up at the moon.", "Two boats drift home.",
+    "The jasmine blooms at dusk.", "Mix the lemon juice.", "Draw a circle in chalk.",
+    "Five candles light the room.", "Our team plays on Friday.", "A zebra ran past.",
+    "Bring your sketchbook.", "The waves reach the sand.", "Leave a note for me.",
+    "Warm bread fills the basket.", "Watch the green leaves turn.", "Can you hear the train?",
+    "We share the garden tools.", "The puppy found a sock.", "A small cloud floats west.",
+    "Take the next left.", "The stars shine above us.", "Fold the paper twice.",
+    "My jacket has two pockets.", "Fresh snow covers the path.", "Write your name here."
+]
+
+struct SentenceWorksheet: View {
+    let style: LetterStyle
+    let mode: WritingMode
+    @State private var index: Int
+    @State private var custom: String?
+    @State private var draft = ""
+    @State private var editing = false
+    @State private var word = 0
+    @State private var finished = false
+    @State private var previous: UIImage?
+    @State private var wordsWritten: [UIImage] = []
+    @State private var replay = UUID()
+    @StateObject private var ink = InkModel()
+
+    init(style: LetterStyle, mode: WritingMode, focus: String?) {
+        self.style = style
+        self.mode = mode
+        _index = State(initialValue: focus.flatMap { glyph in
+            sentencePrompts.firstIndex { $0.lowercased().contains(glyph.lowercased()) }
+        } ?? 0)
+    }
+
+    private var sentence: String { custom ?? sentencePrompts[index] }
+    private var words: [String] { sentence.split(whereSeparator: { $0.isWhitespace }).map(String.init) }
+    private var model: String { mode == .learn ? words[word] : sentence }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("\(style.title) · \(mode.rawValue)").font(.headline).foregroundStyle(.secondary)
+                Text(sentence).font(.workbook(.title))
+                if mode == .learn {
+                    HStack {
+                        Text("Word \(word + 1) of \(words.count)").font(.headline)
+                        Spacer()
+                        Button("Replay") { replay = UUID() }
+                    }
+                    SentenceModel(text: model, style: style, animated: true).id(replay)
+                        .frame(height: 75)
+                } else if mode == .practice || finished {
+                    SentenceModel(text: sentence, style: style, animated: false).frame(height: 85)
+                }
+                if let previous {
+                    Text("Previous attempt").font(.caption)
+                    Image(uiImage: previous).resizable().scaledToFit().frame(maxHeight: 105)
+                }
+                if mode == .learn && !wordsWritten.isEmpty {
+                    ScrollView(.horizontal) {
+                        HStack {
+                            ForEach(wordsWritten.indices, id: \.self) { i in
+                                Image(uiImage: wordsWritten[i]).resizable().scaledToFit().frame(height: 64)
+                            }
+                        }
+                    }
+                }
+                ZStack {
+                    Canvas { context, size in
+                        for y in stride(from: CGFloat(55), to: size.height, by: 60) {
+                            var line = Path()
+                            line.move(to: CGPoint(x: 0, y: y))
+                            line.addLine(to: CGPoint(x: size.width, y: y))
+                            context.stroke(line, with: .color(Color.rule.opacity(0.55)))
+                        }
+                    }
+                    if mode == .learn {
+                        SentenceModel(text: model, style: style, animated: false)
+                            .opacity(0.3).allowsHitTesting(false)
+                    }
+                    InkCanvas(model: ink).allowsHitTesting(!finished)
+                }
+                .frame(height: mode == .learn ? 150 : 240)
+                .background(Color.paper).clipShape(RoundedRectangle(cornerRadius: 14))
+                if finished {
+                    Text("Compare the spacing, height and joins with the model above.").font(.callout)
+                    HStack {
+                        Button("Next sentence") {
+                            index = (index + 1) % sentencePrompts.count
+                            custom = nil
+                            reset()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        Button("Write again") {
+                            let last = comparisonImage()
+                            reset()
+                            previous = last
+                        }
+                    }
+                } else {
+                    HStack {
+                        Button(mode == .learn && word + 1 < words.count ? "Next word" : "Finish sentence") {
+                            if mode == .learn && word + 1 < words.count {
+                                if let image = snapshot() { wordsWritten.append(image) }
+                                ink.clear()
+                                word += 1
+                                replay = UUID()
+                            } else {
+                                finished = true
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(ink.strokeCount == 0 || ink.isDrawing)
+                        Button("Undo") { ink.undo() }.disabled(ink.strokeCount == 0)
+                    }
+                }
+                Button("Write my own sentence") { draft = custom ?? ""; editing = true }
+            }
+            .padding(24).frame(maxWidth: 900).frame(maxWidth: .infinity)
+        }
+        .background(Color.paperCard)
+        .navigationTitle("Sentence worksheet")
+        .onAppear { ink.pencilOnly = AppSettings.shared.pencilOnly }
+        .sheet(isPresented: $editing) {
+            NavigationStack {
+                Form {
+                    TextField("Your sentence", text: $draft, axis: .vertical)
+                    Text("Up to 100 characters").font(.caption)
+                }
+                .navigationTitle("Write my own")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { editing = false } }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Use sentence") {
+                            custom = draft.split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+                            reset()
+                            editing = false
+                        }
+                        .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || draft.count > 100)
+                    }
+                }
+            }
+            .presentationDetents([.medium])
+        }
+    }
+
+    private func comparisonImage() -> UIImage? {
+        guard let last = snapshot() else { return nil }
+        let images = wordsWritten + [last]
+        guard images.count > 1 else { return last }
+        let height: CGFloat = 68
+        let widths = images.map { min(160, height * $0.size.width / max(1, $0.size.height)) }
+        let size = CGSize(width: widths.reduce(0, +) + CGFloat(images.count) * 8, height: height)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            var x: CGFloat = 0
+            for (i, image) in images.enumerated() {
+                let scale = min(widths[i] / image.size.width, height / image.size.height)
+                let h = image.size.height * scale
+                image.draw(in: CGRect(x: x, y: height - h, width: image.size.width * scale, height: h))
+                x += widths[i] + 8
+            }
+        }
+    }
+
+    private func snapshot() -> UIImage? {
+        let drawing = ink.drawing
+        guard !drawing.strokes.isEmpty else { return nil }
+        return drawing.image(from: drawing.bounds.insetBy(dx: -6, dy: -6), scale: 1)
+    }
+
+    private func reset() {
+        ink.clear()
+        word = 0
+        finished = false
+        previous = nil
+        wordsWritten.removeAll()
+        replay = UUID()
+    }
+}
+
+/// Uses bundled lowercase pen paths; capitals and punctuation retain their printed form.
+private struct SentenceModel: View {
+    let text: String
+    let style: LetterStyle
+    let animated: Bool
+    @State private var started = Date()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !animated || reduceMotion)) { clock in
+        Canvas { context, size in
+            let fraction = CGFloat(min(1, max(0, clock.date.timeIntervalSince(started)) / max(1, Double(text.count) * 0.24)))
+            let glyphs = text.map(String.init)
+            let templates = glyphs.map { TemplateLibrary.shared.template(id: "latin.\(style.rawValue).\($0)") }
+            let space: CGFloat = style == .print ? 0.18 : 0.08
+            let widths: [CGFloat] = glyphs.indices.map { i in
+                if let template = templates[i] { return CGFloat(template.width) + space }
+                return glyphs[i] == " " ? 0.48 : 0.85
+            }
+            let unit = min(size.height / 1.65, (size.width - 20) / max(1, widths.reduce(0, +)))
+            let top = (size.height - 1.5 * unit) / 2
+            var x: CGFloat = 10
+            var lastExit: CGPoint?
+            for i in glyphs.indices {
+                let part = animated && !reduceMotion ? min(1, max(0, fraction * CGFloat(glyphs.count) - CGFloat(i))) : 1
+                guard part > 0 else { break }
+                if let t = templates[i] {
+                    var path = Path()
+                    for (j, stroke) in t.strokes.enumerated() {
+                        let points = stroke.cgPoints.map { CGPoint(x: x + $0.x * unit, y: top + $0.y * unit) }
+                        guard let first = points.first else { continue }
+                        if j == 0, style != .print, let lastExit {
+                            path.move(to: lastExit)
+                            path.addLine(to: first)
+                        } else { path.move(to: first) }
+                        for point in points.dropFirst() { path.addLine(to: point) }
+                        if j == 0 { lastExit = points.last }
+                    }
+                    context.stroke(path.trimmedPath(from: 0, to: part), with: .color(.ink),
+                                   style: StrokeStyle(lineWidth: max(1.5, unit * 0.045), lineCap: .round, lineJoin: .round))
+                } else {
+                    context.draw(Text(glyphs[i]).font(.system(size: unit * 1.24, design: .rounded)).foregroundColor(.ink),
+                                 at: CGPoint(x: x, y: top + unit * 1.15), anchor: .bottomLeading)
+                    lastExit = nil
+                }
+                x += widths[i] * unit
+            }
+        }
+        }
+        .accessibilityLabel(text)
     }
 }

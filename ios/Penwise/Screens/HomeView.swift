@@ -59,6 +59,8 @@ struct HomeView: View {
             EntryView(target: target, path: $path)
         case .letters(let mode):
             LetterPickerView(mode: mode)
+        case .sentences(let style, let mode, let glyph):
+            SentenceWorksheet(style: style, mode: mode, focus: glyph)
         case .write(let mode, let templateID):
             WorksheetView(context: .free(mode, templateID), path: $path)
         case .set(let mode, let title, let ids):

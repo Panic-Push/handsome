@@ -10,6 +10,7 @@ enum Route: Hashable {
     /// The screen between Home and a destination (holds the second ad).
     case entry(EntryTarget)
     case letters(WritingMode)
+    case sentences(LetterStyle, WritingMode, String?)
     case write(WritingMode, String)
     case set(WritingMode, String, [String])
     case journeyMap(String)

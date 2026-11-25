@@ -64,6 +64,7 @@ struct WorksheetView: View {
     @State private var notice: String?
     @State private var demoStart: Date?
     @State private var celebrationStart: Date?
+    @State private var pendingAdvance: DispatchWorkItem?
     @State private var showDetails = false
 
     private let library = TemplateLibrary.shared
@@ -122,7 +123,7 @@ struct WorksheetView: View {
     private var mode: WritingMode {
         if let step = position?.step { return step.mode }
         if usesRow {
-            let modes: [WritingMode] = [.learn, .practice, .test]
+            let modes: [WritingMode] = [freeMode, .practice, .test]
             return modes[slot]
         }
         return freeMode
@@ -146,7 +147,7 @@ struct WorksheetView: View {
 
     private var guideKind: GuideKind {
         if !usesRow { return .memory }
-        let guides: [GuideKind] = [.learn, .faint, .memory]
+        let guides: [GuideKind] = !isLesson && freeMode == .practice ? [.faint, .faint, .memory] : [.learn, .faint, .memory]
         return guides[slot]
     }
 
@@ -240,7 +241,7 @@ struct WorksheetView: View {
             VStack(spacing: 6) {
                 HStack(spacing: gap) {
                     ForEach(0..<3) { index in
-                        Text(["Trace", "Light guide", "Memory"][index])
+                        Text([!isLesson && freeMode == .practice ? "Copy" : "Trace", "Light guide", "Memory"][index])
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(index == slot ? Color.white : Color.white.opacity(0.8))
                             .frame(width: width)
@@ -336,7 +337,7 @@ struct WorksheetView: View {
             TemplateOverlay(template: template, layout: layout, highlight: highlight)
         case .faint:
             TemplateOverlay(template: template, layout: layout, showArrows: false, showDots: false,
-                            pathOpacity: 0.22, solidPath: true, highlight: highlight)
+                            pathOpacity: slot == 0 ? 0.45 : 0.20, solidPath: true, highlight: highlight)
         case .memory:
             TemplateOverlay(template: template, layout: layout, showPath: peek, showArrows: peek,
                             showDots: peek, highlight: highlight)
@@ -380,6 +381,12 @@ struct WorksheetView: View {
             Button(role: .destructive) { tryAgain() } label: { Label("Clear", systemImage: "trash") }
                 .disabled(ink.strokeCount == 0)
 
+            if let template = selected, let style = LetterStyle(rawValue: template.style) {
+                Button {
+                    cancelPending()
+                    path.append(.sentences(style, .practice, template.glyph))
+                } label: { Label("Practice in a sentence", systemImage: "text.word.spacing") }
+            }
             optionsMenu
         }
     }
@@ -500,7 +507,7 @@ struct WorksheetView: View {
             }
         }
         if usesRow {
-            return ["Trace the \(name) from the start dot.", "Follow the light guide for \(name).", "Write \(name) from memory."][slot]
+            return [freeMode == .practice ? "Copy the \(name) over the guide." : "Trace the \(name) from the start dot.", "Follow the light guide for \(name).", "Write \(name) from memory."][slot]
         }
         switch freeMode {
         case .learn: return "Trace the \(name) from the green dot, following the arrow."
@@ -564,7 +571,7 @@ struct WorksheetView: View {
             }
             HStack(spacing: 14) {
                 StarsView(count: ProgressStore.stars(for: r.overall), size: 15, animated: true)
-                Button { showDetails = true } label: {
+                Button { cancelPending(); showDetails = true } label: {
                     Text("Details · \(r.overall)")
                         .font(.callout.weight(.semibold))
                 }
@@ -624,7 +631,6 @@ struct WorksheetView: View {
             return "Next letter · " + list[(index + 1) % list.count].glyph
         }
         let next = journeys.next(after: p, in: j)
-        if review && next?.chapterID != p.chapterID { return "Back to map" }
         guard let next else { return "See recap" }
         if next.chapterID != p.chapterID { return "Finish chapter" }
         if next.letterIndex != p.letterIndex { return "Next letter · " + lessonLetters[next.letterIndex] }
@@ -670,6 +676,8 @@ struct WorksheetView: View {
     }
 
     private func cancelPending() {
+        pendingAdvance?.cancel()
+        pendingAdvance = nil
         pendingScore?.cancel()
         pendingScore = nil
         checking = false
@@ -701,6 +709,14 @@ struct WorksheetView: View {
             react(to: score.overall)
             if usesRow && slot < 2 && !expectsMoreStrokes && score.primaryKind != "MISSING_STROKE" && score.primaryKind != "INCOMPLETE" {
                 advanceWithinRow()
+            } else if !expectsMoreStrokes && score.primaryKind != "MISSING_STROKE" && score.primaryKind != "INCOMPLETE" && !showDetails {
+                let work = DispatchWorkItem {
+                    guard token == exercise, revision == ink.revision, !ink.isDrawing, result != nil,
+                          !showDetails, !completedSet else { return }
+                    goNext()
+                }
+                pendingAdvance = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
             }
         } catch {
             errorText = "Could not score this letter: \(error.localizedDescription)"
@@ -784,6 +800,7 @@ struct WorksheetView: View {
     }
 
     private func goNext() {
+        cancelPending()
         if usesRow && slot < 2 {
             advanceWithinRow()
             return
@@ -827,7 +844,7 @@ struct WorksheetView: View {
         guard let p = position, let j = journey, let glyph = lessonGlyph else { return }
         cancelPending()
         commitIfNeeded()
-        if !review { journeys.markComplete(p, glyph: glyph) }
+        journeys.markComplete(p, glyph: glyph)
 
         guard let next = journeys.next(after: p, in: j) else {
             if review {
@@ -837,15 +854,11 @@ struct WorksheetView: View {
             replaceRoute(with: .recap(j.id))
             return
         }
-        if review && next.chapterID != p.chapterID {
-            if !path.isEmpty { path.removeLast() } // back to the map; the journey place is unchanged
-            return
-        }
         if next.chapterID != p.chapterID, let nextChapter = j.chapter(next.chapterID) {
             journeys.lockCheckpointPicks(nextChapter, in: j)
             notice = "\(chapter?.title ?? "Chapter") complete. Next: \(nextChapter.title)"
         }
-        if !review { journeys.setPosition(next) }
+        if !review || journeys.position(in: j) == p { journeys.setPosition(next) }
         if next.chapterID != p.chapterID || next.letterIndex != p.letterIndex { rowSamples.removeAll() }
         position = next
         resetLetter()

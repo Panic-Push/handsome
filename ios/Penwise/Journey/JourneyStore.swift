@@ -108,7 +108,16 @@ final class JourneyStore: ObservableObject {
 
     /// The saved step to resume, or the very first step.
     func position(in journey: Journey) -> LessonPosition {
-        if let p = saved.positions[journey.id] { return p }
+        if let p = saved.positions[journey.id], let chapter = journey.chapter(p.chapterID) {
+            let glyphs = letters(chapter, in: journey)
+            if glyphs.indices.contains(p.letterIndex), !isComplete(glyphs[p.letterIndex], chapter, in: journey) { return p }
+            for unit in journey.chapters {
+                if let index = letters(unit, in: journey).firstIndex(where: { !isComplete($0, unit, in: journey) }) {
+                    return LessonPosition(journeyID: journey.id, chapterID: unit.id, letterIndex: index, step: unit.steps[0])
+                }
+            }
+            return p
+        }
         let first = journey.chapters.first
         return LessonPosition(journeyID: journey.id, chapterID: first?.id ?? "", letterIndex: 0,
                               step: first?.steps.first ?? .watch)
