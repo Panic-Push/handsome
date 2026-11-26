@@ -79,8 +79,9 @@ struct HomeView: View {
                         .animationDidFinish { completed in
                             if completed && transitionID == id { transitionFox = nil }
                         }
-                        .aspectRatio(animation.bounds.width / animation.bounds.height, contentMode: .fill)
+                        .aspectRatio(animation.bounds.width / animation.bounds.height, contentMode: pose == .dash ? .fill : .fit)
                         .frame(width: geometry.size.width, height: geometry.size.height)
+                        .background(pose == .splash ? Color.paper : Color.clear)
                         .clipped()
                 }
                 .ignoresSafeArea().id(id)
@@ -101,7 +102,10 @@ struct HomeView: View {
         .onAppear {
             if !sawWelcome { showingWelcome = true }
         }
-        .fullScreenCover(isPresented: $showingWelcome) {
+        .fullScreenCover(isPresented: $showingWelcome, onDismiss: {
+            transitionID = UUID()
+            transitionFox = reduceMotion ? nil : .splash
+        }) {
             WorkbookWelcome(style: $settings.style) {
                 sawWelcome = true
                 showingWelcome = false
@@ -352,7 +356,7 @@ private struct WorkbookWelcome: View {
         ScrollView {
             VStack(spacing: 20) {
                 ProgressView(value: choosing ? 1.0 : 0.5)
-                WorkbookFox(pose: choosing ? .thinking : .splash).frame(height: 200)
+                WorkbookFox(pose: choosing ? .thinking : .hello).frame(height: 200)
                 Text(choosing ? "Pick your first workbook" : "Welcome to Penwise")
                     .font(.workbook(.largeTitle))
                 if choosing {

@@ -352,16 +352,16 @@ struct LetterSessionView: View {
 
                     StarsView(count: ProgressStore.stars(for: average), size: 46, spacing: 10, animated: true)
 
-                    HStack(spacing: 12) {
+                    attemptsBoard
+                        .frame(maxWidth: 640)
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 125), spacing: 12)], spacing: 12) {
                         statTile("Points", "+\(points)", symbol: "bolt.fill")
                         statTile("Average", "\(average)", symbol: "chart.bar.fill")
                         statTile("Best", "\(best)", symbol: "trophy.fill")
                         statTile("Time", timeText, symbol: "clock.fill")
                     }
                     .frame(maxWidth: 640)
-
-                    attemptsBoard
-                        .frame(maxWidth: 640)
 
                     Button(action: continueFromStats) {
                         Text(stage == .tracingStats ? "Continue to training" : nextLetterLabel)
