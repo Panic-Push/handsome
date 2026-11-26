@@ -397,6 +397,13 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
+                TargetAttributes = {
+                    04A78814D418E4A72FCDCBAEBA7A72D2 = {
+                        SystemCapabilities = {
+                            com.apple.SignInWithApple = { enabled = 1; };
+                        };
+                    };
+                };
 			};
 			buildConfigurationList = 1468BF91FA06EC20A0FBBA6B559D40C0 /* Build configuration list for PBXProject "Penwise" */;
 			compatibilityVersion = "Xcode 12.0";

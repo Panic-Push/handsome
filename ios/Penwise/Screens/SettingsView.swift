@@ -4,11 +4,6 @@ import AuthenticationServices
 struct SettingsView: View {
     @ObservedObject private var settings = AppSettings.shared
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.scenePhase) private var scenePhase
-    @AppStorage("penwise.account.appleUser") private var appleUser = ""
-    @AppStorage("penwise.account.email") private var email = ""
-    @AppStorage("penwise.account.name") private var displayName = ""
-    @State private var accountMessage: String?
     @State private var confirmReset = false
     @State private var confirmDelete = false
     @State private var showPaywall = false
@@ -19,19 +14,12 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    if appleUser.isEmpty {
-                        SignInWithAppleButton(.signIn, onRequest: { request in
-                            request.requestedScopes = [.fullName, .email]
-                        }, onCompletion: finishSignIn)
-                        .signInWithAppleButtonStyle(.black)
-                        .frame(maxWidth: 360, minHeight: 48)
-                    } else {
-                        Label(displayName.isEmpty ? "Signed in with Apple" : displayName,
-                              systemImage: "person.crop.circle.fill")
-                        if !email.isEmpty { LabeledContent("Email", value: email) }
-                        Button("Sign out", action: signOut)
+                    HStack(spacing: 12) {
+                        Image("FoxMark").resizable().frame(width: 64, height: 64)
+                            .clipShape(RoundedRectangle(cornerRadius: 15)).accessibilityHidden(true)
+                        Text("Your Penwise account").font(.workbook(.title2))
                     }
-                    if let accountMessage { Text(accountMessage).font(.footnote) }
+                    AppleAccountControls()
                 } header: {
                     Text("Apple account")
                 } footer: {
@@ -80,9 +68,6 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Account")
-            .onAppear(perform: refreshCredential)
-            .onChange(of: scenePhase) { _, phase in if phase == .active { refreshCredential() } }
-            .onReceive(NotificationCenter.default.publisher(for: ASAuthorizationAppleIDProvider.credentialRevokedNotification)) { _ in refreshCredential() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -93,7 +78,6 @@ struct SettingsView: View {
             .confirmationDialog("Delete all your data?", isPresented: $confirmDelete, titleVisibility: .visible) {
                 Button("Delete everything", role: .destructive) {
                     AccountService.deleteAllData()
-                    signOut()
                 }
             } message: {
                 Text("Your progress, plan, reports, settings and sign-in details will be erased from this iPad. Purchases can be restored later. To also stop using Sign in with Apple, visit appleid.apple.com.")
@@ -107,6 +91,39 @@ struct SettingsView: View {
                 Text("Best scores, attempts, streak and journey progress will be cleared on this iPad.")
             }
         }
+    }
+}
+
+struct AppleAccountControls: View {
+    var onSignIn: () -> Void = {}
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("penwise.account.appleUser") private var appleUser = ""
+    @AppStorage("penwise.account.email") private var email = ""
+    @AppStorage("penwise.account.name") private var displayName = ""
+    @State private var accountMessage: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if appleUser.isEmpty {
+                SignInWithAppleButton(.signIn, onRequest: { request in
+                    request.requestedScopes = [.fullName, .email]
+                }, onCompletion: finishSignIn)
+                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
+                .frame(maxWidth: 360)
+                .frame(height: 50)
+            } else {
+                Label(displayName.isEmpty ? "Signed in with Apple" : displayName,
+                      systemImage: "person.crop.circle.fill")
+                if !email.isEmpty { LabeledContent("Email", value: email) }
+                Button("Sign out", action: signOut)
+                Link("Manage Apple sign-in", destination: AppLinks.manageAppleID)
+            }
+            if let accountMessage { Text(accountMessage).font(.footnote) }
+        }
+        .onAppear(perform: refreshCredential)
+        .onChange(of: scenePhase) { _, phase in if phase == .active { refreshCredential() } }
+        .onReceive(NotificationCenter.default.publisher(for: ASAuthorizationAppleIDProvider.credentialRevokedNotification)) { _ in refreshCredential() }
     }
 
     private func finishSignIn(_ result: Result<ASAuthorization, Error>) {
@@ -127,6 +144,7 @@ struct SettingsView: View {
                 if !formatted.isEmpty { displayName = formatted }
             }
             accountMessage = nil
+            onSignIn()
         case .failure(let error):
             if (error as? ASAuthorizationError)?.code != .canceled {
                 accountMessage = error.localizedDescription

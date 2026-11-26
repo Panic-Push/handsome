@@ -20,19 +20,25 @@ struct AssessmentView: View {
         VStack(alignment: .leading, spacing: 18) {
             if started { ProgressView(value: session.progress) }
             if !started {
-                VStack(spacing: 18) {
-                    WorkbookFox(pose: .hello).frame(height: 140)
-                    Text("Check your handwriting").font(.workbook(.largeTitle))
-                    Text("Write a few letters, a word and a sentence to get your personal practice plan.")
-                        .font(.workbook(.title3)).multilineTextAlignment(.center)
-                    Label("\(session.tasks.count) tasks · about 3 minutes", systemImage: "pencil")
-                    Button("Start handwriting check") { started = true }.buttonStyle(LessonActionStyle())
+                ScrollView {
+                    VStack(spacing: 18) {
+                        WorkbookFox(pose: .hello).frame(height: 140)
+                        Text("Check your handwriting").font(.workbook(.largeTitle))
+                        Text("Write a few letters, a word and a sentence to get your personal practice plan.")
+                            .font(.workbook(.title3)).multilineTextAlignment(.center)
+                        Label("\(session.tasks.count) tasks · about 3 minutes", systemImage: "pencil")
+                        Button("Start handwriting check") { started = true }.buttonStyle(LessonActionStyle())
+                        PracticeSuggestions(path: $path)
+                    }.padding(20).frame(maxWidth: 680).frame(maxWidth: .infinity)
                 }
-                .padding(20).frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let report = session.report {
-                ReportContent(report: report)
-                Button("See my plan") { replaceWithPlan() }
-                    .buttonStyle(.borderedProminent)
+                ScrollView {
+                    VStack(spacing: 18) {
+                        ReportContent(report: report)
+                        PracticeSuggestions(path: $path)
+                        Button("Back to Home") { path.removeAll() }.buttonStyle(LessonActionStyle())
+                    }
+                }
             } else if let task = session.current {
                 Text("Task \(session.index + 1) of \(session.tasks.count)").font(.headline).foregroundStyle(.secondary)
                 Text(task.prompt).font(.workbook(.title2))
@@ -73,10 +79,7 @@ struct AssessmentView: View {
         lastLift = nil
     }
 
-    private func replaceWithPlan() {
-        if !path.isEmpty { path.removeLast() }
-        path.append(.plan)
-    }
+
 }
 
 /// STARTER: the report body, shared by the assessment and the report screen.

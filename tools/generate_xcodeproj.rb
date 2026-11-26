@@ -135,6 +135,9 @@ end
 # IDs derived from file paths instead of random ones, so regenerating the
 # project only changes the lines that really changed.
 project.predictabilize_uuids
+project.root_object.attributes['TargetAttributes'] = {
+  target.uuid => { 'SystemCapabilities' => { 'com.apple.SignInWithApple' => { 'enabled' => 1 } } }
+}
 
 project.save
 

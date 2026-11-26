@@ -19,12 +19,12 @@ Tick these off in order. Items marked (you) need your accounts.
 - [ ] Add a contact email to `docs/privacy/index.md` and `index.html` (replace `[CONTACT EMAIL]`).
 - [ ] (you) Turn on GitHub Pages for the repo (Settings › Pages › branch `main`, folder `/docs`), so the privacy policy is live at the URL in `AppLinks`. Or host it elsewhere and update `AppLinks.privacyPolicy`.
 - [ ] Fill in App Privacy (`privacy-labels.md`) and the age rating (`listing.md`).
-- [ ] Decide on Sign in with Apple for version 1 (see `review-notes.md`).
+- [ ] Enable Sign in with Apple on the release App ID and verify sign-in, cancellation, sign-out and revocation with a provisioned device.
 
 ## Product
 
 - [ ] Front end: first-launch age question, assessment, report, plan, words, paywall and Settings rows (see `docs/FRONTEND_HANDOFF.md`).
-- [ ] Real app icon (1024 × 1024) and launch look.
+- [x] Opaque 1024 × 1024 fox-and-pen app icon.
 - [ ] Test on a real iPad: purchases (sandbox), Restore, ads (test units), consent form (use a VPN to an EU country or AdMob's debug geography), Delete all my data.
 - [ ] Sample test: 10–20 people write with the app; tune pass marks and tips.
 

@@ -21,8 +21,6 @@ enum Route: Hashable {
     /// The starting handwriting assessment.
     case assessment
     case report
-    /// Today's personal plan.
-    case plan
     case words(WordRequest)
     case paywall
 }

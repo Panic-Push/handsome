@@ -1,63 +1,38 @@
 import SwiftUI
 
-/// STARTER SCREEN (to be redesigned): today's personal plan.
-struct PlanView: View {
+/// The daily exercises are available alongside the handwriting check and its result.
+struct PracticeSuggestions: View {
     @Binding var path: [Route]
     @ObservedObject private var plans = PlanStore.shared
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var store = StoreService.shared
 
     var body: some View {
-        List {
-            if plans.needsAssessment {
-                Section {
-                    Text("Take a 3-minute handwriting check to get a plan made for you.")
-                    Button("Start the handwriting check") { path.append(.assessment) }
-                }
-            } else if let today = plans.today, let report = plans.report {
-                Section("Today · \(today.minutes) minutes") {
+        if let today = plans.today {
+            DisclosureGroup("Suggested practice · \(today.minutes) minutes") {
+                VStack(alignment: .leading, spacing: 12) {
                     ForEach(Array(today.items.enumerated()), id: \.element.id) { index, item in
                         Button {
-                            open(item, at: index)
-                        } label: {
-                            HStack {
-                                Image(systemName: plans.isDone(item) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(plans.isDone(item) ? Color.green : Color.secondary)
-                                VStack(alignment: .leading) {
-                                    Text(item.title).font(.headline)
-                                    Text(item.detail).font(.subheadline).foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                if !FeatureGate.canOpen(planItemAt: index) { Image(systemName: "lock.fill") }
-                                Text("\(item.minutes) min").foregroundStyle(.secondary)
+                            if FeatureGate.canOpen(planItemAt: index) {
+                                if item.kind != .words { plans.markDone(item) }
+                                path.append(plans.route(for: item, style: settings.style))
+                            } else {
+                                path.append(.paywall)
                             }
+                        } label: {
+                            Label(item.title, systemImage: !store.isPremium && !FeatureGate.canOpen(planItemAt: index)
+                                  ? "lock.fill" : plans.isDone(item) ? "checkmark.circle.fill" : "pencil")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
                         }
                     }
-                }
-                Section {
-                    Picker("Minutes a day", selection: $plans.minutesPerDay) {
+                    if plans.report != nil { Button("Latest report") { path.append(.report) } }
+                    Picker("Daily goal", selection: $plans.minutesPerDay) {
                         ForEach(PlanStore.minuteChoices, id: \.self) { Text("\($0) min").tag($0) }
                     }
-                    Button("See my report") { path.append(.report) }
-                    Button(plans.reassessmentDue ? "Time for a new check" : "Retake the handwriting check") {
-                        path.append(.assessment)
-                    }
-                } footer: {
-                    Text("Focus: \(report.focusTitles.joined(separator: ", "))")
                 }
             }
+            .padding().paperCard()
         }
-        .navigationTitle("Your plan")
-        .onAppear { plans.refresh() }
-    }
-
-    private func open(_ item: PlanItem, at index: Int) {
-        guard FeatureGate.canOpen(planItemAt: index) else {
-            path.append(.paywall)
-            return
-        }
-        if item.kind != .words { plans.markDone(item) }
-        path.append(plans.route(for: item, style: settings.style))
     }
 }
 

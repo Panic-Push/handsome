@@ -37,7 +37,7 @@ struct HomeView: View {
                         }
                         courseShelf(compact: compact)
                         modeShortcuts
-                        Button("Your practice plan") { path.append(.plan) }
+                        Button("Your practice plan") { path.append(.assessment) }
                             .buttonStyle(.bordered)
                         if AdSlot.shouldAppear {
                             AdSlot(placement: .home)
@@ -75,13 +75,14 @@ struct HomeView: View {
                 let id = transitionID
                 GeometryReader { geometry in
                     LottieView(animation: animation).resizable()
-                        .playing().animationSpeed(1.7)
+                        .playing()
                         .animationDidFinish { completed in
-                            if completed && transitionID == id { transitionFox = nil }
+                            guard transitionID == id else { return }
+                            transitionFox = nil
+                            if completed && pose == .peek { showEarnedStreakAtHome() }
                         }
                         .aspectRatio(animation.bounds.width / animation.bounds.height, contentMode: pose == .dash ? .fill : .fit)
                         .frame(width: geometry.size.width, height: geometry.size.height)
-                        .background(pose == .splash ? Color.paper : Color.clear)
                         .clipped()
                 }
                 .ignoresSafeArea().id(id)
@@ -92,20 +93,18 @@ struct HomeView: View {
             if old == 0 && new > 0 { earnedStreakDay = true }
         }
         .onChange(of: path) { old, new in
-            if new.isEmpty && earnedStreakDay {
-                earnedStreakDay = false
-                showingStreak = true
-            }
+            if reduceMotion && new.isEmpty { showEarnedStreakAtHome() }
             transitionID = UUID()
-            transitionFox = reduceMotion ? nil : (new.count < old.count ? .peek : .dash)
+            if reduceMotion || old.isEmpty == new.isEmpty {
+                transitionFox = nil
+            } else {
+                transitionFox = new.isEmpty ? .peek : .dash
+            }
         }
         .onAppear {
             if !sawWelcome { showingWelcome = true }
         }
-        .fullScreenCover(isPresented: $showingWelcome, onDismiss: {
-            transitionID = UUID()
-            transitionFox = reduceMotion ? nil : .splash
-        }) {
+        .fullScreenCover(isPresented: $showingWelcome) {
             WorkbookWelcome(style: $settings.style) {
                 sawWelcome = true
                 showingWelcome = false
@@ -114,6 +113,12 @@ struct HomeView: View {
         .sheet(isPresented: $showingStreak) {
             streakCard.presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
         }
+    }
+
+    private func showEarnedStreakAtHome() {
+        guard path.isEmpty, earnedStreakDay else { return }
+        earnedStreakDay = false
+        showingStreak = true
     }
 
     @ViewBuilder
@@ -145,8 +150,6 @@ struct HomeView: View {
             AssessmentView(style: settings.style, path: $path)
         case .report:
             ReportView()
-        case .plan:
-            PlanView(path: $path)
         case .words(let request):
             WordPracticeView(request: request)
         case .paywall:
@@ -349,17 +352,29 @@ struct HomeView: View {
 private struct WorkbookWelcome: View {
     @Binding var style: LetterStyle
     let finish: () -> Void
-    @State private var choosing = false
+    private enum Step: Int { case welcome, workbook, account }
+    @State private var step: Step = .welcome
     @ObservedObject private var plans = PlanStore.shared
+    @AppStorage("penwise.account.appleUser") private var appleUser = ""
 
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                ProgressView(value: choosing ? 1.0 : 0.5)
-                WorkbookFox(pose: choosing ? .thinking : .hello).frame(height: 200)
-                Text(choosing ? "Pick your first workbook" : "Welcome to Penwise")
-                    .font(.workbook(.largeTitle))
-                if choosing {
+                ProgressView(value: Double(step.rawValue + 1), total: 3)
+                    .accessibilityLabel("Step \(step.rawValue + 1) of 3")
+                Image("FoxMark")
+                    .resizable().scaledToFit().frame(width: 110, height: 110)
+                    .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+                    .accessibilityHidden(true)
+                switch step {
+                case .welcome:
+                    Text("Welcome to Penwise").font(.workbook(.largeTitle))
+                    Text("Trace a letter, try it on your own, and watch your handwriting grow.")
+                        .font(.workbook(.title3))
+                    Button("Get started") { step = .workbook }.buttonStyle(LessonActionStyle())
+                    Button("Skip introduction", action: finish)
+                case .workbook:
+                    Text("Choose your workbook").font(.workbook(.largeTitle))
                     ForEach(LetterStyle.allCases) { option in
                         Button { style = option } label: {
                             HStack {
@@ -374,19 +389,20 @@ private struct WorkbookWelcome: View {
                         .accessibilityAddTraits(option == style ? .isSelected : [])
                     }
                     Picker("Daily practice goal", selection: $plans.minutesPerDay) {
-                        ForEach(PlanStore.minuteChoices, id: \.self) { minutes in
-                            Text("\(minutes) min").tag(minutes)
-                        }
+                        ForEach(PlanStore.minuteChoices, id: \.self) { Text("\($0) min").tag($0) }
                     }.pickerStyle(.menu)
-                } else {
-                    Text("Trace a letter, try it on your own, then see how you did.")
-                        .font(.workbook(.title3)).multilineTextAlignment(.center)
+                    Button("Continue") { step = .account }.buttonStyle(LessonActionStyle())
+                    Button("Back") { step = .welcome }
+                case .account:
+                    Text("Your workbook is ready").font(.workbook(.largeTitle))
+                    Text("You can use Apple to sign in or practise as a guest. Your handwriting stays on this iPad.")
+                    AppleAccountControls(onSignIn: finish)
+                    Button(appleUser.isEmpty ? "Continue as a guest" : "Open Penwise", action: finish)
+                        .buttonStyle(.bordered)
+                    Button("Back") { step = .workbook }
                 }
-                Button(choosing ? "Save and continue" : "Get started") {
-                    if choosing { finish() } else { choosing = true }
-                }.buttonStyle(LessonActionStyle())
-                Button("Skip introduction", action: finish)
             }
+            .multilineTextAlignment(.center)
             .padding(28).frame(maxWidth: 560).frame(maxWidth: .infinity)
         }
         .background(Color.paper).interactiveDismissDisabled()
