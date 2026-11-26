@@ -9,7 +9,10 @@ project_path = File.join(ios_dir, 'Penwise.xcodeproj')
 FileUtils.rm_rf(project_path)
 Dir.chdir(ios_dir)
 
-project = Xcodeproj::Project.new(project_path)
+# Write the project the way Xcode saves it, so opening it in Xcode changes
+# nothing (and pulls never conflict): object version 54 (needed for Swift
+# packages), and no group "name" when it equals the folder path.
+project = Xcodeproj::Project.new(project_path, false, 54)
 target = project.new_target(:application, 'Penwise', :ios, '17.0')
 
 # Build the shared Kotlin engine (core/) into PenwiseCore.framework before
@@ -124,6 +127,14 @@ target.build_configurations.each do |config|
   # The Kotlin build writes outside the Xcode sandbox.
   s['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
 end
+
+project.objects.select { |o| o.isa == 'PBXGroup' }.each do |group|
+  group.name = nil if group.name && group.name == group.path
+end
+
+# IDs derived from file paths instead of random ones, so regenerating the
+# project only changes the lines that really changed.
+project.predictabilize_uuids
 
 project.save
 
