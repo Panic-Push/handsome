@@ -177,6 +177,8 @@ struct WorksheetView: View {
 
     // MARK: - Body
 
+    private var showingTestResult: Bool { mode == .test && result != nil && !completedSet }
+
     var body: some View {
         Group {
             if completedSet {
@@ -204,6 +206,11 @@ struct WorksheetView: View {
                 .background(Color.paper)
             }
         }
+        .accessibilityHidden(showingTestResult)
+        .allowsHitTesting(!showingTestResult)
+        .overlay {
+            if showingTestResult, let result { testResultCard(result) }
+        }
         .safeAreaInset(edge: .top, spacing: 0) {
             if let position, let steps = chapter?.steps, let index = steps.firstIndex(of: position.step) {
                 ProgressView(value: Double(index + 1), total: Double(steps.count))
@@ -214,7 +221,7 @@ struct WorksheetView: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { if !completedSet { toolbarContent } }
+        .toolbar { if !completedSet && !showingTestResult { toolbarContent } }
         .onAppear(perform: appear)
         .onDisappear {
             cancelPending()
@@ -284,6 +291,39 @@ struct WorksheetView: View {
         }
     }
 
+    private func testResultCard(_ score: ScoreResult) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Your letter · \(selected?.glyph ?? "")")
+                    .font(.workbook(.largeTitle, weight: .bold))
+                    .accessibilityAddTraits(.isHeader)
+                HStack(spacing: 18) {
+                    ScoreRing(score: score.overall)
+                    VStack(alignment: .leading, spacing: 8) {
+                        StarsView(count: ProgressStore.stars(for: score.overall), size: 24)
+                        Text(currentAttempt?.hinted == true ? "With hint" : "From memory")
+                            .font(.headline)
+                    }
+                }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), alignment: .leading)], alignment: .leading) {
+                    ForEach(score.parts) { PartChip(part: $0) }
+                }
+                if let tip = score.tip {
+                    Label(tip, systemImage: "lightbulb").font(.body)
+                }
+                Divider()
+                primaryButton("Tap to continue · " + nextLabel, "arrow.right", action: goNext)
+                secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
+            }
+            .padding(24)
+            .paperCard()
+            .frame(maxWidth: 580)
+            .padding()
+            .frame(maxWidth: .infinity)
+        }
+        .background(Color.paper)
+    }
+
     private var setRecap: some View {
         VStack(spacing: 18) {
             Image(systemName: "checkmark.seal.fill").font(.largeTitle).foregroundStyle(Color.courseViolet)
@@ -320,7 +360,7 @@ struct WorksheetView: View {
             .onAppear { canvasSize = geo.size }
             .onChange(of: geo.size) { _, newSize in
                 canvasSize = newSize
-                startOver() // the guides moved, so old ink would no longer line up
+                if !showingTestResult { startOver() }
             }
         }
     }
