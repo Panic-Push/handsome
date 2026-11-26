@@ -1,0 +1,41 @@
+{
+ "id": "latin.print-modern.1",
+ "glyph": "1",
+ "script": "latin",
+ "style": "print-modern",
+ "width": 0.2,
+ "strokes": [
+  {
+   "points": [
+    [
+     0.16,
+     0.0
+    ],
+    [
+     0.16,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "alternates": [
+  [
+   {
+    "points": [
+     [
+      0.0,
+      0.16
+     ],
+     [
+      0.16,
+      0.0
+     ],
+     [
+      0.16,
+      1.0
+     ]
+    ]
+   }
+  ]
+ ]
+}

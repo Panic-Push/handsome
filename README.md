@@ -75,6 +75,13 @@ With a free Apple ID the app stops opening after 7 days; just press ⌘R again.
 
 ## What to test
 
+**Letter sessions, digits and sentence scoring**
+- [ ] A journey letter opens a session: six tracing exercises checked quietly in place (a score badge pops on each; only a low score shows a tip and asks for another try).
+- [ ] After the sixth: a stats screen with the fox, stars, points, average, best, time and all six attempts.
+- [ ] Continue goes to training: six groups of the letter (top row traced over faint letters, bottom row written on plain lines) with a progress bar, then stats again, then the next letter.
+- [ ] Digits 0–9 exist in all three styles.
+- [ ] Sentence worksheet: Finish sentence shows a score, one tip, a score per word, and shape / size / baseline / spacing / smoothness.
+
 **Capitals, letter card and continuous writing**
 - [ ] Capitals A–Z exist in Normal, Classic and Traditional; the sentence worksheet draws "Rain taps the roof." with a handwritten R (no typed letters).
 - [ ] Tapping a letter on the chapter map opens a card with three worksheet previews (Learn, Practice, Test) instead of the plain action sheet.

@@ -150,6 +150,9 @@ struct SentenceWorksheet: View {
     @State private var previous: UIImage?
     @State private var wordsWritten: [UIImage] = []
     @State private var replay = UUID()
+    @State private var canvasSize: CGSize = .zero
+    @State private var wordResults: [LineResult] = []
+    @State private var result: LineResult?
     @StateObject private var ink = InkModel()
 
     init(style: LetterStyle, mode: WritingMode, focus: String?) {
@@ -198,23 +201,23 @@ struct SentenceWorksheet: View {
                         }
                     }
                 }
+                GeometryReader { geo in
                 ZStack {
-                    Canvas { context, size in
-                        for y in stride(from: CGFloat(55), to: size.height, by: 60) {
-                            var line = Path()
-                            line.move(to: CGPoint(x: 0, y: y))
-                            line.addLine(to: CGPoint(x: size.width, y: y))
-                            context.stroke(line, with: .color(Color.rule.opacity(0.55)))
-                        }
-                    }
+                    RuledLinesView(layout: SentenceModel.layout(text: model, style: style, size: geo.size))
                     if tracingWords {
                         SentenceModel(text: model, style: style, animated: false)
                             .opacity(0.3).allowsHitTesting(false)
                     }
                     InkCanvas(model: ink).allowsHitTesting(!finished)
                 }
+                .onAppear { canvasSize = geo.size }
+                .onChange(of: geo.size) { _, newSize in canvasSize = newSize }
+                }
                 .frame(height: tracingWords ? 150 : 240)
                 .background(Color.paper).clipShape(RoundedRectangle(cornerRadius: 14))
+                if finished, let result {
+                    SentenceResultCard(result: result)
+                }
                 if finished {
                     Text("Compare the spacing, height and joins with the model above.").font(.callout)
                     HStack {
@@ -235,10 +238,12 @@ struct SentenceWorksheet: View {
                         Button(tracingWords && word + 1 < words.count ? "Next word" : "Finish sentence") {
                             if tracingWords && word + 1 < words.count {
                                 if let image = snapshot() { wordsWritten.append(image) }
+                                scoreCurrent()
                                 ink.clear()
                                 word += 1
                                 replay = UUID()
                             } else {
+                                scoreCurrent()
                                 finished = true
                             }
                         }
@@ -277,6 +282,43 @@ struct SentenceWorksheet: View {
         }
     }
 
+    /// Scores what is on the canvas: one word when tracing word by word,
+    /// otherwise the whole sentence written freely.
+    private func scoreCurrent() {
+        guard canvasSize != .zero, let plan = try? CoreBridge.plan(model, style: style), !plan.isEmpty else { return }
+        let layout = SentenceModel.layout(text: model, style: style, size: canvasSize)
+        let r = CoreBridge.scoreLine(strokes: ink.capturedStrokes(in: layout), plan: plan,
+                                     traced: false, finger: ink.lastInkUsedFinger)
+        if tracingWords {
+            wordResults.append(r)
+            if wordResults.count == words.count || word + 1 >= words.count { result = combined(wordResults) }
+        } else {
+            result = r
+        }
+        if let result {
+            ProgressStore.shared.record(score: result.overall, mode: mode,
+                                        templateID: "sentence.\(style.rawValue)", issue: result.kinds.first)
+        }
+    }
+
+    /// Word-by-word results combined into one sentence result.
+    private func combined(_ parts: [LineResult]) -> LineResult {
+        let overall = parts.isEmpty ? 0 : parts.map(\.overall).reduce(0, +) / parts.count
+        let worst = parts.min { $0.overall < $1.overall }
+        var merged: [String: [Int]] = [:]
+        for part in parts { for p in part.parts { merged[p.name, default: []].append(p.value) } }
+        let names = ["Shape", "Size", "Baseline", "Smoothness"]
+        return LineResult(
+            overall: overall,
+            tip: worst?.tip,
+            kinds: worst?.kinds ?? [],
+            parts: names.compactMap { n in merged[n].map { ScorePart(name: n, value: $0.reduce(0, +) / $0.count) } },
+            words: parts.flatMap(\.words),
+            letterScores: parts.flatMap(\.letterScores),
+            problemLetters: []
+        )
+    }
+
     private func comparisonImage() -> UIImage? {
         guard let last = snapshot() else { return nil }
         let images = wordsWritten + [last]
@@ -305,6 +347,8 @@ struct SentenceWorksheet: View {
         ink.clear()
         word = 0
         finished = false
+        result = nil
+        wordResults.removeAll()
         previous = nil
         wordsWritten.removeAll()
         replay = UUID()
@@ -319,6 +363,18 @@ private struct SentenceModel: View {
     let animated: Bool
     @State private var started = Date()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// Where the model's writing lines sit for this text and size, so guides
+    /// and ink line up with the drawn model.
+    static func layout(text: String, style: LetterStyle, size: CGSize) -> GuideLayout {
+        let space: CGFloat = style == .print ? 0.18 : 0.08
+        let total = text.map(String.init).reduce(CGFloat(0)) { sum, glyph in
+            if let t = TemplateLibrary.shared.template(id: "latin.\(style.rawValue).\(glyph)") { return sum + CGFloat(t.width) + space }
+            return sum + (glyph == " " ? 0.48 : 0.85)
+        }
+        let unit = max(1, min(size.height / 1.65, (size.width - 20) / max(1, total)))
+        return GuideLayout(origin: CGPoint(x: 10, y: (size.height - 1.5 * unit) / 2), unit: unit)
+    }
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !animated || reduceMotion)) { clock in
@@ -362,5 +418,46 @@ private struct SentenceModel: View {
         }
         }
         .accessibilityLabel(text)
+    }
+}
+
+/// The sentence score: overall ring, the one tip, each word's score and the
+/// line metrics (shape, size, baseline, spacing, smoothness).
+private struct SentenceResultCard: View {
+    let result: LineResult
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(spacing: 18) {
+                ScoreRing(score: result.overall, size: 76)
+                VStack(alignment: .leading, spacing: 6) {
+                    Label(result.tip == nil ? "Lovely sentence" : "One thing to work on",
+                          systemImage: result.tip == nil ? "checkmark.seal.fill" : "lightbulb.fill")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(result.tip == nil ? Color.green : Color.orange)
+                    Text(result.tip ?? "Even size, steady baseline and clear words.")
+                        .font(.workbook(.title3))
+                        .foregroundStyle(Color.ink)
+                }
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Array(result.words.enumerated()), id: \.offset) { _, word in
+                        HStack(spacing: 6) {
+                            Text(word.text).font(.headline)
+                            Text("\(word.score)").font(.callout.weight(.bold)).foregroundStyle(scoreColor(word.score))
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(scoreColor(word.score).opacity(0.12), in: Capsule())
+                    }
+                }
+            }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), alignment: .leading)], alignment: .leading, spacing: 8) {
+                ForEach(result.parts) { PartChip(part: $0) }
+            }
+        }
+        .padding(18)
+        .paperCard(radius: 20)
     }
 }

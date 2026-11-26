@@ -68,7 +68,11 @@ struct HomeView: View {
         case .journeyMap(let id):
             JourneyMapView(journeyID: id, path: $path)
         case .lesson(let position, let review):
-            WorksheetView(context: .lesson(position, review: review), path: $path)
+            if JourneyLibrary.shared.journey(id: position.journeyID)?.chapter(position.chapterID)?.isCheckpoint == true {
+                WorksheetView(context: .lesson(position, review: review), path: $path)
+            } else {
+                LetterSessionView(position: position, review: review, path: $path)
+            }
         case .recap(let id):
             CheckpointRecapView(journeyID: id, path: $path)
         case .recorder:

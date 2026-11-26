@@ -27,6 +27,10 @@ enum class IssueKind {
     TOO_BIG,
     TOO_SMALL,
     SHAKY,
+    /** Small letters in a word or line are different heights. */
+    UNEVEN_SIZE,
+    /** Gaps between words are very different. */
+    UNEVEN_SPACING,
 }
 
 /**

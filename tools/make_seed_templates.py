@@ -11,7 +11,7 @@ Styles:
   cursive-traditional  "Traditional": slanted joined letters with loops
 Each cursive style also accepts the other's looped/plain form of b f h k l
 and the descender letters as an alternate, so either is scored as correct.
-Capitals A-Z are shared by Normal and Classic, and slanted for Traditional.
+Capitals A-Z and digits 0-9 are shared by Normal and Classic, and slanted for Traditional.
 """
 import json
 import math
@@ -278,6 +278,31 @@ def capital_letters():
         "Z": dict(strokes=[line((0.0, 0.0), (0.62, 0.0), (0.0, 1.0), (0.64, 1.0))]),
     }
 
+
+# ---------------------------------------------------------------- digits
+# Figures from the baseline (1.0) to the top line (0.0), in school stroke order.
+
+def digit_letters():
+    return {
+        "0": dict(strokes=[arc(0.3, 0.5, 0.3, 0.5, 90, 450, n=40)]),
+        "1": dict(strokes=[line((0.16, 0.0), (0.16, 1.0))],
+                  alternates=[[line((0.0, 0.16), (0.16, 0.0), (0.16, 1.0))]]),
+        "2": dict(strokes=[J(arc(0.3, 0.28, 0.28, 0.28, 160, -40, n=24), line((0.51, 0.46), (0.0, 1.0)),
+                             line((0.0, 1.0), (0.6, 1.0)))]),
+        "3": dict(strokes=[J(arc(0.28, 0.25, 0.26, 0.25, 150, -90, n=20), arc(0.28, 0.75, 0.29, 0.25, 90, -150, n=22))]),
+        "4": dict(strokes=[line((0.42, 0.0), (0.0, 0.68), (0.6, 0.68)), line((0.44, 0.0), (0.44, 1.0))]),
+        "5": dict(strokes=[J(line((0.09, 0.0), (0.06, 0.44)), arc(0.3, 0.7, 0.29, 0.3, 140, -150, n=24)),
+                           line((0.09, 0.0), (0.56, 0.0))],
+                  alternates=[[line((0.56, 0.0), (0.09, 0.0), (0.06, 0.44)), arc(0.3, 0.7, 0.29, 0.3, 140, -150, n=24)]]),
+        "6": dict(strokes=[J(S((0.52, 0.05), (0.3, 0.04), (0.1, 0.3), (0.02, 0.68)),
+                             arc(0.3, 0.7, 0.28, 0.3, 180, 540, n=36))]),
+        "7": dict(strokes=[line((0.0, 0.0), (0.6, 0.0), (0.2, 1.0))]),
+        "8": dict(strokes=[S((0.5, 0.14), (0.3, 0.0), (0.1, 0.12), (0.12, 0.32), (0.3, 0.46), (0.52, 0.62),
+                             (0.56, 0.86), (0.32, 1.0), (0.08, 0.88), (0.1, 0.64), (0.3, 0.48), (0.48, 0.32),
+                             (0.5, 0.14))]),
+        "9": dict(strokes=[J(arc(0.3, 0.28, 0.26, 0.28, 0, 360, n=36), line((0.56, 0.28), (0.52, 1.0)))]),
+    }
+
 # Letters whose looped and plain forms differ (each style accepts the other).
 LOOP_LETTERS = set("bfhklgjyz")
 
@@ -294,7 +319,7 @@ def styles():
         out["cursive-modern"][g] = dict(strokes=plain[g], alternates=alt_plain)
         alt_trad = [slanted(plain[g])] if g in LOOP_LETTERS else []
         out["cursive-traditional"][g] = dict(strokes=slanted(loops[g]), alternates=alt_trad)
-    for g, spec in capital_letters().items():
+    for g, spec in {**capital_letters(), **digit_letters()}.items():
         alts = spec.get("alternates", [])
         out["print-modern"][g] = dict(strokes=spec["strokes"], alternates=alts)
         out["cursive-modern"][g] = dict(strokes=spec["strokes"], alternates=alts)
