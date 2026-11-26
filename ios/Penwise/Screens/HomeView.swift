@@ -24,7 +24,7 @@ struct HomeView: View {
                             journeyCard(journey)
                         }
                         modeShortcuts
-                        if settings.showAdPlaceholders {
+                        if AdSlot.shouldAppear {
                             AdSlot(placement: .home)
                                 .frame(maxWidth: .infinity)
                         }
@@ -38,6 +38,9 @@ struct HomeView: View {
             }
             .background(Color.paper)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { path.append(.plan) } label: { Label("Your plan", systemImage: "calendar") }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
                         Label("Account", systemImage: "person.crop.circle").labelStyle(.titleAndIcon)
@@ -77,6 +80,16 @@ struct HomeView: View {
             CheckpointRecapView(journeyID: id, path: $path)
         case .recorder:
             RecorderView()
+        case .assessment:
+            AssessmentView(style: settings.style, path: $path)
+        case .report:
+            ReportView()
+        case .plan:
+            PlanView(path: $path)
+        case .words(let request):
+            WordPracticeView(request: request)
+        case .paywall:
+            PaywallView()
         }
     }
 
@@ -84,7 +97,7 @@ struct HomeView: View {
     /// the destination otherwise. Extra taps while navigating are ignored.
     private func go(_ target: EntryTarget) {
         guard path.isEmpty else { return }
-        path.append(settings.showAdPlaceholders ? .entry(target) : target.destination)
+        path.append(AdSlot.shouldAppear ? .entry(target) : target.destination)
     }
 
     // MARK: - Header

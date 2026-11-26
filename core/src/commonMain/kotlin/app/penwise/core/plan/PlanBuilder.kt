@@ -19,7 +19,8 @@ enum class ActivityKind {
  * example highlight the baseline for a BASELINE drill); null means none.
  */
 data class PlanActivity(
-    val id: String,
+    /** Stable key, unique within the day ("id" would be renamed in the Swift bridge). */
+    val key: String,
     val kind: ActivityKind,
     val title: String,
     val detail: String,
@@ -63,7 +64,7 @@ object PlanBuilder {
         val activities = mutableListOf<PlanActivity>()
         // Warm-up: the weakest letter of the day.
         activities += PlanActivity(
-            id = "d$day-warmup",
+            key = "d$day-warmup",
             kind = if (report.overall < 60) ActivityKind.LETTER_LESSON else ActivityKind.LETTER_PRACTICE,
             title = "Warm up with ${todaysLetters.first()}",
             detail = "Trace it slowly, then write it with a faint guide.",
@@ -76,7 +77,7 @@ object PlanBuilder {
         // Memory check on the day's letters.
         if (memoryMinutes > 0) {
             activities += PlanActivity(
-                id = "d$day-memory",
+                key = "d$day-memory",
                 kind = ActivityKind.LETTER_TEST,
                 title = "From memory: ${todaysLetters.joinToString(" ")}",
                 detail = "Write each one without a guide.",
@@ -88,7 +89,7 @@ object PlanBuilder {
         // Real writing to finish.
         if (sentenceMinutes > 0) {
             activities += PlanActivity(
-                id = "d$day-sentence",
+                key = "d$day-sentence",
                 kind = ActivityKind.SENTENCE,
                 title = "Write a sentence",
                 detail = "Keep it even: same size, steady on the line.",

@@ -18,6 +18,13 @@ enum Route: Hashable {
     case lesson(LessonPosition, review: Bool)
     case recap(String)
     case recorder
+    /// The starting handwriting assessment.
+    case assessment
+    case report
+    /// Today's personal plan.
+    case plan
+    case words(WordRequest)
+    case paywall
 }
 
 extension EntryTarget {

@@ -33,17 +33,29 @@ SH
 target.build_phases.delete(kotlin)
 target.build_phases.unshift(kotlin)
 
-package = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
-package.repositoryURL = 'https://github.com/airbnb/lottie-ios.git'
-package.requirement = { 'kind' => 'exactVersion', 'version' => '4.5.2' }
-project.root_object.package_references << package
-product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
-product.package = package
-product.product_name = 'Lottie'
-target.package_product_dependencies << product
-link = project.new(Xcodeproj::Project::Object::PBXBuildFile)
-link.product_ref = product
-target.frameworks_build_phase.files << link
+# Swift packages: Lottie (animations), Google Mobile Ads and its consent
+# library (User Messaging Platform). Versions are pinned exactly.
+def add_package(project, target, url, version, products)
+  package = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+  package.repositoryURL = url
+  package.requirement = { 'kind' => 'exactVersion', 'version' => version }
+  project.root_object.package_references << package
+  products.each do |name|
+    product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+    product.package = package
+    product.product_name = name
+    target.package_product_dependencies << product
+    link = project.new(Xcodeproj::Project::Object::PBXBuildFile)
+    link.product_ref = product
+    target.frameworks_build_phase.files << link
+  end
+end
+
+add_package(project, target, 'https://github.com/airbnb/lottie-ios.git', '4.5.2', ['Lottie'])
+add_package(project, target, 'https://github.com/googleads/swift-package-manager-google-mobile-ads.git',
+            '13.13.0', ['GoogleMobileAds'])
+add_package(project, target, 'https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git',
+            '3.1.0', ['GoogleUserMessagingPlatform'])
 
 # Source files and assets, mirroring the folder structure as groups.
 app_group = project.main_group.new_group('Penwise', 'Penwise')
@@ -56,7 +68,7 @@ Dir.glob('Penwise/**/*').sort.each do |path|
   ref = group.new_reference(File.basename(path))
   if path.end_with?('.swift')
     target.source_build_phase.add_file_reference(ref)
-  elsif path.end_with?('.xcassets')
+  elsif path.end_with?('.xcassets') || path.end_with?('.xcprivacy')
     target.resources_build_phase.add_file_reference(ref)
   end
 end
@@ -66,13 +78,17 @@ content_group = project.main_group.new_group('Content', '../content')
 templates = content_group.new_reference('templates')
 templates.last_known_file_type = 'folder'
 target.resources_build_phase.add_file_reference(templates)
-journeys = content_group.new_reference('journeys')
-journeys.last_known_file_type = 'folder'
-target.resources_build_phase.add_file_reference(journeys)
+%w[journeys words].each do |folder|
+  ref = content_group.new_reference(folder)
+  ref.last_known_file_type = 'folder'
+  target.resources_build_phase.add_file_reference(ref)
+end
 
 config_group = project.main_group.new_group('Config', 'Config')
 config_group.new_reference('Info.plist')
 config_group.new_reference('Penwise.entitlements')
+# Local StoreKit catalogue: purchases work in Xcode before App Store Connect.
+config_group.new_reference('Penwise.storekit')
 # Signing settings come from Config/Base.xcconfig, which reads the personal,
 # uncommitted Config/Local.xcconfig. Keeping them out of project.pbxproj means
 # choosing a signing team never makes that file differ from the repository.
@@ -114,5 +130,16 @@ project.save
 scheme = Xcodeproj::XCScheme.new
 scheme.configure_with_targets(target, nil, launch_target: true)
 scheme.save_as(project_path, 'Penwise', true)
+
+# Run from Xcode with the local StoreKit catalogue (Product > Scheme > Edit
+# Scheme > Run > Options shows it). Path is relative to the .xcodeproj.
+scheme_path = File.join(project_path, 'xcshareddata', 'xcschemes', 'Penwise.xcscheme')
+xml = File.read(scheme_path)
+unless xml.include?('StoreKitConfigurationFileReference')
+  xml.sub!(%r{(<LaunchAction[^>]*>)}m) do
+    "#{Regexp.last_match(1)}\n      <StoreKitConfigurationFileReference\n         identifier = \"../Config/Penwise.storekit\">\n      </StoreKitConfigurationFileReference>"
+  end
+  File.write(scheme_path, xml)
+end
 
 puts "Generated #{project_path}"

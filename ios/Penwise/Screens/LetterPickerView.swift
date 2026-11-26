@@ -312,6 +312,7 @@ struct SentenceWorksheet: View {
             overall: overall,
             tip: worst?.tip,
             kinds: worst?.kinds ?? [],
+            messages: worst?.messages ?? [],
             parts: names.compactMap { n in merged[n].map { ScorePart(name: n, value: $0.reduce(0, +) / $0.count) } },
             words: parts.flatMap(\.words),
             letterScores: parts.flatMap(\.letterScores),

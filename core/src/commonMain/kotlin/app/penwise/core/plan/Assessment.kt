@@ -20,7 +20,8 @@ enum class Skill(val title: String, val advice: String) {
 
 /** What the starting assessment asks the learner to write. */
 data class AssessmentTask(
-    val id: String,
+    /** Stable key ("id" would be renamed in the Swift bridge). */
+    val key: String,
     /** A single letter (scored with the letter scorer) or a word/sentence. */
     val text: String,
     val isLine: Boolean,

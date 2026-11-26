@@ -1,9 +1,19 @@
 import SwiftUI
 
-/// A clearly labelled space for an ad. Real ads (Google AdMob) and the
-/// "Remove ads" purchase come in Phase 2; until then this shows a placeholder
-/// of the final size, so layouts don't move when ads arrive.
+/// A clearly labelled space for an ad: a live AdMob banner when ads are
+/// allowed, a placeholder of the same size when "Show ad placeholders" is on
+/// in Settings, and nothing for Premium.
 struct AdSlot: View {
+    /// Whether ad spaces (and the entry screen that holds one) should appear.
+    @MainActor static var shouldAppear: Bool {
+        guard !StoreService.shared.isPremium else { return false }
+        return AdsService.shared.showsAds || AppSettings.shared.showAdPlaceholders
+    }
+
+    @ObservedObject private var ads = AdsService.shared
+    @ObservedObject private var store = StoreService.shared
+    @State private var loadFailed = false
+
     enum Placement {
         /// Shallow banner under the Home mode cards.
         case home
@@ -26,6 +36,26 @@ struct AdSlot: View {
                 .font(.caption2.weight(.semibold))
                 .tracking(1)
                 .foregroundStyle(.secondary)
+            if ads.showsAds && !loadFailed {
+                GeometryReader { geo in
+                    AdBannerView(placement: placement == .home ? .homeBanner : .entry,
+                                 width: min(geo.size.width, placement.size.width)) { loaded in
+                        loadFailed = !loaded
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .frame(maxWidth: placement.size.width)
+                .frame(height: placement.size.height)
+            } else {
+                placeholder
+            }
+        }
+        .opacity(store.isPremium ? 0 : 1)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Advertisement")
+    }
+
+    private var placeholder: some View {
             ZStack {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .fill(Color.secondary.opacity(0.07))
@@ -37,8 +67,5 @@ struct AdSlot: View {
             }
             .frame(maxWidth: placement.size.width)
             .frame(height: placement.size.height)
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Advertisement placeholder")
     }
 }

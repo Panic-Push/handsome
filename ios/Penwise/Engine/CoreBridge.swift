@@ -1,7 +1,8 @@
 import Foundation
 import PenwiseCore
 
-// This is the only file that talks to the shared Kotlin engine (PenwiseCore).
+// This file and LearningBridge.swift are the only files that talk to the
+// shared Kotlin engine (PenwiseCore).
 // Kotlin types are qualified with `PenwiseCore.` where the app has a type of
 // the same name (LetterTemplate).
 
@@ -120,7 +121,7 @@ enum CoreBridge {
 
 /// A word or line laid out on the writing line by the shared engine.
 struct LinePlan {
-    fileprivate let placed: [PlacedLetter]
+    let placed: [PlacedLetter]
     /// The app's copy of each placed letter's template, in the same order.
     let templates: [LetterTemplate]
     /// Left edge of each letter, in line units.
@@ -140,6 +141,8 @@ struct LineResult {
     let overall: Int
     let tip: String?
     let kinds: [String]
+    /// The message for each issue in `kinds`, same order.
+    let messages: [String]
     let parts: [ScorePart]
     let words: [(text: String, score: Int)]
     /// Score of each placed letter, in plan order.
@@ -149,7 +152,7 @@ struct LineResult {
 }
 
 extension CoreBridge {
-    fileprivate static func coreTemplate(id: String) throws -> PenwiseCore.LetterTemplate? {
+    static func coreTemplate(id: String) throws -> PenwiseCore.LetterTemplate? {
         if let cached = templateCache[id] { return cached }
         guard let json = TemplateLibrary.shared.json(for: id) else { return nil }
         let template = try TemplateCodec.shared.decode(text: json)
@@ -157,7 +160,7 @@ extension CoreBridge {
         return template
     }
 
-    fileprivate static func makeInk(_ strokes: [CapturedStroke], finger: Bool) -> Ink {
+    static func makeInk(_ strokes: [CapturedStroke], finger: Bool) -> Ink {
         Ink(
             strokes: strokes.map { stroke in
                 InkStroke(points: stroke.points.map { InkPoint(x: $0.x, y: $0.y, t: $0.t, force: $0.force) })
@@ -210,6 +213,7 @@ extension CoreBridge {
             overall: Int(s.overall),
             tip: s.tip,
             kinds: s.issues.map { $0.kind.name },
+            messages: s.issues.map { $0.message },
             parts: parts,
             words: s.words.map { (text: $0.text, score: Int($0.score)) },
             letterScores: letterScores,

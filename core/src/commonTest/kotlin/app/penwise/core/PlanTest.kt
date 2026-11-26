@@ -87,7 +87,7 @@ class PlanTest {
         val r = b.build()
         val days = (0..3).map { PlanBuilder.build(r, 15, it) }
         assertTrue(days.map { it.activities[1].focus }.toSet().size > 1, "focus should rotate")
-        assertTrue(days.flatMap { d -> d.activities.map { it.id } }.toSet().size == days.sumOf { it.activities.size }, "ids are unique per day")
+        assertTrue(days.flatMap { d -> d.activities.map { it.key } }.toSet().size == days.sumOf { it.activities.size }, "ids are unique per day")
     }
 
     @Test
@@ -97,6 +97,6 @@ class PlanTest {
         val r = b.build()
         val direct = PlanBuilder.build(r, 10, 2)
         val saved = PlanBuilder.buildFor(r.overall, r.focus.map { it.name }, r.weakLetters, 10, 2)
-        assertEquals(direct.activities.map { it.id }, saved.activities.map { it.id })
+        assertEquals(direct.activities.map { it.key }, saved.activities.map { it.key })
     }
 }

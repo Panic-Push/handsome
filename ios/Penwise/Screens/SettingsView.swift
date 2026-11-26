@@ -10,6 +10,10 @@ struct SettingsView: View {
     @AppStorage("penwise.account.name") private var displayName = ""
     @State private var accountMessage: String?
     @State private var confirmReset = false
+    @State private var confirmDelete = false
+    @State private var showPaywall = false
+    @ObservedObject private var store = StoreService.shared
+    @ObservedObject private var ads = AdsService.shared
 
     var body: some View {
         NavigationStack {
@@ -32,6 +36,29 @@ struct SettingsView: View {
                     Text("Apple account")
                 } footer: {
                     Text("Writing history and course progress belong to this iPad. Signing out keeps them on this device.")
+                }
+                Section("Premium") {
+                    if store.isPremium {
+                        Label("Premium is active", systemImage: "checkmark.seal.fill").foregroundStyle(.green)
+                    } else {
+                        Button("Get Penwise Premium") { showPaywall = true }
+                    }
+                    Button("Restore purchases") { Task { await store.restore() } }
+                }
+                Section {
+                    Picker("Age", selection: $settings.ageBand) {
+                        ForEach(AgeBand.allCases.filter { $0 != .unknown }) { Text($0.title).tag($0) }
+                        if settings.ageBand == .unknown { Text(AgeBand.unknown.title).tag(AgeBand.unknown) }
+                    }
+                    if ads.privacyOptionsRequired {
+                        Button("Privacy choices for ads") { Task { await ads.showPrivacyOptions() } }
+                    }
+                    Link("Privacy policy", destination: AppLinks.privacyPolicy)
+                    Button("Delete all my data", role: .destructive) { confirmDelete = true }
+                } header: {
+                    Text("Privacy")
+                } footer: {
+                    Text("Your handwriting and progress stay on this iPad. Under 18s never see personalised ads.")
                 }
                 Section("Writing preferences") {
                     Picker("Writing size", selection: $settings.size) {
@@ -61,6 +88,15 @@ struct SettingsView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
                 }
+            }
+            .sheet(isPresented: $showPaywall) { NavigationStack { PaywallView() } }
+            .confirmationDialog("Delete all your data?", isPresented: $confirmDelete, titleVisibility: .visible) {
+                Button("Delete everything", role: .destructive) {
+                    AccountService.deleteAllData()
+                    signOut()
+                }
+            } message: {
+                Text("Your progress, plan, reports, settings and sign-in details will be erased from this iPad. Purchases can be restored later. To also stop using Sign in with Apple, visit appleid.apple.com.")
             }
             .confirmationDialog("Reset all progress?", isPresented: $confirmReset, titleVisibility: .visible) {
                 Button("Reset", role: .destructive) {
