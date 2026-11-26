@@ -311,6 +311,11 @@ def slanted(strokes):
     return [[[x + (1.0 - y) * SLANT, y] for x, y in s] for s in strokes]
 
 
+def handwritten(form):
+    return [[[x + (1 - y) * 0.065 + 0.014 * math.sin(math.pi * y), y]
+             for x, y in stroke] for stroke in form]
+
+
 def styles():
     out = {"print-modern": print_letters(), "cursive-modern": {}, "cursive-traditional": {}}
     plain, loops = cursive_letters(False), cursive_letters(True)
@@ -324,6 +329,19 @@ def styles():
         out["print-modern"][g] = dict(strokes=spec["strokes"], alternates=alts)
         out["cursive-modern"][g] = dict(strokes=spec["strokes"], alternates=alts)
         out["cursive-traditional"][g] = dict(strokes=slanted(spec["strokes"]), alternates=[slanted(a) for a in alts])
+    for glyph, spec in out["print-modern"].items():
+        original = spec["strokes"]
+        strokes = list(original)
+        if glyph == "l":
+            strokes[0] = S((0.10, 0.0), (0.095, 0.40), (0.085, 0.88), (0.10, 0.98), (0.18, 1.0))
+        elif glyph == "t":
+            strokes[0] = S((0.15, 0.15), (0.14, 0.56), (0.13, 0.88), (0.16, 0.98), (0.25, 0.97))
+        elif glyph == "c":
+            strokes[0] = S((0.42, 0.57), (0.29, 0.50), (0.12, 0.57), (0.05, 0.77),
+                           (0.09, 0.93), (0.24, 1.0), (0.42, 0.92))
+        spec["strokes"] = handwritten(strokes)
+        if glyph in ("l", "t", "c"):
+            spec.setdefault("alternates", []).append(original)
     return out
 
 

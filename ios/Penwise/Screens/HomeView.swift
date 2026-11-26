@@ -1,4 +1,5 @@
 import SwiftUI
+import Lottie
 
 /// Home tells the learner what to write next: the journey card first, then
 /// Learn, Practice and Test as direct routes, then the banner ad.
@@ -8,9 +9,17 @@ struct HomeView: View {
     @ObservedObject private var journeys = JourneyStore.shared
     @State private var path: [Route] = []
     @State private var greeting = 0
-    private let greetings: [FoxPose] = [.splash, .tap, .sneeze, .pencilBonk, .dizzy, .sleepy, .hello]
+    private let greetings: [FoxPose] = [.hello, .tap, .sneeze, .pencilBonk, .dizzy, .sleepy, .happy]
 
+    @AppStorage("penwise.welcome.seen") private var sawWelcome = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showingWelcome = false
+    @State private var showingStreak = false
+    @State private var transitionID = UUID()
+    @State private var transitionFox: FoxPose?
     @State private var showSettings = false
+
+    @State private var earnedStreakDay = false
 
     private let library = TemplateLibrary.shared
 
@@ -28,6 +37,8 @@ struct HomeView: View {
                         }
                         courseShelf(compact: compact)
                         modeShortcuts
+                        Button("Your practice plan") { path.append(.plan) }
+                            .buttonStyle(.bordered)
                         if AdSlot.shouldAppear {
                             AdSlot(placement: .home)
                                 .frame(maxWidth: .infinity)
@@ -42,7 +53,9 @@ struct HomeView: View {
             .background(Color.paper)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button { path.append(.plan) } label: { Label("Your plan", systemImage: "calendar") }
+                    Button { path.append(.assessment) } label: {
+                        Label("Writing check", systemImage: "pencil.line").labelStyle(.titleAndIcon)
+                    }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
@@ -56,6 +69,47 @@ struct HomeView: View {
             }
         }
         .tint(Color.courseAccent)
+        .overlay {
+            if let pose = transitionFox, !reduceMotion,
+               let animation = LottieAnimation.asset("fox_" + pose.rawValue) {
+                let id = transitionID
+                GeometryReader { geometry in
+                    LottieView(animation: animation).resizable()
+                        .playing().animationSpeed(1.7)
+                        .animationDidFinish { completed in
+                            if completed && transitionID == id { transitionFox = nil }
+                        }
+                        .aspectRatio(animation.bounds.width / animation.bounds.height, contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
+                }
+                .ignoresSafeArea().id(id)
+                .accessibilityHidden(true).allowsHitTesting(false)
+            }
+        }
+        .onChange(of: progress.attemptsToday) { old, new in
+            if old == 0 && new > 0 { earnedStreakDay = true }
+        }
+        .onChange(of: path) { old, new in
+            if new.isEmpty && earnedStreakDay {
+                earnedStreakDay = false
+                showingStreak = true
+            }
+            transitionID = UUID()
+            transitionFox = reduceMotion ? nil : (new.count < old.count ? .peek : .dash)
+        }
+        .onAppear {
+            if !sawWelcome { showingWelcome = true }
+        }
+        .fullScreenCover(isPresented: $showingWelcome) {
+            WorkbookWelcome(style: $settings.style) {
+                sawWelcome = true
+                showingWelcome = false
+            }
+        }
+        .sheet(isPresented: $showingStreak) {
+            streakCard.presentationDetents([.medium, .large]).presentationDragIndicator(.visible)
+        }
     }
 
     @ViewBuilder
@@ -119,19 +173,49 @@ struct HomeView: View {
                 .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.ink)
             Spacer()
-            HStack(spacing: 12) {
-                Label("\(progress.streak)", systemImage: "flame.fill")
-                    .foregroundStyle(Color.orange)
-                Divider().frame(height: 18)
-                Text("\(progress.attemptsToday) today")
-                    .foregroundStyle(.secondary)
+            Button { showingStreak = true } label: {
+                HStack(spacing: 12) {
+                    Label("\(progress.streak)", systemImage: "flame.fill")
+                        .foregroundStyle(Color.orange)
+                    Divider().frame(height: 18)
+                    Text("\(progress.attemptsToday) today")
+                        .foregroundStyle(.secondary)
+                }
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .paperCard(radius: 14)
             }
-            .font(.subheadline.weight(.semibold))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .paperCard(radius: 14)
+            .buttonStyle(PressableStyle())
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(progress.streak) day streak, \(progress.attemptsToday) letters today")
+        }
+    }
+
+    private var streakCard: some View {
+        ScrollView {
+            VStack(spacing: 18) {
+                WorkbookFox(pose: progress.streak > 0 ? .happy : .hello).frame(height: 112)
+                Text(progress.streak == 0 ? "Start your writing streak" : "\(progress.streak)-day writing streak")
+                    .font(.workbook(.largeTitle))
+                Text("Finish a scored exercise to mark a practice day.").font(.body)
+                HStack {
+                    ForEach(-6...0, id: \.self) { offset in
+                        let day = Calendar.current.date(byAdding: .day, value: offset, to: Date()) ?? Date()
+                        let wrote = progress.practiced(on: day)
+                        VStack {
+                            Image(systemName: wrote ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(wrote ? Color.courseAccent : .secondary)
+                            Text(day, format: .dateTime.weekday(.narrow))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(day.formatted(date: .abbreviated, time: .omitted) + (wrote ? ", practiced" : ", no practice"))
+                    }
+                }.padding().paperCard()
+                Button("Continue") { showingStreak = false }.buttonStyle(LessonActionStyle())
+            }
+            .padding(28)
         }
     }
 
@@ -255,5 +339,52 @@ struct HomeView: View {
                 }
             }
         }
+    }
+}
+
+private struct WorkbookWelcome: View {
+    @Binding var style: LetterStyle
+    let finish: () -> Void
+    @State private var choosing = false
+    @ObservedObject private var plans = PlanStore.shared
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                ProgressView(value: choosing ? 1.0 : 0.5)
+                WorkbookFox(pose: choosing ? .thinking : .splash).frame(height: 200)
+                Text(choosing ? "Pick your first workbook" : "Welcome to Penwise")
+                    .font(.workbook(.largeTitle))
+                if choosing {
+                    ForEach(LetterStyle.allCases) { option in
+                        Button { style = option } label: {
+                            HStack {
+                                if let letter = TemplateLibrary.shared.template(id: "latin.\(option.rawValue).a") {
+                                    LetterThumbnail(template: letter).frame(width: 48, height: 48)
+                                }
+                                Text(option.title).font(.headline)
+                                Spacer()
+                                Image(systemName: option == style ? "checkmark.circle.fill" : "circle")
+                            }.padding(12).paperCard(radius: 16)
+                        }.buttonStyle(.plain)
+                        .accessibilityAddTraits(option == style ? .isSelected : [])
+                    }
+                    Picker("Daily practice goal", selection: $plans.minutesPerDay) {
+                        ForEach(PlanStore.minuteChoices, id: \.self) { minutes in
+                            Text("\(minutes) min").tag(minutes)
+                        }
+                    }.pickerStyle(.menu)
+                } else {
+                    Text("Trace a letter, try it on your own, then see how you did.")
+                        .font(.workbook(.title3)).multilineTextAlignment(.center)
+                }
+                Button(choosing ? "Save and continue" : "Get started") {
+                    if choosing { finish() } else { choosing = true }
+                }.buttonStyle(LessonActionStyle())
+                Button("Skip introduction", action: finish)
+            }
+            .padding(28).frame(maxWidth: 560).frame(maxWidth: .infinity)
+        }
+        .background(Color.paper).interactiveDismissDisabled()
     }
 }

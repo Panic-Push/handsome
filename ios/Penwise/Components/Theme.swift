@@ -32,7 +32,17 @@ extension Color {
 extension Font {
     /// Workbook headings.
     static func workbook(_ style: Font.TextStyle, weight: Font.Weight = .semibold) -> Font {
-        .system(style, design: .rounded).weight(weight)
+        let points: CGFloat
+        switch style {
+        case .largeTitle: points = 34
+        case .title: points = 28
+        case .title2: points = 22
+        case .title3: points = 20
+        case .caption, .caption2: points = 13
+        default: points = 17
+        }
+        return .custom(weight == .regular ? "ChalkboardSE-Regular" : "ChalkboardSE-Bold",
+                       size: points, relativeTo: style)
     }
 }
 

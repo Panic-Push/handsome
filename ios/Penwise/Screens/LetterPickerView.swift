@@ -152,6 +152,7 @@ struct SentenceWorksheet: View {
     @State private var replay = UUID()
     @State private var canvasSize: CGSize = .zero
     @State private var wordResults: [LineResult] = []
+    @State private var scoringMessage: String?
     @State private var result: LineResult?
     @StateObject private var ink = InkModel()
 
@@ -168,6 +169,7 @@ struct SentenceWorksheet: View {
     private var model: String { tracingWords ? words[word] : sentence }
 
     var body: some View {
+        ScrollViewReader { reader in
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("\(style.title) · \(mode.rawValue)").font(.headline).foregroundStyle(.secondary)
@@ -216,8 +218,9 @@ struct SentenceWorksheet: View {
                 .frame(height: tracingWords ? 150 : 240)
                 .background(Color.paper).clipShape(RoundedRectangle(cornerRadius: 14))
                 if finished, let result {
-                    SentenceResultCard(result: result)
+                    SentenceResultCard(result: result).id("sentenceScore")
                 }
+                if let scoringMessage { Text(scoringMessage).foregroundStyle(.secondary) }
                 if finished {
                     Text("Compare the spacing, height and joins with the model above.").font(.callout)
                     HStack {
@@ -236,14 +239,13 @@ struct SentenceWorksheet: View {
                 } else {
                     HStack {
                         Button(tracingWords && word + 1 < words.count ? "Next word" : "Finish sentence") {
+                            guard scoreCurrent() else { return }
                             if tracingWords && word + 1 < words.count {
                                 if let image = snapshot() { wordsWritten.append(image) }
-                                scoreCurrent()
                                 ink.clear()
                                 word += 1
                                 replay = UUID()
                             } else {
-                                scoreCurrent()
                                 finished = true
                             }
                         }
@@ -255,6 +257,10 @@ struct SentenceWorksheet: View {
                 Button("Write my own sentence") { draft = custom ?? ""; editing = true }
             }
             .padding(24).frame(maxWidth: 900).frame(maxWidth: .infinity)
+        }
+        .onChange(of: finished) { _, done in
+            if done { reader.scrollTo("sentenceScore", anchor: .top) }
+        }
         }
         .background(Color.paperCard)
         .navigationTitle("Sentence worksheet")
@@ -284,11 +290,16 @@ struct SentenceWorksheet: View {
 
     /// Scores what is on the canvas: one word when tracing word by word,
     /// otherwise the whole sentence written freely.
-    private func scoreCurrent() {
-        guard canvasSize != .zero, let plan = try? CoreBridge.plan(model, style: style), !plan.isEmpty else { return }
+    private func scoreCurrent() -> Bool {
+        guard canvasSize != .zero else { return false }
+        guard let plan = try? CoreBridge.plan(model, style: style), !plan.isEmpty else {
+            scoringMessage = "Choose a sentence with letters or digits from this workbook."
+            return false
+        }
+        scoringMessage = nil
         let layout = SentenceModel.layout(text: model, style: style, size: canvasSize)
         let r = CoreBridge.scoreLine(strokes: ink.capturedStrokes(in: layout), plan: plan,
-                                     traced: false, finger: ink.lastInkUsedFinger)
+                                     traced: tracingWords, finger: ink.lastInkUsedFinger)
         if tracingWords {
             wordResults.append(r)
             if wordResults.count == words.count || word + 1 >= words.count { result = combined(wordResults) }
@@ -299,6 +310,7 @@ struct SentenceWorksheet: View {
             ProgressStore.shared.record(score: result.overall, mode: mode,
                                         templateID: "sentence.\(style.rawValue)", issue: result.kinds.first)
         }
+        return true
     }
 
     /// Word-by-word results combined into one sentence result.
@@ -307,7 +319,7 @@ struct SentenceWorksheet: View {
         let worst = parts.min { $0.overall < $1.overall }
         var merged: [String: [Int]] = [:]
         for part in parts { for p in part.parts { merged[p.name, default: []].append(p.value) } }
-        let names = ["Shape", "Size", "Baseline", "Smoothness"]
+        let names = ["Shape", "Size", "Baseline", "Spacing", "Direction", "Smoothness"]
         return LineResult(
             overall: overall,
             tip: worst?.tip,
@@ -349,6 +361,7 @@ struct SentenceWorksheet: View {
         word = 0
         finished = false
         result = nil
+        scoringMessage = nil
         wordResults.removeAll()
         previous = nil
         wordsWritten.removeAll()
@@ -368,10 +381,10 @@ private struct SentenceModel: View {
     /// Where the model's writing lines sit for this text and size, so guides
     /// and ink line up with the drawn model.
     static func layout(text: String, style: LetterStyle, size: CGSize) -> GuideLayout {
-        let space: CGFloat = style == .print ? 0.18 : 0.08
+        let space: CGFloat = style == .print ? 0.14 : 0
         let total = text.map(String.init).reduce(CGFloat(0)) { sum, glyph in
             if let t = TemplateLibrary.shared.template(id: "latin.\(style.rawValue).\(glyph)") { return sum + CGFloat(t.width) + space }
-            return sum + (glyph == " " ? 0.48 : 0.85)
+            return sum + (glyph == " " ? 0.45 : 0.2)
         }
         let unit = max(1, min(size.height / 1.65, (size.width - 20) / max(1, total)))
         return GuideLayout(origin: CGPoint(x: 10, y: (size.height - 1.5 * unit) / 2), unit: unit)
@@ -383,10 +396,10 @@ private struct SentenceModel: View {
             let fraction = CGFloat(min(1, max(0, clock.date.timeIntervalSince(started)) / max(1, Double(text.count) * 0.24)))
             let glyphs = text.map(String.init)
             let templates = glyphs.map { TemplateLibrary.shared.template(id: "latin.\(style.rawValue).\($0)") }
-            let space: CGFloat = style == .print ? 0.18 : 0.08
+            let space: CGFloat = style == .print ? 0.14 : 0
             let widths: [CGFloat] = glyphs.indices.map { i in
                 if let template = templates[i] { return CGFloat(template.width) + space }
-                return glyphs[i] == " " ? 0.48 : 0.85
+                return glyphs[i] == " " ? 0.45 : 0.2
             }
             let unit = min(size.height / 1.65, (size.width - 20) / max(1, widths.reduce(0, +)))
             let top = (size.height - 1.5 * unit) / 2
@@ -429,7 +442,12 @@ private struct SentenceResultCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
+            Text("Sentence mark · \(result.overall)/100")
+                .font(.workbook(.title2)).accessibilityAddTraits(.isHeader)
+            StarsView(count: ProgressStore.stars(for: result.overall), size: 25)
             HStack(spacing: 18) {
+                WorkbookFox(pose: result.overall >= ProgressStore.passMark ? .happy : .encourage)
+                    .frame(width: 72, height: 72)
                 ScoreRing(score: result.overall, size: 76)
                 VStack(alignment: .leading, spacing: 6) {
                     Label(result.tip == nil ? "Lovely sentence" : "One thing to work on",

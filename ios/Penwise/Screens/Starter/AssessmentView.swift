@@ -7,6 +7,7 @@ struct AssessmentView: View {
     @StateObject private var session: AssessmentSession
     @StateObject private var ink = InkModel()
     @State private var size: CGSize = .zero
+    @State private var started = false
     @State private var firstTouch: Date?
     @State private var lastLift: Date?
 
@@ -17,8 +18,18 @@ struct AssessmentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            ProgressView(value: session.progress)
-            if let report = session.report {
+            if started { ProgressView(value: session.progress) }
+            if !started {
+                VStack(spacing: 18) {
+                    WorkbookFox(pose: .hello).frame(height: 140)
+                    Text("Check your handwriting").font(.workbook(.largeTitle))
+                    Text("Write a few letters, a word and a sentence to get your personal practice plan.")
+                        .font(.workbook(.title3)).multilineTextAlignment(.center)
+                    Label("\(session.tasks.count) tasks · about 3 minutes", systemImage: "pencil")
+                    Button("Start handwriting check") { started = true }.buttonStyle(LessonActionStyle())
+                }
+                .padding(20).frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let report = session.report {
                 ReportContent(report: report)
                 Button("See my plan") { replaceWithPlan() }
                     .buttonStyle(.borderedProminent)

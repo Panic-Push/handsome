@@ -6,6 +6,8 @@ struct JourneyMapView: View {
     let journeyID: String
     @Binding var path: [Route]
 
+    @State private var showSentences = false
+    @State private var sentenceRoute: Route?
     @State private var choice: LetterChoice?
     @ObservedObject private var store = JourneyStore.shared
     @ObservedObject private var progress = ProgressStore.shared
@@ -19,28 +21,6 @@ struct JourneyMapView: View {
                 if let journey {
                     VStack(alignment: .leading, spacing: 28) {
                         header(journey)
-                        if let style = LetterStyle(rawValue: journey.style) {
-                            Menu {
-                                ForEach(WritingMode.selectable) { mode in
-                                    Button(mode.rawValue) { path.append(.sentences(style, mode, nil)) }
-                                }
-                            } label: {
-                                Label("Write sentences", systemImage: "pencil.and.scribble")
-                                    .font(.headline).frame(maxWidth: .infinity, minHeight: 46)
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
-                        HStack {
-                            ForEach(WritingMode.selectable) { mode in
-                                Button {
-                                    path.append(.letters(mode))
-                                } label: {
-                                    Label(mode.rawValue, systemImage: mode.symbol)
-                                        .frame(maxWidth: .infinity, minHeight: 44)
-                                }
-                                .buttonStyle(.bordered)
-                            }
-                        }
                         ForEach(Array(journey.chapters.enumerated()), id: \.element.id) { index, chapter in
                             chapterSection(chapter, number: index + 1, in: journey)
                                 .id(chapter.id)
@@ -60,6 +40,35 @@ struct JourneyMapView: View {
                     let p = store.position(in: journey)
                     proxy.scrollTo("\(p.chapterID)-\(p.letterIndex)", anchor: .center)
                 }
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if journey != nil {
+                Button { showSentences = true } label: {
+                    Image(systemName: "pencil.and.scribble")
+                        .font(.title2.bold())
+                        .frame(width: 60, height: 60)
+                        .foregroundStyle(.white)
+                        .background(Color.courseFill, in: Circle())
+                        .shadow(color: .black.opacity(0.18), radius: 4, y: 3)
+                }
+                .accessibilityLabel("Write sentences")
+                .padding(20)
+            }
+        }
+        .sheet(isPresented: $showSentences, onDismiss: {
+            if let route = sentenceRoute {
+                sentenceRoute = nil
+                path.append(route)
+            }
+        }) {
+            if let journey, let style = LetterStyle(rawValue: journey.style) {
+                SentenceChoiceSheet(style: style) { mode in
+                    sentenceRoute = .sentences(style, mode, nil)
+                    showSentences = false
+                }
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
             }
         }
         .sheet(item: $choice) { picked in
@@ -90,7 +99,6 @@ struct JourneyMapView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            WorkbookFox(pose: .dash).frame(width: 92, height: 72)
             if store.isFinished(journey) {
                 Button {
                     path.append(.recap(journey.id))
@@ -131,6 +139,10 @@ struct JourneyMapView: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(done == letters.count ? Color.green : Color.secondary)
             }
+
+            ProgressView(value: Double(done), total: Double(max(letters.count, 1)))
+                .tint(.courseAccent)
+                .accessibilityLabel("Chapter progress")
 
             GeometryReader { bounds in
                 let middle = bounds.size.width / 2
@@ -271,7 +283,6 @@ private struct ModeChoiceSheet: View {
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
-                    WorkbookFox(pose: .peek).frame(width: 72, height: 64)
                 }
 
                 let cards = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 14)) : AnyLayout(HStackLayout(spacing: 14))
@@ -279,7 +290,7 @@ private struct ModeChoiceSheet: View {
                     ForEach(WritingMode.selectable) { mode in
                         Button { pick(mode) } label: {
                             VStack(alignment: .leading, spacing: 10) {
-                                WorksheetPreview(template: template, mode: mode)
+                                WorksheetPreview(template: template, mode: mode == .practice ? .learn : mode)
                                     .frame(height: 110)
                                 HStack {
                                     Label(mode.rawValue, systemImage: mode.symbol)
@@ -327,5 +338,38 @@ private struct ModeChoiceSheet: View {
             let ids = remaining.map { journey.templateID($0) }
             open(.set(mode, "\(mode.rawValue) from \(choice.glyph)", ids, shuffled: false))
         }
+    }
+}
+
+private struct SentenceChoiceSheet: View {
+    let style: LetterStyle
+    let choose: (WritingMode) -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("\(style.title) workbook").font(.headline).foregroundStyle(Color.courseAccent)
+                Text("Write sentences").font(.workbook(.largeTitle))
+                ForEach(WritingMode.selectable) { mode in
+                    Button { choose(mode) } label: {
+                        HStack(spacing: 16) {
+                            Image(systemName: mode.symbol).font(.title2).foregroundStyle(Color.courseAccent)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(mode.rawValue).font(.headline)
+                                Text(mode == .practice ? "Follow a model or trace one word at a time." : "Write on blank lines and see your marks.")
+                                    .font(.body).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                        }
+                        .padding(16).paperCard(radius: 16)
+                    }
+                    .buttonStyle(PressableStyle())
+                }
+                AdSlot(placement: .home).frame(maxWidth: .infinity)
+            }
+            .padding(28)
+        }
+        .background(Color.paper)
     }
 }

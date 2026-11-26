@@ -99,6 +99,10 @@ final class ProgressStore: ObservableObject {
         templateIDs.filter { (best(mode, $0) ?? 0) >= ProgressStore.passMark }.count
     }
 
+    func practiced(on date: Date) -> Bool {
+        (saved.attemptsByDay[ProgressStore.dayString(date)] ?? 0) > 0
+    }
+
     var attemptsToday: Int {
         saved.attemptsByDay[ProgressStore.dayString(Date())] ?? 0
     }

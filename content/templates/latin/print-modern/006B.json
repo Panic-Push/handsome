@@ -3,12 +3,12 @@
  "glyph": "k",
  "script": "latin",
  "style": "print-modern",
- "width": 0.34,
+ "width": 0.3665,
  "strokes": [
   {
    "points": [
     [
-     0.0,
+     0.065,
      0.0
     ],
     [
@@ -20,11 +20,11 @@
   {
    "points": [
     [
-     0.32,
+     0.3665,
      0.5
     ],
     [
-     0.0,
+     0.0232,
      0.78
     ],
     [

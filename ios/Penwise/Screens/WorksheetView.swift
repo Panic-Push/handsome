@@ -307,6 +307,11 @@ struct WorksheetView: View {
                             .font(.headline)
                     }
                 }
+                if let attempt = currentAttempt {
+                    AttemptThumbnail(strokes: attempt.strokes)
+                        .frame(height: 100)
+                        .accessibilityLabel("Your handwritten letter")
+                }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 140), alignment: .leading)], alignment: .leading) {
                     ForEach(score.parts) { PartChip(part: $0) }
                 }
@@ -314,8 +319,12 @@ struct WorksheetView: View {
                     Label(tip, systemImage: "lightbulb").font(.body)
                 }
                 Divider()
-                primaryButton("Tap to continue · " + nextLabel, "arrow.right", action: goNext)
-                secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
+                if score.overall >= ProgressStore.passMark && currentAttempt?.hinted != true {
+                    primaryButton(nextLabel, "arrow.right", action: goNext)
+                    secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
+                } else {
+                    primaryButton("Try \(selected?.glyph ?? "the letter") again", "arrow.counterclockwise", action: tryAgain)
+                }
             }
             .padding(24)
             .paperCard()
