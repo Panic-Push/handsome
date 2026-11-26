@@ -15,7 +15,7 @@ struct AdBannerView: UIViewRepresentable {
     func makeUIView(context: Context) -> BannerView {
         let size: AdSize = placement == .entry
             ? AdSizeMediumRectangle
-            : currentOrientationAnchoredAdaptiveBanner(width: width)
+            : largeAnchoredAdaptiveBanner(width: width)
         let banner = BannerView(adSize: size)
         banner.adUnitID = placement.unitID
         banner.rootViewController = AdsService.rootViewController()

@@ -71,11 +71,13 @@ final class AdsService: ObservableObject {
         guard ConsentInformation.shared.canRequestAds else { return }
 
         if treatAsMinor {
+            // Deprecated in favour of `ageRestrictedTreatment` but still honoured in 13.x;
+            // move to the new property when upgrading the SDK.
             MobileAds.shared.requestConfiguration.tagForUnderAgeOfConsent = true
         } else if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
             _ = await ATTrackingManager.requestTrackingAuthorization()
         }
-        MobileAds.shared.start(completionHandler: nil)
+        _ = await MobileAds.shared.start()
         isReady = true
     }
 
