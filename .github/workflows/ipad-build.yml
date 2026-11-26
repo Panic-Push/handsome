@@ -1,7 +1,7 @@
 name: iPad build
 on:
   push:
-    branches: [codex/penwise-course-journeys]
+    branches: [main, codex/penwise-course-journeys]
     paths: ['ios/**', 'core/**', 'content/**', '.github/workflows/ipad-build.yml']
   pull_request:
     paths: ['ios/**', 'core/**', 'content/**', '.github/workflows/ipad-build.yml']
