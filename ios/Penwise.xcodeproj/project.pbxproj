@@ -7,303 +7,308 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0206DB89904F86F71F72696D /* journeys in Resources */ = {isa = PBXBuildFile; fileRef = 98FF0A335B387B46997285F6 /* journeys */; };
-		0B769EDF19B935961563ADE6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7EBF1DE264F0CE6BC58361BF /* Foundation.framework */; };
-		13D26F84F74482EAD71E85EB /* CheckpointRecapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55BF68B86509ECA306DA4120 /* CheckpointRecapView.swift */; };
-		1C942BE5D66501A1FF69BA2D /* WorksheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9288B4ACC4509C9661FE833D /* WorksheetView.swift */; };
-		1FE10D47FF56A82CFC6865A3 /* ProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C1C4910A2FF74B3CC37B4D /* ProgressStore.swift */; };
-		21C5C02A080286C5D6426CE8 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 812FBBFB949C13EC6F5D1FCD /* Theme.swift */; };
-		25939B7F63659C8FB43C0940 /* Worksheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ADC35FD481B48469E78E147 /* Worksheet.swift */; };
-		29CFA77169FCC5E0E13D05FB /* InkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 434D997869B7B473FB31CB99 /* InkModel.swift */; };
-		2D591D625C38B908D5B2B2DD /* TemplateOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC8DE2BB1D4EB704B50945D /* TemplateOverlay.swift */; };
-		2DCEA8A195EACFFD842FE78E /* LetterTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF3D3EC28B77C512C8365E6D /* LetterTemplate.swift */; };
-		39DB9313CDE76B544CE34883 /* GuideLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E9187696075F859E7236DD /* GuideLayout.swift */; };
-		3D896651E24F008C91BBC53E /* RecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630B339C366A6DA4D51521AF /* RecorderView.swift */; };
-		49955FE67D8B3E81B5E07717 /* CoreBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1580C5F7C5D3CEE973BA108 /* CoreBridge.swift */; };
-		50A1789F32BA217E22680FA3 /* PathMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C6553474803936BC14C573E /* PathMath.swift */; };
-		5642BCB1CC67E1117278B58B /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C61C277C97805E23B23584 /* EntryView.swift */; };
-		58974F1BA191E0A0315801BD /* JourneyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D5EB1A67567DE71C758D6C2 /* JourneyStore.swift */; };
-		5C0F3043F05604CA9D822DB4 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA060ED452930216F69D1F6A /* ConfettiView.swift */; };
-		616D32CBB96F0775D95C8414 /* AdSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E67B12229AEB53423DBF734 /* AdSlot.swift */; };
-		6644A536C36046C1BAF5A9D4 /* Journey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F4BB123D795667BE563DF6F /* Journey.swift */; };
-		780393715BCC141F3F9ACC16 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89298CA6A8B6898A12EEFCD5 /* HomeView.swift */; };
-		801B6E067227979C80A0643C /* InkCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1A698606A1263B52855059 /* InkCanvas.swift */; };
-		84F375D18192C454505258FE /* ScoreViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05254D89EBCD683E598409C /* ScoreViews.swift */; };
-		A6327C4E02AB992911539585 /* StrokeDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD44A89D05F5E22FB4920BE /* StrokeDemoView.swift */; };
-		AC45112B969E8C5CE2719757 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0EC7597EE0E17F65016AB544 /* Assets.xcassets */; };
-		AD8EDFD56DB22A22B9713243 /* ModeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3824377850BAF6B1819457F3 /* ModeStyle.swift */; };
-		B6E09EC5BD136B07D7ADCF3B /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23445F8E21BC18A3C836755 /* FileStore.swift */; };
-		C2CF58CE9B3133AE20B4863F /* RuledLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728D03E3503B924B63458A83 /* RuledLinesView.swift */; };
-		C6DCF313AA8199555F4C443E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16A18F837A42338674F95EB0 /* SettingsView.swift */; };
-		CEDB2D29AEE3565D286A0AA1 /* LetterPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A27B17F997BAA76F1BC693 /* LetterPickerView.swift */; };
-		D0EFC47FFE48FBAA266B5ECF /* JourneyMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1926D976A4BAAB39069E41 /* JourneyMapView.swift */; };
-		E3DED216C9E0E83BCC32BFB5 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC640DC51B66A4DA2986FCB0 /* Route.swift */; };
-		F097C654BFF75E2C7F8C4410 /* PenwiseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C506B8822388EF1A38C54DAB /* PenwiseApp.swift */; };
-		F6FCA49B24227F78289F520A /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251C9DD525C771A5C1F2319B /* Feedback.swift */; };
-		F8465F0F7C2970113F3704C4 /* templates in Resources */ = {isa = PBXBuildFile; fileRef = 4E212DC66DFB1D996E85417E /* templates */; };
-		F99779592F25393EE1D76C69 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65EF6EFCC8F537F66507C063 /* AppSettings.swift */; };
+		08E358F54865BA28241B589B /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE4B6CBB1E333273C51AEB0 /* AppSettings.swift */; };
+		0D32D78A6E5C55656AC17C46 /* StrokeDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6A3800117742F1AB02C153D /* StrokeDemoView.swift */; };
+		11ACEA2160BB2CE5CB27A4B1 /* InkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 309F82652582D6A093C44080 /* InkModel.swift */; };
+		154690BB5D43CCEC9D051E61 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9132E2F00914B38260483089 /* Theme.swift */; };
+		1BBEE897BE26C0C428763ACF /* Feedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2E5DBF136052607C0BCF921 /* Feedback.swift */; };
+		1F236D63194EC85C032BA228 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9EC98E026175929D4880F49B /* Foundation.framework */; };
+		2A672F4BC880231EEA573242 /* InkCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E29BBE24B1BE9ACAAE749D /* InkCanvas.swift */; };
+		2B831D8B3AC6B2D18B650065 /* JourneyMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C55884CA269C349A47069B /* JourneyMapView.swift */; };
+		2EC9AB342D3FF27C58130D44 /* LetterTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C27F84CD8A20E73BF627BF40 /* LetterTemplate.swift */; };
+		31F3AC89C4BE19D4C68555FD /* CheckpointRecapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10F1933CC6EBA4905C35A0E3 /* CheckpointRecapView.swift */; };
+		3238327AEC8E944A0AA8CA9C /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F94F0FFE219514990397F5D8 /* Lottie */; };
+		5524A6857F239CD516B27152 /* ScoreViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FC864E70AE8E29274CCD4DB /* ScoreViews.swift */; };
+		56421804450EDA2EE1699F1B /* Journey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67DD7743A8334A4D87AF8FB /* Journey.swift */; };
+		5F904B09B0B71626F20865A1 /* journeys in Resources */ = {isa = PBXBuildFile; fileRef = 79A089EF8AF95D6C5DA0A8F5 /* journeys */; };
+		63076BD29D714C98B69A4CEC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 11C58805AD83C27C54298205 /* Assets.xcassets */; };
+		6BD9FE563DBBF8DA4CE3B65B /* JourneyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CB18EE08447A66821656114 /* JourneyStore.swift */; };
+		7763C04048807EA96E32106F /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D821078D4C3B23C903085FAE /* ConfettiView.swift */; };
+		8250424BCB5D502F447B59BB /* FileStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA39A0637932E6A4B204F9F /* FileStore.swift */; };
+		9B15323F5EE55AE7226E1D4A /* GuideLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 907E019E13CBA6B9F288CB8F /* GuideLayout.swift */; };
+		9B457363C176554C5D1B914F /* PenwiseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1CA18345080AB1C2AFD910 /* PenwiseApp.swift */; };
+		A40B1FCF86060577DD97E112 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7762FD8C982BA2F8C8569C5 /* SettingsView.swift */; };
+		A72BB3BD3E9444B313A43099 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D4BE8360EDC81062E6ED28 /* HomeView.swift */; };
+		AA38D5936D209149E35BFA94 /* CoreBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F13A02D6CEB808F2EC247FB5 /* CoreBridge.swift */; };
+		ABF4F361AC61DCDF12563073 /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48D35250E6CA5ED5A7A71A22 /* EntryView.swift */; };
+		AC7B5338F58023D6B274AD92 /* WorksheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70DD86B9061B84D1B5B79ED /* WorksheetView.swift */; };
+		B215D54AA0AB4A3EF607F8CF /* ModeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D299D7851AC9592E891B27 /* ModeStyle.swift */; };
+		B74A0BC71400142317CFCE9B /* Worksheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D8DBFB90D6B66B0FC61436E /* Worksheet.swift */; };
+		BD87B700EBA3952427698133 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5C9CF187A9B5A133243EC5 /* Route.swift */; };
+		CDCB630AFFCF1094E44017F4 /* RecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACD6B41C07CD0917B699CD5 /* RecorderView.swift */; };
+		D1E307789812A23791EF7686 /* RuledLinesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7A3B3B85F0B05C7845BE29D /* RuledLinesView.swift */; };
+		D6CC708073F8D7DE70B21DA5 /* AdSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D55F5DC8FF2AA8813A8F4536 /* AdSlot.swift */; };
+		D72D06AEB44AD712C7957DCA /* templates in Resources */ = {isa = PBXBuildFile; fileRef = 09E82A0BA7C84C65239D82FA /* templates */; };
+		E7B3465028DF0178ADB32494 /* TemplateOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94DD29AE78C886AE2D319C7B /* TemplateOverlay.swift */; };
+		EB1E01A31CEF2669983CD644 /* ProgressStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFBE2090E891FF22E2ACF91 /* ProgressStore.swift */; };
+		EB8A1320F3FE00C26ECE03DD /* PathMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F6E599968C2E5202A5A429D /* PathMath.swift */; };
+		EF488D4F54AC9FD908733E7F /* LetterPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A00BA61FA5AA09154DFA308 /* LetterPickerView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0ADC35FD481B48469E78E147 /* Worksheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Worksheet.swift; sourceTree = "<group>"; };
-		0EC7597EE0E17F65016AB544 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		16A18F837A42338674F95EB0 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		1AE45B2149901F8CB7CCAFF1 /* Penwise.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = Penwise.entitlements; sourceTree = "<group>"; };
-		251C9DD525C771A5C1F2319B /* Feedback.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
-		2BC8DE2BB1D4EB704B50945D /* TemplateOverlay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TemplateOverlay.swift; sourceTree = "<group>"; };
-		3824377850BAF6B1819457F3 /* ModeStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModeStyle.swift; sourceTree = "<group>"; };
-		434D997869B7B473FB31CB99 /* InkModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkModel.swift; sourceTree = "<group>"; };
-		49A27B17F997BAA76F1BC693 /* LetterPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LetterPickerView.swift; sourceTree = "<group>"; };
-		4D5EB1A67567DE71C758D6C2 /* JourneyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JourneyStore.swift; sourceTree = "<group>"; };
-		4E212DC66DFB1D996E85417E /* templates */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = templates; sourceTree = "<group>"; };
-		55BF68B86509ECA306DA4120 /* CheckpointRecapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CheckpointRecapView.swift; sourceTree = "<group>"; };
-		5E67B12229AEB53423DBF734 /* AdSlot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdSlot.swift; sourceTree = "<group>"; };
-		630B339C366A6DA4D51521AF /* RecorderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecorderView.swift; sourceTree = "<group>"; };
-		65523B39008FDDCAFB410479 /* Penwise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penwise.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		65EF6EFCC8F537F66507C063 /* AppSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
-		6F4BB123D795667BE563DF6F /* Journey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Journey.swift; sourceTree = "<group>"; };
-		728D03E3503B924B63458A83 /* RuledLinesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RuledLinesView.swift; sourceTree = "<group>"; };
-		78C1C4910A2FF74B3CC37B4D /* ProgressStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressStore.swift; sourceTree = "<group>"; };
-		7EBF1DE264F0CE6BC58361BF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		812FBBFB949C13EC6F5D1FCD /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
-		87E9187696075F859E7236DD /* GuideLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GuideLayout.swift; sourceTree = "<group>"; };
-		89298CA6A8B6898A12EEFCD5 /* HomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
-		9288B4ACC4509C9661FE833D /* WorksheetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WorksheetView.swift; sourceTree = "<group>"; };
-		98FF0A335B387B46997285F6 /* journeys */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = journeys; sourceTree = "<group>"; };
-		9C6553474803936BC14C573E /* PathMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PathMath.swift; sourceTree = "<group>"; };
-		9D1A698606A1263B52855059 /* InkCanvas.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkCanvas.swift; sourceTree = "<group>"; };
-		A7C61C277C97805E23B23584 /* EntryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
-		ABA79989B0716952C1251391 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B1580C5F7C5D3CEE973BA108 /* CoreBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreBridge.swift; sourceTree = "<group>"; };
-		BA060ED452930216F69D1F6A /* ConfettiView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
-		C05254D89EBCD683E598409C /* ScoreViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreViews.swift; sourceTree = "<group>"; };
-		C23445F8E21BC18A3C836755 /* FileStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
-		C506B8822388EF1A38C54DAB /* PenwiseApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PenwiseApp.swift; sourceTree = "<group>"; };
-		CC640DC51B66A4DA2986FCB0 /* Route.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
-		DF3D3EC28B77C512C8365E6D /* LetterTemplate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LetterTemplate.swift; sourceTree = "<group>"; };
-		EA1926D976A4BAAB39069E41 /* JourneyMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JourneyMapView.swift; sourceTree = "<group>"; };
-		ECD44A89D05F5E22FB4920BE /* StrokeDemoView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StrokeDemoView.swift; sourceTree = "<group>"; };
+		027EFDB3A77376F676BC2BE8 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		09E82A0BA7C84C65239D82FA /* templates */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = templates; sourceTree = "<group>"; };
+		0CB18EE08447A66821656114 /* JourneyStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JourneyStore.swift; sourceTree = "<group>"; };
+		0DFBE2090E891FF22E2ACF91 /* ProgressStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProgressStore.swift; sourceTree = "<group>"; };
+		10C55884CA269C349A47069B /* JourneyMapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JourneyMapView.swift; sourceTree = "<group>"; };
+		10F1933CC6EBA4905C35A0E3 /* CheckpointRecapView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CheckpointRecapView.swift; sourceTree = "<group>"; };
+		11C58805AD83C27C54298205 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1E5C9CF187A9B5A133243EC5 /* Route.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
+		309F82652582D6A093C44080 /* InkModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkModel.swift; sourceTree = "<group>"; };
+		3471C6075C894F9191378AC0 /* Penwise.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = Penwise.entitlements; sourceTree = "<group>"; };
+		48D35250E6CA5ED5A7A71A22 /* EntryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
+		54E29BBE24B1BE9ACAAE749D /* InkCanvas.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InkCanvas.swift; sourceTree = "<group>"; };
+		5D8DBFB90D6B66B0FC61436E /* Worksheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Worksheet.swift; sourceTree = "<group>"; };
+		79A089EF8AF95D6C5DA0A8F5 /* journeys */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = journeys; sourceTree = "<group>"; };
+		7ACD6B41C07CD0917B699CD5 /* RecorderView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecorderView.swift; sourceTree = "<group>"; };
+		8FC864E70AE8E29274CCD4DB /* ScoreViews.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreViews.swift; sourceTree = "<group>"; };
+		907E019E13CBA6B9F288CB8F /* GuideLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GuideLayout.swift; sourceTree = "<group>"; };
+		9132E2F00914B38260483089 /* Theme.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		94DD29AE78C886AE2D319C7B /* TemplateOverlay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TemplateOverlay.swift; sourceTree = "<group>"; };
+		9A00BA61FA5AA09154DFA308 /* LetterPickerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LetterPickerView.swift; sourceTree = "<group>"; };
+		9C97A79ED2E440FA19855875 /* Penwise.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penwise.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9EC98E026175929D4880F49B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		9F6E599968C2E5202A5A429D /* PathMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PathMath.swift; sourceTree = "<group>"; };
+		A6A3800117742F1AB02C153D /* StrokeDemoView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StrokeDemoView.swift; sourceTree = "<group>"; };
+		A70DD86B9061B84D1B5B79ED /* WorksheetView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WorksheetView.swift; sourceTree = "<group>"; };
+		A7A3B3B85F0B05C7845BE29D /* RuledLinesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RuledLinesView.swift; sourceTree = "<group>"; };
+		B67DD7743A8334A4D87AF8FB /* Journey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Journey.swift; sourceTree = "<group>"; };
+		B7762FD8C982BA2F8C8569C5 /* SettingsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		C27F84CD8A20E73BF627BF40 /* LetterTemplate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LetterTemplate.swift; sourceTree = "<group>"; };
+		CD1CA18345080AB1C2AFD910 /* PenwiseApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PenwiseApp.swift; sourceTree = "<group>"; };
+		D55F5DC8FF2AA8813A8F4536 /* AdSlot.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdSlot.swift; sourceTree = "<group>"; };
+		D821078D4C3B23C903085FAE /* ConfettiView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
+		DCE4B6CBB1E333273C51AEB0 /* AppSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		F0D299D7851AC9592E891B27 /* ModeStyle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModeStyle.swift; sourceTree = "<group>"; };
+		F13A02D6CEB808F2EC247FB5 /* CoreBridge.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CoreBridge.swift; sourceTree = "<group>"; };
+		F2E5DBF136052607C0BCF921 /* Feedback.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Feedback.swift; sourceTree = "<group>"; };
+		F4D4BE8360EDC81062E6ED28 /* HomeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		FFA39A0637932E6A4B204F9F /* FileStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		E0A4793C1F7FA28121E92E61 /* Frameworks */ = {
+		9B92B721F6C6F4BBC04B7707 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B769EDF19B935961563ADE6 /* Foundation.framework in Frameworks */,
+				1F236D63194EC85C032BA228 /* Foundation.framework in Frameworks */,
+				3238327AEC8E944A0AA8CA9C /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		027979DAA05FB90FE5B58E8B /* Storage */ = {
+		1BE7854ECB15B47003C838A9 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				65EF6EFCC8F537F66507C063 /* AppSettings.swift */,
-				C23445F8E21BC18A3C836755 /* FileStore.swift */,
-				78C1C4910A2FF74B3CC37B4D /* ProgressStore.swift */,
+				DCE4B6CBB1E333273C51AEB0 /* AppSettings.swift */,
+				FFA39A0637932E6A4B204F9F /* FileStore.swift */,
+				0DFBE2090E891FF22E2ACF91 /* ProgressStore.swift */,
 			);
 			name = Storage;
 			path = Storage;
 			sourceTree = "<group>";
 		};
-		229C3ACDFEF575E0A8520433 /* Canvas */ = {
+		41B41984212CAEB2161DDDCA /* Guides */ = {
 			isa = PBXGroup;
 			children = (
-				9D1A698606A1263B52855059 /* InkCanvas.swift */,
-				434D997869B7B473FB31CB99 /* InkModel.swift */,
-			);
-			name = Canvas;
-			path = Canvas;
-			sourceTree = "<group>";
-		};
-		3E3A7986508A47014A692FAC /* Guides */ = {
-			isa = PBXGroup;
-			children = (
-				87E9187696075F859E7236DD /* GuideLayout.swift */,
-				9C6553474803936BC14C573E /* PathMath.swift */,
-				728D03E3503B924B63458A83 /* RuledLinesView.swift */,
-				2BC8DE2BB1D4EB704B50945D /* TemplateOverlay.swift */,
+				907E019E13CBA6B9F288CB8F /* GuideLayout.swift */,
+				9F6E599968C2E5202A5A429D /* PathMath.swift */,
+				A7A3B3B85F0B05C7845BE29D /* RuledLinesView.swift */,
+				94DD29AE78C886AE2D319C7B /* TemplateOverlay.swift */,
 			);
 			name = Guides;
 			path = Guides;
 			sourceTree = "<group>";
 		};
-		7234F87A82FF019E510E743F /* Products */ = {
+		5A97C75B312859EE207EA666 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				65523B39008FDDCAFB410479 /* Penwise.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		8063081888DDD7802A0EE9CA /* Screens */ = {
-			isa = PBXGroup;
-			children = (
-				55BF68B86509ECA306DA4120 /* CheckpointRecapView.swift */,
-				A7C61C277C97805E23B23584 /* EntryView.swift */,
-				89298CA6A8B6898A12EEFCD5 /* HomeView.swift */,
-				EA1926D976A4BAAB39069E41 /* JourneyMapView.swift */,
-				49A27B17F997BAA76F1BC693 /* LetterPickerView.swift */,
-				630B339C366A6DA4D51521AF /* RecorderView.swift */,
-				CC640DC51B66A4DA2986FCB0 /* Route.swift */,
-				16A18F837A42338674F95EB0 /* SettingsView.swift */,
-				9288B4ACC4509C9661FE833D /* WorksheetView.swift */,
-			);
-			name = Screens;
-			path = Screens;
-			sourceTree = "<group>";
-		};
-		8114A724BB3BB3A83558EB3E /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				ABA79989B0716952C1251391 /* Info.plist */,
-				1AE45B2149901F8CB7CCAFF1 /* Penwise.entitlements */,
-			);
-			name = Config;
-			path = Config;
-			sourceTree = "<group>";
-		};
-		84BA4D5C4C5524C5B7EF9B92 /* Engine */ = {
-			isa = PBXGroup;
-			children = (
-				B1580C5F7C5D3CEE973BA108 /* CoreBridge.swift */,
-			);
-			name = Engine;
-			path = Engine;
-			sourceTree = "<group>";
-		};
-		859A7384D4C263248F1B77EC /* Penwise */ = {
-			isa = PBXGroup;
-			children = (
-				CFC040DD0EF3E2FC3BB71791 /* App */,
-				0EC7597EE0E17F65016AB544 /* Assets.xcassets */,
-				229C3ACDFEF575E0A8520433 /* Canvas */,
-				F59219201EFE6DE7657BB31A /* Components */,
-				84BA4D5C4C5524C5B7EF9B92 /* Engine */,
-				3E3A7986508A47014A692FAC /* Guides */,
-				CA588E919A6BCF2BE082A96A /* Journey */,
-				8063081888DDD7802A0EE9CA /* Screens */,
-				027979DAA05FB90FE5B58E8B /* Storage */,
-				DC5110A480D5B25ABAFE4FD3 /* Templates */,
-			);
-			name = Penwise;
-			path = Penwise;
-			sourceTree = "<group>";
-		};
-		883470A245E821E2B45FBEBF = {
-			isa = PBXGroup;
-			children = (
-				7234F87A82FF019E510E743F /* Products */,
-				C39840FD99EC6F21BB231679 /* Frameworks */,
-				859A7384D4C263248F1B77EC /* Penwise */,
-				A8E0F095FFF8734010D3C311 /* Content */,
-				8114A724BB3BB3A83558EB3E /* Config */,
-			);
-			sourceTree = "<group>";
-		};
-		A8E0F095FFF8734010D3C311 /* Content */ = {
-			isa = PBXGroup;
-			children = (
-				4E212DC66DFB1D996E85417E /* templates */,
-				98FF0A335B387B46997285F6 /* journeys */,
-			);
-			name = Content;
-			path = ../content;
-			sourceTree = "<group>";
-		};
-		C39840FD99EC6F21BB231679 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				EA4C76C0F22AECE0588362EE /* iOS */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		CA588E919A6BCF2BE082A96A /* Journey */ = {
-			isa = PBXGroup;
-			children = (
-				6F4BB123D795667BE563DF6F /* Journey.swift */,
-				4D5EB1A67567DE71C758D6C2 /* JourneyStore.swift */,
-			);
-			name = Journey;
-			path = Journey;
-			sourceTree = "<group>";
-		};
-		CFC040DD0EF3E2FC3BB71791 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				C506B8822388EF1A38C54DAB /* PenwiseApp.swift */,
-			);
-			name = App;
-			path = App;
-			sourceTree = "<group>";
-		};
-		DC5110A480D5B25ABAFE4FD3 /* Templates */ = {
-			isa = PBXGroup;
-			children = (
-				DF3D3EC28B77C512C8365E6D /* LetterTemplate.swift */,
-			);
-			name = Templates;
-			path = Templates;
-			sourceTree = "<group>";
-		};
-		EA4C76C0F22AECE0588362EE /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				7EBF1DE264F0CE6BC58361BF /* Foundation.framework */,
+				9EC98E026175929D4880F49B /* Foundation.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
 		};
-		F59219201EFE6DE7657BB31A /* Components */ = {
+		67E80F5C02E3CD17BE114699 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				5E67B12229AEB53423DBF734 /* AdSlot.swift */,
-				BA060ED452930216F69D1F6A /* ConfettiView.swift */,
-				251C9DD525C771A5C1F2319B /* Feedback.swift */,
-				3824377850BAF6B1819457F3 /* ModeStyle.swift */,
-				C05254D89EBCD683E598409C /* ScoreViews.swift */,
-				ECD44A89D05F5E22FB4920BE /* StrokeDemoView.swift */,
-				812FBBFB949C13EC6F5D1FCD /* Theme.swift */,
-				0ADC35FD481B48469E78E147 /* Worksheet.swift */,
+				D55F5DC8FF2AA8813A8F4536 /* AdSlot.swift */,
+				D821078D4C3B23C903085FAE /* ConfettiView.swift */,
+				F2E5DBF136052607C0BCF921 /* Feedback.swift */,
+				F0D299D7851AC9592E891B27 /* ModeStyle.swift */,
+				8FC864E70AE8E29274CCD4DB /* ScoreViews.swift */,
+				A6A3800117742F1AB02C153D /* StrokeDemoView.swift */,
+				9132E2F00914B38260483089 /* Theme.swift */,
+				5D8DBFB90D6B66B0FC61436E /* Worksheet.swift */,
 			);
 			name = Components;
 			path = Components;
 			sourceTree = "<group>";
 		};
+		72B1DB6F5E350F9A13036E5E /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				F13A02D6CEB808F2EC247FB5 /* CoreBridge.swift */,
+			);
+			name = Engine;
+			path = Engine;
+			sourceTree = "<group>";
+		};
+		7CD32E56634B8167303653CB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9C97A79ED2E440FA19855875 /* Penwise.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A66D8CCDDDF09175C2783BFB /* App */ = {
+			isa = PBXGroup;
+			children = (
+				CD1CA18345080AB1C2AFD910 /* PenwiseApp.swift */,
+			);
+			name = App;
+			path = App;
+			sourceTree = "<group>";
+		};
+		AD6E588CA01443116F9EBF6C /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				C27F84CD8A20E73BF627BF40 /* LetterTemplate.swift */,
+			);
+			name = Templates;
+			path = Templates;
+			sourceTree = "<group>";
+		};
+		B6893F0A04FD97F8C7AC8156 = {
+			isa = PBXGroup;
+			children = (
+				7CD32E56634B8167303653CB /* Products */,
+				E9AD9582F178F04AB32E1B69 /* Frameworks */,
+				F0848BEA3B37DB7DFA34815B /* Penwise */,
+				E55B161742CA64ED6859888A /* Content */,
+				DD138F2D08F1DFA22C089351 /* Config */,
+			);
+			sourceTree = "<group>";
+		};
+		BE844A3EE29E2148BBCA46A7 /* Canvas */ = {
+			isa = PBXGroup;
+			children = (
+				54E29BBE24B1BE9ACAAE749D /* InkCanvas.swift */,
+				309F82652582D6A093C44080 /* InkModel.swift */,
+			);
+			name = Canvas;
+			path = Canvas;
+			sourceTree = "<group>";
+		};
+		D8ED5237D022D213381F7846 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				10F1933CC6EBA4905C35A0E3 /* CheckpointRecapView.swift */,
+				48D35250E6CA5ED5A7A71A22 /* EntryView.swift */,
+				F4D4BE8360EDC81062E6ED28 /* HomeView.swift */,
+				10C55884CA269C349A47069B /* JourneyMapView.swift */,
+				9A00BA61FA5AA09154DFA308 /* LetterPickerView.swift */,
+				7ACD6B41C07CD0917B699CD5 /* RecorderView.swift */,
+				1E5C9CF187A9B5A133243EC5 /* Route.swift */,
+				B7762FD8C982BA2F8C8569C5 /* SettingsView.swift */,
+				A70DD86B9061B84D1B5B79ED /* WorksheetView.swift */,
+			);
+			name = Screens;
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		DD138F2D08F1DFA22C089351 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				027EFDB3A77376F676BC2BE8 /* Info.plist */,
+				3471C6075C894F9191378AC0 /* Penwise.entitlements */,
+			);
+			name = Config;
+			path = Config;
+			sourceTree = "<group>";
+		};
+		DFA324AA28ED547F22B8A9D3 /* Journey */ = {
+			isa = PBXGroup;
+			children = (
+				B67DD7743A8334A4D87AF8FB /* Journey.swift */,
+				0CB18EE08447A66821656114 /* JourneyStore.swift */,
+			);
+			name = Journey;
+			path = Journey;
+			sourceTree = "<group>";
+		};
+		E55B161742CA64ED6859888A /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				09E82A0BA7C84C65239D82FA /* templates */,
+				79A089EF8AF95D6C5DA0A8F5 /* journeys */,
+			);
+			name = Content;
+			path = ../content;
+			sourceTree = "<group>";
+		};
+		E9AD9582F178F04AB32E1B69 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5A97C75B312859EE207EA666 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F0848BEA3B37DB7DFA34815B /* Penwise */ = {
+			isa = PBXGroup;
+			children = (
+				A66D8CCDDDF09175C2783BFB /* App */,
+				11C58805AD83C27C54298205 /* Assets.xcassets */,
+				BE844A3EE29E2148BBCA46A7 /* Canvas */,
+				67E80F5C02E3CD17BE114699 /* Components */,
+				72B1DB6F5E350F9A13036E5E /* Engine */,
+				41B41984212CAEB2161DDDCA /* Guides */,
+				DFA324AA28ED547F22B8A9D3 /* Journey */,
+				D8ED5237D022D213381F7846 /* Screens */,
+				1BE7854ECB15B47003C838A9 /* Storage */,
+				AD6E588CA01443116F9EBF6C /* Templates */,
+			);
+			name = Penwise;
+			path = Penwise;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		925EE14779FC99E05A3127FC /* Penwise */ = {
+		790B9329C4D5311D10EE8FB8 /* Penwise */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 8D86D242D0FBA3729052F6B4 /* Build configuration list for PBXNativeTarget "Penwise" */;
+			buildConfigurationList = 724324EFEE71D4D2D0F9E0CF /* Build configuration list for PBXNativeTarget "Penwise" */;
 			buildPhases = (
-				461EA00A29BA0F2F14026CFF /* Build shared engine (Kotlin) */,
-				945967C63526890050DCCC3A /* Sources */,
-				E0A4793C1F7FA28121E92E61 /* Frameworks */,
-				06B0DB9BFA920C635A8CD285 /* Resources */,
+				58BAB34FAA75096403C7EAD5 /* Build shared engine (Kotlin) */,
+				AF08AE834CFA3BC0E505B8AA /* Sources */,
+				9B92B721F6C6F4BBC04B7707 /* Frameworks */,
+				8E116C89B73AD5A85C9D2785 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = Penwise;
+			packageProductDependencies = (
+				F94F0FFE219514990397F5D8 /* Lottie */,
+			);
 			productName = Penwise;
-			productReference = 65523B39008FDDCAFB410479 /* Penwise.app */;
+			productReference = 9C97A79ED2E440FA19855875 /* Penwise.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		168A1D748D9D97298E86AADD /* Project object */ = {
+		378D32C720B3ACB321AEC09E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 			};
-			buildConfigurationList = 208DFB40BEA1C757400D69E9 /* Build configuration list for PBXProject "Penwise" */;
+			buildConfigurationList = 0230DF0D0BEFD58FAE14EEB0 /* Build configuration list for PBXProject "Penwise" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -311,33 +316,36 @@
 				en,
 				Base,
 			);
-			mainGroup = 883470A245E821E2B45FBEBF;
+			mainGroup = B6893F0A04FD97F8C7AC8156;
 			minimizedProjectReferenceProxies = 0;
+			packageReferences = (
+				C134472314006970C0F75345 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 100;
-			productRefGroup = 7234F87A82FF019E510E743F /* Products */;
+			productRefGroup = 7CD32E56634B8167303653CB /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				925EE14779FC99E05A3127FC /* Penwise */,
+				790B9329C4D5311D10EE8FB8 /* Penwise */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		06B0DB9BFA920C635A8CD285 /* Resources */ = {
+		8E116C89B73AD5A85C9D2785 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AC45112B969E8C5CE2719757 /* Assets.xcassets in Resources */,
-				F8465F0F7C2970113F3704C4 /* templates in Resources */,
-				0206DB89904F86F71F72696D /* journeys in Resources */,
+				63076BD29D714C98B69A4CEC /* Assets.xcassets in Resources */,
+				D72D06AEB44AD712C7957DCA /* templates in Resources */,
+				5F904B09B0B71626F20865A1 /* journeys in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		461EA00A29BA0F2F14026CFF /* Build shared engine (Kotlin) */ = {
+		58BAB34FAA75096403C7EAD5 /* Build shared engine (Kotlin) */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -359,88 +367,48 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		945967C63526890050DCCC3A /* Sources */ = {
+		AF08AE834CFA3BC0E505B8AA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F097C654BFF75E2C7F8C4410 /* PenwiseApp.swift in Sources */,
-				801B6E067227979C80A0643C /* InkCanvas.swift in Sources */,
-				29CFA77169FCC5E0E13D05FB /* InkModel.swift in Sources */,
-				616D32CBB96F0775D95C8414 /* AdSlot.swift in Sources */,
-				5C0F3043F05604CA9D822DB4 /* ConfettiView.swift in Sources */,
-				F6FCA49B24227F78289F520A /* Feedback.swift in Sources */,
-				AD8EDFD56DB22A22B9713243 /* ModeStyle.swift in Sources */,
-				84F375D18192C454505258FE /* ScoreViews.swift in Sources */,
-				A6327C4E02AB992911539585 /* StrokeDemoView.swift in Sources */,
-				21C5C02A080286C5D6426CE8 /* Theme.swift in Sources */,
-				25939B7F63659C8FB43C0940 /* Worksheet.swift in Sources */,
-				49955FE67D8B3E81B5E07717 /* CoreBridge.swift in Sources */,
-				39DB9313CDE76B544CE34883 /* GuideLayout.swift in Sources */,
-				50A1789F32BA217E22680FA3 /* PathMath.swift in Sources */,
-				C2CF58CE9B3133AE20B4863F /* RuledLinesView.swift in Sources */,
-				2D591D625C38B908D5B2B2DD /* TemplateOverlay.swift in Sources */,
-				6644A536C36046C1BAF5A9D4 /* Journey.swift in Sources */,
-				58974F1BA191E0A0315801BD /* JourneyStore.swift in Sources */,
-				13D26F84F74482EAD71E85EB /* CheckpointRecapView.swift in Sources */,
-				5642BCB1CC67E1117278B58B /* EntryView.swift in Sources */,
-				780393715BCC141F3F9ACC16 /* HomeView.swift in Sources */,
-				D0EFC47FFE48FBAA266B5ECF /* JourneyMapView.swift in Sources */,
-				CEDB2D29AEE3565D286A0AA1 /* LetterPickerView.swift in Sources */,
-				3D896651E24F008C91BBC53E /* RecorderView.swift in Sources */,
-				E3DED216C9E0E83BCC32BFB5 /* Route.swift in Sources */,
-				C6DCF313AA8199555F4C443E /* SettingsView.swift in Sources */,
-				1C942BE5D66501A1FF69BA2D /* WorksheetView.swift in Sources */,
-				F99779592F25393EE1D76C69 /* AppSettings.swift in Sources */,
-				B6E09EC5BD136B07D7ADCF3B /* FileStore.swift in Sources */,
-				1FE10D47FF56A82CFC6865A3 /* ProgressStore.swift in Sources */,
-				2DCEA8A195EACFFD842FE78E /* LetterTemplate.swift in Sources */,
+				9B457363C176554C5D1B914F /* PenwiseApp.swift in Sources */,
+				2A672F4BC880231EEA573242 /* InkCanvas.swift in Sources */,
+				11ACEA2160BB2CE5CB27A4B1 /* InkModel.swift in Sources */,
+				D6CC708073F8D7DE70B21DA5 /* AdSlot.swift in Sources */,
+				7763C04048807EA96E32106F /* ConfettiView.swift in Sources */,
+				1BBEE897BE26C0C428763ACF /* Feedback.swift in Sources */,
+				B215D54AA0AB4A3EF607F8CF /* ModeStyle.swift in Sources */,
+				5524A6857F239CD516B27152 /* ScoreViews.swift in Sources */,
+				0D32D78A6E5C55656AC17C46 /* StrokeDemoView.swift in Sources */,
+				154690BB5D43CCEC9D051E61 /* Theme.swift in Sources */,
+				B74A0BC71400142317CFCE9B /* Worksheet.swift in Sources */,
+				AA38D5936D209149E35BFA94 /* CoreBridge.swift in Sources */,
+				9B15323F5EE55AE7226E1D4A /* GuideLayout.swift in Sources */,
+				EB8A1320F3FE00C26ECE03DD /* PathMath.swift in Sources */,
+				D1E307789812A23791EF7686 /* RuledLinesView.swift in Sources */,
+				E7B3465028DF0178ADB32494 /* TemplateOverlay.swift in Sources */,
+				56421804450EDA2EE1699F1B /* Journey.swift in Sources */,
+				6BD9FE563DBBF8DA4CE3B65B /* JourneyStore.swift in Sources */,
+				31F3AC89C4BE19D4C68555FD /* CheckpointRecapView.swift in Sources */,
+				ABF4F361AC61DCDF12563073 /* EntryView.swift in Sources */,
+				A72BB3BD3E9444B313A43099 /* HomeView.swift in Sources */,
+				2B831D8B3AC6B2D18B650065 /* JourneyMapView.swift in Sources */,
+				EF488D4F54AC9FD908733E7F /* LetterPickerView.swift in Sources */,
+				CDCB630AFFCF1094E44017F4 /* RecorderView.swift in Sources */,
+				BD87B700EBA3952427698133 /* Route.swift in Sources */,
+				A40B1FCF86060577DD97E112 /* SettingsView.swift in Sources */,
+				AC7B5338F58023D6B274AD92 /* WorksheetView.swift in Sources */,
+				08E358F54865BA28241B589B /* AppSettings.swift in Sources */,
+				8250424BCB5D502F447B59BB /* FileStore.swift in Sources */,
+				EB1E01A31CEF2669983CD644 /* ProgressStore.swift in Sources */,
+				2EC9AB342D3FF27C58130D44 /* LetterTemplate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		2259778A6DB17B42889EA88D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/Penwise.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Config/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.1.0;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					PenwiseCore,
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		2C83297324C02F93DEA71460 /* Debug */ = {
+		0D72FD1446DB354023CD2D3A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -501,7 +469,86 @@
 			};
 			name = Debug;
 		};
-		5AD295B7B7E959CDE165B556 /* Release */ = {
+		60367D45DDE50FF1A54D8AA8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Config/Penwise.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					PenwiseCore,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B5C572C5732AE358B488502F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = Config/Penwise.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 0.1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					PenwiseCore,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		B755652D32809D7C2E4DB899 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -555,67 +602,47 @@
 			};
 			name = Release;
 		};
-		DA5DB5158BF8C9705CD20F43 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = Config/Penwise.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../core/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
-				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Config/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Penwise;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.1.0;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-framework",
-					PenwiseCore,
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTS_MACCATALYST = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
-			};
-			name = Debug;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		208DFB40BEA1C757400D69E9 /* Build configuration list for PBXProject "Penwise" */ = {
+		0230DF0D0BEFD58FAE14EEB0 /* Build configuration list for PBXProject "Penwise" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2C83297324C02F93DEA71460 /* Debug */,
-				5AD295B7B7E959CDE165B556 /* Release */,
+				0D72FD1446DB354023CD2D3A /* Debug */,
+				B755652D32809D7C2E4DB899 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8D86D242D0FBA3729052F6B4 /* Build configuration list for PBXNativeTarget "Penwise" */ = {
+		724324EFEE71D4D2D0F9E0CF /* Build configuration list for PBXNativeTarget "Penwise" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2259778A6DB17B42889EA88D /* Release */,
-				DA5DB5158BF8C9705CD20F43 /* Debug */,
+				60367D45DDE50FF1A54D8AA8 /* Release */,
+				B5C572C5732AE358B488502F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C134472314006970C0F75345 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = 4.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F94F0FFE219514990397F5D8 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C134472314006970C0F75345 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 168A1D748D9D97298E86AADD /* Project object */;
+	rootObject = 378D32C720B3ACB321AEC09E /* Project object */;
 }

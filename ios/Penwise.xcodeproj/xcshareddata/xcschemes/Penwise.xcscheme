@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "925EE14779FC99E05A3127FC"
+               BlueprintIdentifier = "790B9329C4D5311D10EE8FB8"
                BuildableName = "Penwise.app"
                BlueprintName = "Penwise"
                ReferencedContainer = "container:Penwise.xcodeproj">
@@ -30,7 +30,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "925EE14779FC99E05A3127FC"
+            BlueprintIdentifier = "790B9329C4D5311D10EE8FB8"
             BuildableName = "Penwise.app"
             BlueprintName = "Penwise"
             ReferencedContainer = "container:Penwise.xcodeproj">
@@ -53,7 +53,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "925EE14779FC99E05A3127FC"
+            BlueprintIdentifier = "790B9329C4D5311D10EE8FB8"
             BuildableName = "Penwise.app"
             BlueprintName = "Penwise"
             ReferencedContainer = "container:Penwise.xcodeproj">
@@ -70,7 +70,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "925EE14779FC99E05A3127FC"
+            BlueprintIdentifier = "790B9329C4D5311D10EE8FB8"
             BuildableName = "Penwise.app"
             BlueprintName = "Penwise"
             ReferencedContainer = "container:Penwise.xcodeproj">

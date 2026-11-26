@@ -33,6 +33,18 @@ SH
 target.build_phases.delete(kotlin)
 target.build_phases.unshift(kotlin)
 
+package = project.new(Xcodeproj::Project::Object::XCRemoteSwiftPackageReference)
+package.repositoryURL = 'https://github.com/airbnb/lottie-ios.git'
+package.requirement = { 'kind' => 'exactVersion', 'version' => '4.5.2' }
+project.root_object.package_references << package
+product = project.new(Xcodeproj::Project::Object::XCSwiftPackageProductDependency)
+product.package = package
+product.product_name = 'Lottie'
+target.package_product_dependencies << product
+link = project.new(Xcodeproj::Project::Object::PBXBuildFile)
+link.product_ref = product
+target.frameworks_build_phase.files << link
+
 # Source files and assets, mirroring the folder structure as groups.
 app_group = project.main_group.new_group('Penwise', 'Penwise')
 Dir.glob('Penwise/**/*').sort.each do |path|

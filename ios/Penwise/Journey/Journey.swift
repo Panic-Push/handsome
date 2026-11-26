@@ -52,12 +52,31 @@ struct Journey: Codable, Identifiable, Hashable {
     func templateID(_ glyph: String) -> String { "latin.\(style).\(glyph)" }
 }
 
+/// Statistics for the current six-space worksheet, including retries.
+struct LetterRun: Codable, Hashable {
+    static let count = 6
+    var scores: [Int] = []
+    var attempts = 0
+    var total = 0
+    var best = 0
+
+    var average: Int { attempts == 0 ? 0 : Int((Double(total) / Double(attempts)).rounded()) }
+    var complete: Bool { scores.count >= Self.count }
+
+    mutating func record(_ score: Int) {
+        attempts += 1
+        total += score
+        best = max(best, score)
+    }
+}
+
 /// Where a learner is in a journey: chapter, letter and step.
 struct LessonPosition: Codable, Hashable {
     var journeyID: String
     var chapterID: String
     var letterIndex: Int
     var step: LessonStep
+    var worksheet: LetterRun? = nil
 }
 
 final class JourneyLibrary {
