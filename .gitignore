@@ -14,3 +14,6 @@ ios/Frameworks/
 .DS_Store
 .idea/
 *.iml
+
+# Personal signing settings (see tools/setup_signing.sh)
+ios/Config/Local.xcconfig

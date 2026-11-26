@@ -1,0 +1,6 @@
+// Shared signing defaults. To use your own Apple team and bundle identifier,
+// run tools/setup_signing.sh (it writes Config/Local.xcconfig, which git ignores).
+PRODUCT_BUNDLE_IDENTIFIER = app.penwise.dev
+DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"

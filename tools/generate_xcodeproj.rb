@@ -73,11 +73,15 @@ target.resources_build_phase.add_file_reference(journeys)
 config_group = project.main_group.new_group('Config', 'Config')
 config_group.new_reference('Info.plist')
 config_group.new_reference('Penwise.entitlements')
+# Signing settings come from Config/Base.xcconfig, which reads the personal,
+# uncommitted Config/Local.xcconfig. Keeping them out of project.pbxproj means
+# choosing a signing team never makes that file differ from the repository.
+base_config = config_group.new_reference('Base.xcconfig')
 
 target.build_configurations.each do |config|
+  config.base_configuration_reference = base_config
   s = config.build_settings
   s['PRODUCT_NAME'] = '$(TARGET_NAME)'
-  s['PRODUCT_BUNDLE_IDENTIFIER'] = 'app.penwise.dev'
   s['MARKETING_VERSION'] = '0.1.0'
   s['CURRENT_PROJECT_VERSION'] = '1'
   s['CODE_SIGN_ENTITLEMENTS'] = 'Config/Penwise.entitlements'
@@ -94,7 +98,6 @@ target.build_configurations.each do |config|
   s['SUPPORTS_MACCATALYST'] = 'NO'
   s['SWIFT_VERSION'] = '5.0'
   s['CODE_SIGN_STYLE'] = 'Automatic'
-  s['DEVELOPMENT_TEAM'] = ''
   s['ASSETCATALOG_COMPILER_APPICON_NAME'] = 'AppIcon'
   s['ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME'] = 'AccentColor'
   s['ENABLE_PREVIEWS'] = 'YES'
