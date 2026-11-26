@@ -5,6 +5,12 @@ one shared Kotlin Multiplatform engine for letter data and scoring.
 
 The full product plan lives in the "Handwriting App — Development Plan" doc.
 
+## Working on Penwise
+
+- **Back end** (engine, content, data, purchases, ads, privacy): see the folders in the table below.
+- **Front end** (screens): read [docs/FRONTEND_HANDOFF.md](docs/FRONTEND_HANDOFF.md) first.
+- **Releasing**: [docs/app-store/launch-checklist.md](docs/app-store/launch-checklist.md).
+
 ## Repository layout
 
 | Folder | What it holds |
@@ -12,7 +18,10 @@ The full product plan lives in the "Handwriting App — Development Plan" doc.
 | `core/` | Shared engine (Kotlin Multiplatform): ink model, letter templates, scoring |
 | `content/templates/` | Letter templates as JSON for three styles (Normal `print-modern`, Classic `cursive-modern`, Traditional `cursive-traditional`), one file per letter, named by Unicode code point (`0061.json` = a) |
 | `ios/` | iPad app (SwiftUI + PencilKit). Open `ios/Penwise.xcodeproj` |
-| `tools/` | Helper scripts: seed template generator, Xcode project generator |
+| `content/journeys/`, `content/words/` | Courses for each style and the practice word list |
+| `ios/Penwise/Learning`, `Commerce`, `Ads`, `Privacy` | Assessment, plan and words; Premium purchases; ads and consent; data deletion |
+| `docs/` | Front-end handoff, privacy policy (`docs/privacy`), App Store paperwork (`docs/app-store`) |
+| `tools/` | Helper scripts: template generator, Xcode project generator, signing setup |
 | `android/` | Coming in Phase 3 |
 
 ## Phase 0 status
