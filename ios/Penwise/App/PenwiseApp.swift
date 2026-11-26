@@ -7,7 +7,7 @@ struct PenwiseApp: App {
     var body: some Scene {
         WindowGroup {
             HomeView()
-                .tint(.courseViolet)
+                .tint(.courseAccent)
                 .task {
                     // Purchases first (Premium users never start the ad SDK), then ads.
                     await StoreService.shared.start()

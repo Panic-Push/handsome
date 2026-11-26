@@ -90,6 +90,7 @@ struct JourneyMapView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
+            WorkbookFox(pose: .dash).frame(width: 92, height: 72)
             if store.isFinished(journey) {
                 Button {
                     path.append(.recap(journey.id))
@@ -149,7 +150,7 @@ struct JourneyMapView: View {
                                            control2: CGPoint(x: to.x, y: midY))
                         }
                     }
-                    .stroke(Color.courseViolet.opacity(0.32), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    .stroke(Color.courseAccent.opacity(0.32), style: StrokeStyle(lineWidth: 6, lineCap: .round, dash: [3, 12]))
                     ForEach(Array(letters.enumerated()), id: \.offset) { index, glyph in
                         let isCurrent = !finished && current.chapterID == chapter.id && current.letterIndex == index
                         let isDone = store.isComplete(glyph, chapter, in: journey)
@@ -175,12 +176,13 @@ struct JourneyMapView: View {
     private func tile(glyph: String, order: Int, isCurrent: Bool, isDone: Bool, needsReview: Bool,
                       in journey: Journey, action: @escaping () -> Void) -> some View {
         let template = library.template(id: journey.templateID(glyph))
-        let accent = Color.courseViolet
+        let accent = Color.courseAccent
         return Button(action: action) {
             VStack(spacing: 6) {
                 ZStack {
+                    Circle().fill(isCurrent ? Color.courseAccent : Color.cardBorder).offset(y: 5)
                     Circle()
-                        .fill(isCurrent ? Color.courseViolet : isDone ? Color.courseMint : Color.paperCard)
+                        .fill(isCurrent ? Color.courseAccent : isDone ? Color.courseMint : Color.paperCard)
                     Circle()
                         .stroke(isCurrent ? accent : Color.cardBorder, lineWidth: isCurrent ? 3 : 1)
                     if let template {
@@ -269,7 +271,7 @@ private struct ModeChoiceSheet: View {
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
-                    Spacer(minLength: 0)
+                    WorkbookFox(pose: .peek).frame(width: 72, height: 64)
                 }
 
                 let cards = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 14)) : AnyLayout(HStackLayout(spacing: 14))
@@ -308,7 +310,7 @@ private struct ModeChoiceSheet: View {
                             .frame(maxWidth: .infinity, minHeight: 44)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(Color.courseViolet)
+                    .tint(Color.courseAccent)
                 }
                 AdSlot(placement: .home)
                     .frame(maxWidth: .infinity)

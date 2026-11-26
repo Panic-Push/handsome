@@ -6,7 +6,7 @@ extension WritingMode {
     static let selectable: [WritingMode] = [.practice, .test]
 
     var color: Color {
-        .courseViolet
+        .courseAccent
     }
 
     var symbol: String {

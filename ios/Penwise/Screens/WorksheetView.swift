@@ -214,7 +214,7 @@ struct WorksheetView: View {
         .safeAreaInset(edge: .top, spacing: 0) {
             if let position, let steps = chapter?.steps, let index = steps.firstIndex(of: position.step) {
                 ProgressView(value: Double(index + 1), total: Double(steps.count))
-                    .tint(Color.courseViolet)
+                    .tint(Color.courseAccent)
                     .accessibilityLabel("Lesson step")
                     .accessibilityValue("\(index + 1) of \(steps.count)")
             }
@@ -249,7 +249,7 @@ struct WorksheetView: View {
                     ForEach(0..<3) { index in
                         Text(["Trace", "Light guide", "Memory"][index])
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(index == slot ? Color.courseViolet : Color.secondary)
+                            .foregroundStyle(index == slot ? Color.courseAccent : Color.secondary)
                             .frame(width: width)
                     }
                 }
@@ -281,7 +281,7 @@ struct WorksheetView: View {
                     page
                         .frame(width: width, height: height)
                         .clipped()
-                        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.courseViolet, lineWidth: 3)
+                        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.courseAccent, lineWidth: 3)
                             .allowsHitTesting(false))
                         .offset(x: CGFloat(slot) * (width + gap))
                 }
@@ -298,6 +298,8 @@ struct WorksheetView: View {
                     .font(.workbook(.largeTitle, weight: .bold))
                     .accessibilityAddTraits(.isHeader)
                 HStack(spacing: 18) {
+                    WorkbookFox(pose: score.overall >= ProgressStore.passMark ? .happy : .encourage)
+                        .frame(width: 84, height: 84)
                     ScoreRing(score: score.overall)
                     VStack(alignment: .leading, spacing: 8) {
                         StarsView(count: ProgressStore.stars(for: score.overall), size: 24)
@@ -326,7 +328,7 @@ struct WorksheetView: View {
 
     private var setRecap: some View {
         VStack(spacing: 18) {
-            Image(systemName: "checkmark.seal.fill").font(.largeTitle).foregroundStyle(Color.courseViolet)
+            WorkbookFox(pose: .celebrate).frame(width: 150, height: 150)
             Text("\(setTitle ?? "Session") complete").font(.workbook(.largeTitle))
             Text("\(setScores.count) letters · Average \(setScores.reduce(0, +) / max(1, setScores.count)) / 100")
             Button("Back to activities") { if !path.isEmpty { path.removeLast() } }
@@ -641,9 +643,7 @@ struct WorksheetView: View {
             Label(title, systemImage: symbol)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .tint(mode.color)
-        .controlSize(.large)
+        .buttonStyle(LessonActionStyle())
     }
 
     private func secondaryButton(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {

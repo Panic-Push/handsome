@@ -7,6 +7,9 @@ struct HomeView: View {
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var journeys = JourneyStore.shared
     @State private var path: [Route] = []
+    @State private var greeting = 0
+    private let greetings: [FoxPose] = [.splash, .tap, .sneeze, .pencilBonk, .dizzy, .sleepy, .hello]
+
     @State private var showSettings = false
 
     private let library = TemplateLibrary.shared
@@ -20,15 +23,15 @@ struct HomeView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         header
-                        if let journey, journeys.hasStarted(journey) {
+                        if let journey {
                             journeyCard(journey)
                         }
+                        courseShelf(compact: compact)
                         modeShortcuts
                         if AdSlot.shouldAppear {
                             AdSlot(placement: .home)
                                 .frame(maxWidth: .infinity)
                         }
-                        courseShelf(compact: compact)
                     }
                     .padding(.horizontal, 32)
                     .padding(.vertical, 20)
@@ -52,7 +55,7 @@ struct HomeView: View {
                 destination(route)
             }
         }
-        .tint(Color.ink)
+        .tint(Color.courseAccent)
     }
 
     @ViewBuilder
@@ -104,6 +107,14 @@ struct HomeView: View {
 
     private var header: some View {
         HStack(alignment: .center, spacing: 16) {
+            Button {
+                greeting = (greeting + 1) % greetings.count
+            } label: {
+                WorkbookFox(pose: greetings[greeting]).frame(width: 76, height: 76)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Play with the Penwise fox")
             Text("Penwise")
                 .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.ink)
@@ -136,55 +147,31 @@ struct HomeView: View {
         return Button {
             path.append(.journeyMap(journey.id))
         } label: {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack {
-                    Text(finished ? journey.title : "Continue \(journey.title)")
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text(journey.title)
                         .font(.workbook(.largeTitle, weight: .bold))
-                    Spacer()
-                    Image(systemName: "map.fill")
+                    Text("\(chapter.title) · \(done) of \(chapterLetters.count) complete")
+                        .font(.headline)
+                    ProgressView(value: Double(done), total: Double(max(1, chapterLetters.count)))
+                        .tint(.white)
+                    Label(finished ? "Review course" : journeys.hasStarted(journey) ? "Continue with \(glyph)" : "Start with \(glyph)", systemImage: "arrow.right.circle.fill")
+                        .font(.headline)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .foregroundStyle(Color.black)
+                        .background(.white, in: Capsule())
                 }
-                Text("\(chapter.title) · \(done) of \(chapterLetters.count) complete")
-                    .font(.headline)
-                HStack {
-                    specimen(Array(chapterLetters.prefix(3)), in: journey, current: glyph)
-                    Spacer()
-                    FoxBookmark().frame(width: 54, height: 58).accessibilityHidden(true)
-                }
-                Label("Open timeline", systemImage: "arrow.right")
-                    .font(.headline)
+                Spacer(minLength: 0)
+                WorkbookFox(pose: .idle)
+                    .frame(minWidth: 60, idealWidth: 140, maxWidth: 150, maxHeight: 160)
             }
-            .padding(22)
+            .padding(24)
             .foregroundStyle(.white)
-            .background(Color.courseViolet, in: RoundedRectangle(cornerRadius: 24))
+            .background(Color.courseFill, in: RoundedRectangle(cornerRadius: 26))
             .contentShape(Rectangle())
         }
         .buttonStyle(PressableStyle())
-    }
-
-    /// The chapter's letters drawn from the real templates on a ruled strip.
-    private func specimen(_ glyphs: [String], in journey: Journey, current: String?) -> some View {
-        HStack(spacing: 4) {
-            ForEach(glyphs, id: \.self) { g in
-                if let template = library.template(id: journey.templateID(g)) {
-                    LetterThumbnail(template: template, lineWidth: 3.5,
-                                    color: current == nil || current == g ? .ink : .ink.opacity(0.4))
-                        .frame(width: 60, height: 72)
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 6)
-        .background(
-            ZStack {
-                Color.paper
-                VStack(spacing: 0) {
-                    Spacer()
-                    Rectangle().fill(Color.rule.opacity(0.6)).frame(height: 1.5)
-                    Spacer().frame(height: 22)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        )
     }
 
     private func courseShelf(compact: Bool) -> some View {
@@ -231,6 +218,8 @@ struct HomeView: View {
                 .frame(height: 72)
                 if let chapter = course.chapter(position.chapterID) {
                     Text(chapter.title).font(.headline)
+                    ProgressView(value: Double(completed), total: Double(max(total, 1)))
+                        .tint(Color.courseAccent)
                     Text("\(completed) of \(total) course letters complete")
                         .font(.subheadline)
                 }
@@ -265,31 +254,6 @@ struct HomeView: View {
                     .buttonStyle(PressableStyle())
                 }
             }
-        }
-    }
-}
-
-private struct FoxBookmark: View {
-    var body: some View {
-        Canvas { context, size in
-            func facet(_ points: [CGPoint], _ color: Color) {
-                var path = Path()
-                for (index, point) in points.enumerated() {
-                    let vertex = CGPoint(x: point.x * size.width, y: point.y * size.height)
-                    if index == 0 { path.move(to: vertex) } else { path.addLine(to: vertex) }
-                }
-                path.closeSubpath()
-                context.fill(path, with: .color(color))
-            }
-            let nose = CGPoint(x: 0.5, y: 0.90)
-            let left = CGPoint(x: 0.08, y: 0.57)
-            let right = CGPoint(x: 0.92, y: 0.57)
-            let brow = CGPoint(x: 0.5, y: 0.36)
-            facet([.init(x: 0, y: 0.05), brow, nose, left], .orange)
-            facet([.init(x: 1, y: 0.05), right, nose, brow], Color(red: 0.91, green: 0.43, blue: 0.19))
-            facet([left, .init(x: 0.27, y: 0.53), nose], .white)
-            facet([right, .init(x: 0.73, y: 0.53), nose], .white)
-            facet([.init(x: 0.44, y: 0.83), .init(x: 0.56, y: 0.83), nose], .black)
         }
     }
 }

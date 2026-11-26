@@ -1,5 +1,4 @@
 import PencilKit
-import Lottie
 import SwiftUI
 import UIKit
 
@@ -291,6 +290,8 @@ struct LetterSessionView: View {
 
     private var footer: some View {
         HStack(spacing: 12) {
+            WorkbookFox(pose: !failedStrokes.isEmpty ? .oops : tip != nil ? .encourage : checking ? .thinking : .watching)
+                .frame(width: 54, height: 54)
             if let tip {
                 Image(systemName: "lightbulb.fill").foregroundStyle(Color.orange)
                 Text(tip)
@@ -327,7 +328,6 @@ struct LetterSessionView: View {
     private var points: Int { outcomes.map(\.score).reduce(0, +) / 10 + (average >= 80 ? 10 : 0) }
 
     private var statsScreen: some View {
-        let fox = LottieView(animation: .asset("fox_celebrate")).resizable()
         return ZStack {
             Color.paper
                 .overlay(alignment: .top) { Capsule().fill(color).frame(width: 54, height: 5).padding(.top, 10) }
@@ -337,9 +337,7 @@ struct LetterSessionView: View {
             }
             ScrollView {
                 VStack(spacing: 22) {
-                    Group {
-                        if reduceMotion { fox } else { fox.looping() }
-                    }
+                    WorkbookFox(pose: .celebrate)
                     .frame(width: 170, height: 170)
                     .accessibilityHidden(true)
 
@@ -370,9 +368,7 @@ struct LetterSessionView: View {
                             .font(.title3.weight(.semibold))
                             .frame(maxWidth: 460, minHeight: 56)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(color)
-                    .controlSize(.large)
+                    .buttonStyle(LessonActionStyle())
                 }
                 .padding(32)
                 .frame(maxWidth: .infinity)
