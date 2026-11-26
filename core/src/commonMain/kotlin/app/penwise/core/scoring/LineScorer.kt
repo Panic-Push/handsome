@@ -12,7 +12,8 @@ import kotlin.math.sqrt
 
 /** One letter of a word or line, placed at [x] (line units) on the writing line. */
 data class PlacedLetter(
-    val template: LetterTemplate,
+    /** Named so Swift sees it unchanged ("template" is reserved in the bridge). */
+    val letterTemplate: LetterTemplate,
     val x: Double,
     /** Which word (0-based) this letter belongs to. */
     val word: Int,
@@ -101,7 +102,7 @@ class LineScorer {
         if (letters.isEmpty()) return empty(letters, "There is nothing to write here.")
         if (raw.isEmpty()) return empty(letters, "Nothing was written yet.")
 
-        val models = letters.map { l -> l.template.strokes.map { s -> Geometry.resample(s.toVecs(), 24).map { Vec(it.x + l.x, it.y) } } }
+        val models = letters.map { l -> l.letterTemplate.strokes.map { s -> Geometry.resample(s.toVecs(), 24).map { Vec(it.x + l.x, it.y) } } }
         val modelPoints = models.map { it.flatten() }
         val allModel = modelPoints.flatten()
 
@@ -136,11 +137,11 @@ class LineScorer {
         val results = letters.indices.map { i ->
             val mine = owned[i]
             if (mine.size < 3) {
-                LetterResult(i, letters[i].template.glyph, 0, missing = true)
+                LetterResult(i, letters[i].letterTemplate.glyph, 0, missing = true)
             } else {
                 val d = Geometry.shapeDistance(mine, modelPoints[i])
                 val sc = LetterScorer.toScore(d, tol)
-                LetterResult(i, letters[i].template.glyph, sc, missing = d > tol * 1.6)
+                LetterResult(i, letters[i].letterTemplate.glyph, sc, missing = d > tol * 1.6)
             }
         }
         val shape = average(results.map { it.score.toDouble() })
@@ -249,7 +250,7 @@ class LineScorer {
         return ink.map { s -> s.map { Vec((it.x - ub.minX) * sx + mb.minX, it.y) } }
     }
 
-    private fun boundsOf(l: PlacedLetter) = Geometry.bounds(l.template.strokes.flatMap { it.toVecs() })
+    private fun boundsOf(l: PlacedLetter) = Geometry.bounds(l.letterTemplate.strokes.flatMap { it.toVecs() })
 
     /** Relative spread (standard deviation / mean) of positive values. */
     private fun spread(values: List<Double>): Double {

@@ -17,7 +17,7 @@ class LineScorerTest {
     /** Writes the placed letters perfectly, optionally moving each letter. */
     private fun write(letters: List<PlacedLetter>, move: (Int, Vec) -> Vec = { _, p -> p }): Ink =
         TestInk.ink(letters.flatMapIndexed { i, l ->
-            l.template.strokes.map { s -> s.toVecs().map { move(i, Vec(it.x + l.x, it.y)) } }
+            l.letterTemplate.strokes.map { s -> s.toVecs().map { move(i, Vec(it.x + l.x, it.y)) } }
         })
 
     private fun kinds(ink: Ink, letters: List<PlacedLetter>, traced: Boolean) =
@@ -26,7 +26,7 @@ class LineScorerTest {
     @Test
     fun layoutSplitsWordsAndSkipsPunctuation() {
         val placed = LineLayout.place("cat to.", templates, cursive = false)
-        assertEquals(listOf("c", "a", "t", "t", "o"), placed.map { it.template.glyph })
+        assertEquals(listOf("c", "a", "t", "t", "o"), placed.map { it.letterTemplate.glyph })
         assertEquals(listOf(0, 0, 0, 1, 1), placed.map { it.word })
         assertTrue(placed.zipWithNext().all { (a, b) -> b.x > a.x })
     }
@@ -53,7 +53,7 @@ class LineScorerTest {
     @Test
     fun aMissingLetterIsNamed() {
         val placed = LineLayout.place("coat", templates, cursive = false)
-        val withoutA = placed.filter { it.template.glyph != "a" }
+        val withoutA = placed.filter { it.letterTemplate.glyph != "a" }
         val s = scorer.scoreTraced(write(withoutA), placed)
         assertEquals(IssueKind.INCOMPLETE, s.issues.first().kind)
         assertTrue(s.tip!!.contains("a"), s.tip)

@@ -177,7 +177,7 @@ extension CoreBridge {
         var templates: [LetterTemplate] = []
         var kept: [PlacedLetter] = []
         for letter in placed {
-            guard let t = TemplateLibrary.shared.template(id: "latin.\(style.rawValue).\(letter.template.glyph)") else { continue }
+            guard let t = TemplateLibrary.shared.template(id: "latin.\(style.rawValue).\(letter.letterTemplate.glyph)") else { continue }
             templates.append(t)
             kept.append(letter)
         }
