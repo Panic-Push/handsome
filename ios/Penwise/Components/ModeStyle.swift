@@ -6,11 +6,7 @@ extension WritingMode {
     static let selectable: [WritingMode] = [.practice, .test]
 
     var color: Color {
-        switch self {
-        case .learn: return Color.courseViolet
-        case .practice: return Color(red: 0.10, green: 0.43, blue: 0.42)
-        case .test: return Color(red: 0.62, green: 0.29, blue: 0.14)
-        }
+        .courseViolet
     }
 
     var symbol: String {
@@ -49,9 +45,11 @@ extension WritingMode {
 
 /// Buttons that shrink slightly while pressed.
 struct PressableStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .animation(reduceMotion ? nil : .spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }

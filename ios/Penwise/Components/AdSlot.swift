@@ -12,6 +12,7 @@ struct AdSlot: View {
 
     @ObservedObject private var ads = AdsService.shared
     @ObservedObject private var store = StoreService.shared
+    @ObservedObject private var settings = AppSettings.shared
     @State private var loadFailed = false
 
     enum Placement {
@@ -31,28 +32,29 @@ struct AdSlot: View {
     let placement: Placement
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text("ADVERTISEMENT")
-                .font(.caption2.weight(.semibold))
-                .tracking(1)
-                .foregroundStyle(.secondary)
-            if ads.showsAds && !loadFailed {
-                GeometryReader { geo in
-                    AdBannerView(placement: placement == .home ? .homeBanner : .entry,
-                                 width: min(geo.size.width, placement.size.width)) { loaded in
-                        loadFailed = !loaded
+        if !store.isPremium && ((ads.showsAds && !loadFailed) || settings.showAdPlaceholders) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("ADVERTISEMENT")
+                    .font(.caption2.weight(.semibold))
+                    .tracking(1)
+                    .foregroundStyle(.secondary)
+                if ads.showsAds && !loadFailed {
+                    GeometryReader { geo in
+                        AdBannerView(placement: placement == .home ? .homeBanner : .entry,
+                                     width: min(geo.size.width, placement.size.width)) { loaded in
+                            loadFailed = !loaded
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: placement.size.width)
+                    .frame(height: placement.size.height)
+                } else {
+                    placeholder
                 }
-                .frame(maxWidth: placement.size.width)
-                .frame(height: placement.size.height)
-            } else {
-                placeholder
             }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Advertisement")
         }
-        .opacity(store.isPremium ? 0 : 1)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Advertisement")
     }
 
     private var placeholder: some View {

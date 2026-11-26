@@ -1,3 +1,4 @@
+import PencilKit
 import Lottie
 import SwiftUI
 import UIKit
@@ -108,13 +109,15 @@ struct LetterSessionView: View {
             footer
         }
         .background(Color.paper.ignoresSafeArea())
+        .allowsHitTesting(stage == .training || stage == .tracing)
+        .accessibilityHidden(stage == .tracingStats || stage == .trainingStats)
         .overlay {
             if stage == .tracingStats || stage == .trainingStats {
                 statsScreen
-                    .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                    .transition(.identity)
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: stage)
+
         .toolbar(.hidden, for: .navigationBar)
         .onAppear(perform: start)
         .onDisappear(perform: cancelPending)
@@ -326,7 +329,8 @@ struct LetterSessionView: View {
     private var statsScreen: some View {
         let fox = LottieView(animation: .asset("fox_celebrate")).resizable()
         return ZStack {
-            LinearGradient(colors: [color.opacity(0.18), Color.paper], startPoint: .top, endPoint: .bottom)
+            Color.paper
+                .overlay(alignment: .top) { Capsule().fill(color).frame(width: 54, height: 5).padding(.top, 10) }
                 .ignoresSafeArea()
             if !reduceMotion, let start = celebrationStart {
                 ConfettiView(start: start).ignoresSafeArea()
@@ -341,7 +345,7 @@ struct LetterSessionView: View {
 
                     VStack(spacing: 6) {
                         Text(stage == .tracingStats ? "Tracing complete!" : "Letter \(glyph) complete!")
-                            .font(.system(size: 38, weight: .bold, design: .rounded))
+                            .font(.workbook(.largeTitle, weight: .bold))
                             .foregroundStyle(Color.ink)
                         Text("\(chapter?.title ?? "") · \(glyph) · \(stageTitle)")
                             .font(.title3)
@@ -615,8 +619,19 @@ struct LetterSessionView: View {
         checking = false
         let item = items[current]
         let layout = cell(current, in: sheetSize).layout
-        let strokes = ink.capturedStrokes(in: layout)
-        let finger = ink.lastInkUsedFinger
+        // PencilKit can deliver several cells before the pause timer fires.
+        // Attribute each complete stroke by its bounds, independently of writing speed.
+        let drawings = ink.drawing.strokes
+        let indices = IndexSet(drawings.indices.filter { index in
+            let bounds = drawings[index].renderBounds
+            guard bounds.midX.isFinite, bounds.midY.isFinite else { return false }
+            let col = min(2, max(0, Int(floor(bounds.midX / (sheetSize.width / 3)))))
+            let row = min(1, max(0, Int(floor(bounds.midY / (sheetSize.height / 2)))))
+            return row * 3 + col == current
+        })
+        guard !indices.isEmpty else { return }
+        let strokes = ink.capturedStrokes(in: layout, indices: indices)
+        let finger = indices.contains { InkModel.looksLikeFinger(drawings[$0]) }
 
         var score = 0
         var advice: String?
@@ -644,20 +659,17 @@ struct LetterSessionView: View {
         tries += 1
         totalTries += 1
         if score >= LetterSessionView.passScore || tries >= LetterSessionView.maxTries {
-            pass(strokes: strokes, score: score, item: item)
+            pass(strokes: strokes, score: score, item: item, indices: indices)
         } else {
             tip = advice ?? "Nearly. Try that one again."
             failedStrokes = strokes
             problemStrokes = problems
             UINotificationFeedbackGenerator().notificationOccurred(.warning)
-            let resetToken = token
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-                if resetToken == token, !ink.isDrawing { ink.clear() }
-            }
+            ink.removeStrokes(at: indices)
         }
     }
 
-    private func pass(strokes: [CapturedStroke], score: Int, item: Item) {
+    private func pass(strokes: [CapturedStroke], score: Int, item: Item, indices: IndexSet) {
         let index = current
         outcomes.append(Outcome(strokes: strokes, score: score))
         tries = 0
@@ -665,7 +677,7 @@ struct LetterSessionView: View {
         failedStrokes = []
         problemStrokes = []
         token = UUID()
-        ink.clear()
+        ink.removeStrokes(at: indices)
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         justPassed = index
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { if justPassed == index { justPassed = nil } }

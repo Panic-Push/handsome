@@ -63,7 +63,6 @@ struct WorksheetView: View {
     @State private var errorText: String?
     @State private var notice: String?
     @State private var demoStart: Date?
-    @State private var pendingAdvance: DispatchWorkItem?
     @State private var showDetails = false
 
     private let library = TemplateLibrary.shared
@@ -202,7 +201,7 @@ struct WorksheetView: View {
                     .background(Color.paperCard, in: RoundedRectangle(cornerRadius: 18))
                 }
                 .padding(14)
-                .background(Color.courseViolet.opacity(0.85))
+                .background(Color.paper)
             }
         }
         .safeAreaInset(edge: .top, spacing: 0) {
@@ -223,9 +222,6 @@ struct WorksheetView: View {
         }
         .onChange(of: ink.revision) { _, _ in inkChanged() }
         .onChange(of: ink.isDrawing) { _, drawing in drawingChanged(drawing) }
-        .onChange(of: showDetails) { _, open in
-            if !open && result != nil { scheduleAdvance(revision: ink.revision, token: exercise) }
-        }
         .onChange(of: peek) { _, isOn in if isOn { usedHint = true } }
         .onChange(of: ink.pencilOnly) { _, value in settings.pencilOnly = value }
         .onChange(of: settings.size) { _, _ in startOver() }
@@ -246,7 +242,7 @@ struct WorksheetView: View {
                     ForEach(0..<3) { index in
                         Text(["Trace", "Light guide", "Memory"][index])
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(index == slot ? Color.white : Color.white.opacity(0.8))
+                            .foregroundStyle(index == slot ? Color.courseViolet : Color.secondary)
                             .frame(width: width)
                     }
                 }
@@ -594,7 +590,7 @@ struct WorksheetView: View {
     private var actions: some View {
         if result != nil {
             VStack(spacing: 8) {
-                primaryButton(nextLabel, "arrow.right", action: goNext)
+                primaryButton("Tap to continue · " + nextLabel, "arrow.right", action: goNext)
                 secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
             }
         }
@@ -675,8 +671,6 @@ struct WorksheetView: View {
     }
 
     private func cancelPending() {
-        pendingAdvance?.cancel()
-        pendingAdvance = nil
         pendingScore?.cancel()
         pendingScore = nil
         checking = false
@@ -706,24 +700,9 @@ struct WorksheetView: View {
             committed = false
             result = score
             react(to: score.overall)
-            if !showDetails { scheduleAdvance(revision: revision, token: token) }
         } catch {
             errorText = "Could not score this letter: \(error.localizedDescription)"
         }
-    }
-
-    /// Feedback stays visible while the pen is up. Any new stroke cancels the move.
-    private func scheduleAdvance(revision: Int, token: UUID) {
-        pendingAdvance?.cancel()
-        let unfinished = expectsMoreStrokes || result?.primaryKind == "MISSING_STROKE" || result?.primaryKind == "INCOMPLETE"
-        let delay: TimeInterval = unfinished ? 2.4 : (usesRow && slot < 2 ? 0.35 : 1.0)
-        let work = DispatchWorkItem {
-            guard token == exercise, revision == ink.revision, !ink.isDrawing,
-                  result != nil, !showDetails, !completedSet else { return }
-            goNext()
-        }
-        pendingAdvance = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
     /// Saves the latest scored version of this attempt to progress, once.

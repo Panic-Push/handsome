@@ -71,6 +71,15 @@ final class InkModel: ObservableObject {
         apply(PKDrawing())
     }
 
+    /// Consume only the finished cell. Strokes in later cells stay on the canvas.
+    func removeStrokes(at indices: IndexSet) {
+        let remaining = drawing.strokes.enumerated().compactMap { index, stroke in
+            indices.contains(index) ? nil : stroke
+        }
+        redoStack.removeAll()
+        apply(PKDrawing(strokes: remaining))
+    }
+
     private func apply(_ d: PKDrawing) {
         isApplying = true
         canvas?.drawing = d
@@ -82,8 +91,9 @@ final class InkModel: ObservableObject {
     // MARK: - Reading the ink
 
     /// The strokes converted to line units, sampled every few screen points.
-    func capturedStrokes(in layout: GuideLayout) -> [CapturedStroke] {
-        drawing.strokes.map { stroke in
+    func capturedStrokes(in layout: GuideLayout, indices: IndexSet? = nil) -> [CapturedStroke] {
+        drawing.strokes.enumerated().compactMap { index, stroke in
+            if let indices, !indices.contains(index) { return nil }
             let finger = InkModel.looksLikeFinger(stroke)
             var points: [CapturedPoint] = []
             for p in stroke.path.interpolatedPoints(by: .distance(3)) {

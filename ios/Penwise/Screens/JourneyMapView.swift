@@ -69,7 +69,8 @@ struct JourneyMapView: View {
                     // Navigate once the card has started to close.
                     DispatchQueue.main.async { path.append(route) }
                 }
-                .presentationDetents([.height(picked.isCheckpoint ? 470 : 430)])
+                .presentationDetents([.height(picked.isCheckpoint ? 620 : 570), .large])
+                .presentationBackground(Color.paper)
                 .presentationDragIndicator(.visible)
                 .presentationCornerRadius(28)
             }
@@ -235,6 +236,7 @@ struct LetterChoice: Identifiable {
 /// A card for choosing how to write the tapped letter. Each choice keeps
 /// going from this letter through the rest of the course, one after another.
 private struct ModeChoiceSheet: View {
+    @Environment(\.dynamicTypeSize) private var typeSize
     let choice: LetterChoice
     let journey: Journey
     let open: (Route) -> Void
@@ -251,60 +253,69 @@ private struct ModeChoiceSheet: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            HStack(spacing: 16) {
-                if let template {
-                    LetterThumbnail(template: template, lineWidth: 4)
-                        .frame(width: 72, height: 80)
-                        .background(Color.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Write \(choice.glyph)")
-                        .font(.workbook(.largeTitle, weight: .bold))
-                        .foregroundStyle(Color.ink)
-                    Text("\(choice.chapterTitle) · then on through the course, one letter after another")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer(minLength: 0)
-            }
-
-            HStack(spacing: 14) {
-                ForEach(WritingMode.selectable) { mode in
-                    Button { pick(mode) } label: {
-                        VStack(alignment: .leading, spacing: 10) {
-                            WorksheetPreview(template: template, mode: mode)
-                                .frame(height: 110)
-                            Label(mode.rawValue, systemImage: mode.symbol)
-                                .font(.headline)
-                                .foregroundStyle(mode.color)
-                            Text(mode.cardLabel)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(12)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(mode.color.opacity(0.08), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .stroke(mode.color.opacity(0.35), lineWidth: 1.5))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack(spacing: 16) {
+                    if let template {
+                        LetterThumbnail(template: template, lineWidth: 4)
+                            .frame(width: 72, height: 80)
+                            .background(Color.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                     }
-                    .buttonStyle(PressableStyle())
-                    .accessibilityHint(mode == .practice ? "Starts the guided lesson" : "Writes the letters in a row")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Write \(choice.glyph)")
+                            .font(.workbook(.largeTitle, weight: .bold))
+                            .foregroundStyle(Color.ink)
+                        Text("\(choice.chapterTitle) · then on through the course, one letter after another")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer(minLength: 0)
                 }
-            }
 
-            if choice.isCheckpoint {
-                Button { open(.lesson(choice.position, review: !choice.isSavedPlace)) } label: {
-                    Label("Take the checkpoint", systemImage: "flag.checkered")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, minHeight: 44)
+                let cards = typeSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 14)) : AnyLayout(HStackLayout(spacing: 14))
+                cards {
+                    ForEach(WritingMode.selectable) { mode in
+                        Button { pick(mode) } label: {
+                            VStack(alignment: .leading, spacing: 10) {
+                                WorksheetPreview(template: template, mode: mode)
+                                    .frame(height: 110)
+                                HStack {
+                                    Label(mode.rawValue, systemImage: mode.symbol)
+                                    Spacer()
+                                    Image(systemName: "chevron.right").accessibilityHidden(true)
+                                }
+                                    .font(.headline)
+                                    .foregroundStyle(mode.color)
+                                Text(mode.cardLabel)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color.paperCard, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                .stroke(mode.color.opacity(0.35), lineWidth: 1.5))
+                        }
+                        .buttonStyle(PressableStyle())
+                        .accessibilityHint(mode == .practice ? "Starts the guided lesson" : "Writes the letters in a row")
+                    }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.courseViolet)
+
+                if choice.isCheckpoint {
+                    Button { open(.lesson(choice.position, review: !choice.isSavedPlace)) } label: {
+                        Label("Take the checkpoint", systemImage: "flag.checkered")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.courseViolet)
+                }
+                AdSlot(placement: .home)
+                    .frame(maxWidth: .infinity)
             }
+            .padding(24)
         }
-        .padding(24)
-        .background(Color.paperCard)
+        .background(Color.paper)
     }
 
     private func pick(_ mode: WritingMode) {
