@@ -2,6 +2,9 @@ import SwiftUI
 
 /// Colours, icons and words for each mode, shared by every screen.
 extension WritingMode {
+    /// Learn remains a scoring category for guided strokes and existing history.
+    static let selectable: [WritingMode] = [.practice, .test]
+
     var color: Color {
         switch self {
         case .learn: return Color.courseViolet
@@ -21,7 +24,7 @@ extension WritingMode {
     var subtitle: String {
         switch self {
         case .learn: return "Watch the letter, then trace it from the start dot."
-        case .practice: return "Write over a faint model, then with less guide."
+        case .practice: return "Trace the letter, follow a lighter guide, then write from memory."
         case .test: return "Write from memory on blank lines."
         }
     }

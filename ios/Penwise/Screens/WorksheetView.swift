@@ -63,7 +63,6 @@ struct WorksheetView: View {
     @State private var errorText: String?
     @State private var notice: String?
     @State private var demoStart: Date?
-    @State private var celebrationStart: Date?
     @State private var pendingAdvance: DispatchWorkItem?
     @State private var showDetails = false
 
@@ -123,7 +122,7 @@ struct WorksheetView: View {
     private var mode: WritingMode {
         if let step = position?.step { return step.mode }
         if usesRow {
-            let modes: [WritingMode] = [freeMode, .practice, .test]
+            let modes: [WritingMode] = [.learn, .practice, .test]
             return modes[slot]
         }
         return freeMode
@@ -147,7 +146,7 @@ struct WorksheetView: View {
 
     private var guideKind: GuideKind {
         if !usesRow { return .memory }
-        let guides: [GuideKind] = !isLesson && freeMode == .practice ? [.faint, .faint, .memory] : [.learn, .faint, .memory]
+        let guides: [GuideKind] = [.learn, .faint, .memory]
         return guides[slot]
     }
 
@@ -156,7 +155,7 @@ struct WorksheetView: View {
         if let p = position, let c = chapter, let g = lessonGlyph {
             return "\(c.title) · \(g) · \(p.step.title)"
         }
-        return "\(mode.rawValue) · \(selected?.spokenName ?? "")"
+        return "\(freeMode.rawValue) · \(selected?.spokenName ?? "")"
     }
 
     /// Fewest strokes any accepted form of the letter uses.
@@ -195,10 +194,11 @@ struct WorksheetView: View {
                         ScrollView {
                             status.frame(maxWidth: 740, alignment: .leading)
                         }
-                        .frame(maxHeight: result == nil ? 110 : 100)
+                        .frame(height: 96)
                         actions.frame(maxWidth: 550)
                     }
                     .padding(12)
+                    .frame(height: 220, alignment: .top)
                     .background(Color.paperCard, in: RoundedRectangle(cornerRadius: 18))
                 }
                 .padding(14)
@@ -223,6 +223,9 @@ struct WorksheetView: View {
         }
         .onChange(of: ink.revision) { _, _ in inkChanged() }
         .onChange(of: ink.isDrawing) { _, drawing in drawingChanged(drawing) }
+        .onChange(of: showDetails) { _, open in
+            if !open && result != nil { scheduleAdvance(revision: ink.revision, token: exercise) }
+        }
         .onChange(of: peek) { _, isOn in if isOn { usedHint = true } }
         .onChange(of: ink.pencilOnly) { _, value in settings.pencilOnly = value }
         .onChange(of: settings.size) { _, _ in startOver() }
@@ -241,7 +244,7 @@ struct WorksheetView: View {
             VStack(spacing: 6) {
                 HStack(spacing: gap) {
                     ForEach(0..<3) { index in
-                        Text([!isLesson && freeMode == .practice ? "Copy" : "Trace", "Light guide", "Memory"][index])
+                        Text(["Trace", "Light guide", "Memory"][index])
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(index == slot ? Color.white : Color.white.opacity(0.8))
                             .frame(width: width)
@@ -305,7 +308,7 @@ struct WorksheetView: View {
                 RuledLinesView(layout: layout, highlighted: highlightedLines)
                 if let template = selected {
                     guide(for: template, layout: layout)
-                    if result != nil, let previous = previousAttempt {
+                    if guideKind != .memory, result != nil, let previous = previousAttempt {
                         AttemptGhost(strokes: previous.strokes, layout: layout)
                     }
                     if let start = demoStart {
@@ -316,9 +319,6 @@ struct WorksheetView: View {
                 if !usesRow, mode == .test, let template = selected {
                     TargetLetterCard(template: template, hinted: usedHint)
                         .padding(16)
-                }
-                if let start = celebrationStart {
-                    ConfettiView(start: start)
                 }
             }
             .onAppear { canvasSize = geo.size }
@@ -340,7 +340,7 @@ struct WorksheetView: View {
                             pathOpacity: slot == 0 ? 0.45 : 0.20, solidPath: true, highlight: highlight)
         case .memory:
             TemplateOverlay(template: template, layout: layout, showPath: peek, showArrows: peek,
-                            showDots: peek, highlight: highlight)
+                            showDots: peek, highlight: peek ? highlight : [])
         }
     }
 
@@ -363,7 +363,7 @@ struct WorksheetView: View {
                 letterMenu
             }
 
-            if guideKind != .memory || result != nil {
+            if guideKind != .memory {
                 Button { replayDemo() } label: {
                     Label(guideKind == .memory ? "Replay" : "Watch again", systemImage: "play.circle")
                 }
@@ -411,7 +411,7 @@ struct WorksheetView: View {
         Menu {
             if !isLesson && setTitle == nil {
                 Picker("Mode", selection: freeModeBinding) {
-                    ForEach(WritingMode.allCases) { Label($0.rawValue, systemImage: $0.symbol).tag($0) }
+                    ForEach(WritingMode.selectable) { Label($0.rawValue, systemImage: $0.symbol).tag($0) }
                 }
             }
             Picker("Writing size", selection: $settings.size) {
@@ -507,7 +507,7 @@ struct WorksheetView: View {
             }
         }
         if usesRow {
-            return [freeMode == .practice ? "Copy the \(name) over the guide." : "Trace the \(name) from the start dot.", "Follow the light guide for \(name).", "Write \(name) from memory."][slot]
+            return ["Trace the \(name) from the start dot.", "Follow the light guide for \(name).", "Write \(name) from memory."][slot]
         }
         switch freeMode {
         case .learn: return "Trace the \(name) from the green dot, following the arrow."
@@ -643,7 +643,6 @@ struct WorksheetView: View {
         cancelPending()
         if result != nil {
             result = nil // the ink changed, so the old feedback is stale
-            celebrationStart = nil
         }
         guard ink.strokeCount > 0 else { return }
         if !ink.isDrawing { schedule() }
@@ -707,20 +706,24 @@ struct WorksheetView: View {
             committed = false
             result = score
             react(to: score.overall)
-            if usesRow && slot < 2 && !expectsMoreStrokes && score.primaryKind != "MISSING_STROKE" && score.primaryKind != "INCOMPLETE" {
-                advanceWithinRow()
-            } else if !expectsMoreStrokes && score.primaryKind != "MISSING_STROKE" && score.primaryKind != "INCOMPLETE" && !showDetails {
-                let work = DispatchWorkItem {
-                    guard token == exercise, revision == ink.revision, !ink.isDrawing, result != nil,
-                          !showDetails, !completedSet else { return }
-                    goNext()
-                }
-                pendingAdvance = work
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: work)
-            }
+            if !showDetails { scheduleAdvance(revision: revision, token: token) }
         } catch {
             errorText = "Could not score this letter: \(error.localizedDescription)"
         }
+    }
+
+    /// Feedback stays visible while the pen is up. Any new stroke cancels the move.
+    private func scheduleAdvance(revision: Int, token: UUID) {
+        pendingAdvance?.cancel()
+        let unfinished = expectsMoreStrokes || result?.primaryKind == "MISSING_STROKE" || result?.primaryKind == "INCOMPLETE"
+        let delay: TimeInterval = unfinished ? 2.4 : (usesRow && slot < 2 ? 0.35 : 1.0)
+        let work = DispatchWorkItem {
+            guard token == exercise, revision == ink.revision, !ink.isDrawing,
+                  result != nil, !showDetails, !completedSet else { return }
+            goNext()
+        }
+        pendingAdvance = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: work)
     }
 
     /// Saves the latest scored version of this attempt to progress, once.
@@ -760,7 +763,6 @@ struct WorksheetView: View {
         comparison = nil
         result = nil
         demoStart = nil
-        celebrationStart = nil
         exercise = UUID()
         ink.clear()
     }
@@ -779,7 +781,6 @@ struct WorksheetView: View {
 
     private func resetLetter() {
         demoStart = nil
-        celebrationStart = nil
         errorText = nil
         peek = false
         usedHint = false
@@ -804,6 +805,16 @@ struct WorksheetView: View {
         if usesRow && slot < 2 {
             advanceWithinRow()
             return
+        }
+        if !isLesson && usesRow && slot == 2, let template = selected,
+           let style = LetterStyle(rawValue: template.style),
+           let course = JourneyLibrary.shared.journey(style: style),
+           let unit = course.chapters.first(where: { !$0.isCheckpoint && $0.letters.contains(template.glyph) }),
+           let index = unit.letters.firstIndex(of: template.glyph) {
+            for step in unit.scoredSteps {
+                journeys.markComplete(LessonPosition(journeyID: course.id, chapterID: unit.id,
+                                                     letterIndex: index, step: step), glyph: template.glyph)
+            }
         }
         if setTitle != nil {
             guard let attempt = currentAttempt else { return }
@@ -904,11 +915,6 @@ struct WorksheetView: View {
         let haptics = UINotificationFeedbackGenerator()
         if score >= 85 {
             haptics.notificationOccurred(.success)
-            let start = Date()
-            celebrationStart = start
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
-                if celebrationStart == start { celebrationStart = nil }
-            }
         } else if score >= 60 {
             haptics.notificationOccurred(.warning)
         } else {

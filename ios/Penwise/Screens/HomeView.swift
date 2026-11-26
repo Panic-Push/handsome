@@ -192,6 +192,9 @@ struct HomeView: View {
             }
         }()
         let position = journeys.position(in: course)
+        let chapters = course.chapters.filter { !$0.isCheckpoint }
+        let total = chapters.reduce(0) { $0 + $1.letters.count }
+        let completed = chapters.reduce(0) { $0 + journeys.completedCount($1, in: course) }
         return Button {
             settings.style = style
             path.append(.journeyMap(course.id))
@@ -211,7 +214,7 @@ struct HomeView: View {
                 .frame(height: 72)
                 if let chapter = course.chapter(position.chapterID) {
                     Text(chapter.title).font(.headline)
-                    Text("\(journeys.completedCount(chapter, in: course)) of \(journeys.letters(chapter, in: course).count) complete")
+                    Text("\(completed) of \(total) course letters complete")
                         .font(.subheadline)
                 }
             }
@@ -232,7 +235,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("\(settings.style.title) shortcuts").font(.workbook(.headline))
             HStack {
-                ForEach(WritingMode.allCases) { mode in
+                ForEach(WritingMode.selectable) { mode in
                     Button { go(.mode(mode)) } label: {
                         VStack(spacing: 6) {
                             Image(systemName: mode.symbol)

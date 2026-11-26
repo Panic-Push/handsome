@@ -144,6 +144,7 @@ struct SentenceWorksheet: View {
     @State private var custom: String?
     @State private var draft = ""
     @State private var editing = false
+    @State private var tracingWords = false
     @State private var word = 0
     @State private var finished = false
     @State private var previous: UIImage?
@@ -161,14 +162,19 @@ struct SentenceWorksheet: View {
 
     private var sentence: String { custom ?? sentencePrompts[index] }
     private var words: [String] { sentence.split(whereSeparator: { $0.isWhitespace }).map(String.init) }
-    private var model: String { mode == .learn ? words[word] : sentence }
+    private var model: String { tracingWords ? words[word] : sentence }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 Text("\(style.title) · \(mode.rawValue)").font(.headline).foregroundStyle(.secondary)
                 Text(sentence).font(.workbook(.title))
-                if mode == .learn {
+                if mode != .test && !finished {
+                    Toggle("Trace word by word", isOn: $tracingWords)
+                        .disabled(ink.strokeCount > 0 || !wordsWritten.isEmpty)
+                        .onChange(of: tracingWords) { _, _ in reset() }
+                }
+                if tracingWords {
                     HStack {
                         Text("Word \(word + 1) of \(words.count)").font(.headline)
                         Spacer()
@@ -183,7 +189,7 @@ struct SentenceWorksheet: View {
                     Text("Previous attempt").font(.caption)
                     Image(uiImage: previous).resizable().scaledToFit().frame(maxHeight: 105)
                 }
-                if mode == .learn && !wordsWritten.isEmpty {
+                if tracingWords && !wordsWritten.isEmpty {
                     ScrollView(.horizontal) {
                         HStack {
                             ForEach(wordsWritten.indices, id: \.self) { i in
@@ -201,13 +207,13 @@ struct SentenceWorksheet: View {
                             context.stroke(line, with: .color(Color.rule.opacity(0.55)))
                         }
                     }
-                    if mode == .learn {
+                    if tracingWords {
                         SentenceModel(text: model, style: style, animated: false)
                             .opacity(0.3).allowsHitTesting(false)
                     }
                     InkCanvas(model: ink).allowsHitTesting(!finished)
                 }
-                .frame(height: mode == .learn ? 150 : 240)
+                .frame(height: tracingWords ? 150 : 240)
                 .background(Color.paper).clipShape(RoundedRectangle(cornerRadius: 14))
                 if finished {
                     Text("Compare the spacing, height and joins with the model above.").font(.callout)
@@ -226,8 +232,8 @@ struct SentenceWorksheet: View {
                     }
                 } else {
                     HStack {
-                        Button(mode == .learn && word + 1 < words.count ? "Next word" : "Finish sentence") {
-                            if mode == .learn && word + 1 < words.count {
+                        Button(tracingWords && word + 1 < words.count ? "Next word" : "Finish sentence") {
+                            if tracingWords && word + 1 < words.count {
                                 if let image = snapshot() { wordsWritten.append(image) }
                                 ink.clear()
                                 word += 1

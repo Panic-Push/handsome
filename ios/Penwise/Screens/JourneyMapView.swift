@@ -21,7 +21,7 @@ struct JourneyMapView: View {
                         header(journey)
                         if let style = LetterStyle(rawValue: journey.style) {
                             Menu {
-                                ForEach(WritingMode.allCases) { mode in
+                                ForEach(WritingMode.selectable) { mode in
                                     Button(mode.rawValue) { path.append(.sentences(style, mode, nil)) }
                                 }
                             } label: {
@@ -31,7 +31,7 @@ struct JourneyMapView: View {
                             .buttonStyle(.borderedProminent)
                         }
                         HStack {
-                            ForEach(WritingMode.allCases) { mode in
+                            ForEach(WritingMode.selectable) { mode in
                                 Button {
                                     path.append(.letters(mode))
                                 } label: {
@@ -270,7 +270,7 @@ private struct ModeChoiceSheet: View {
             }
 
             HStack(spacing: 14) {
-                ForEach(WritingMode.allCases) { mode in
+                ForEach(WritingMode.selectable) { mode in
                     Button { pick(mode) } label: {
                         VStack(alignment: .leading, spacing: 10) {
                             WorksheetPreview(template: template, mode: mode)
@@ -289,7 +289,7 @@ private struct ModeChoiceSheet: View {
                             .stroke(mode.color.opacity(0.35), lineWidth: 1.5))
                     }
                     .buttonStyle(PressableStyle())
-                    .accessibilityHint(mode == .learn ? "Starts the guided lesson" : "Writes the letters in a row")
+                    .accessibilityHint(mode == .practice ? "Starts the guided lesson" : "Writes the letters in a row")
                 }
             }
 
@@ -308,7 +308,7 @@ private struct ModeChoiceSheet: View {
     }
 
     private func pick(_ mode: WritingMode) {
-        if mode == .learn && !choice.isCheckpoint {
+        if mode == .practice && !choice.isCheckpoint {
             open(.lesson(choice.position, review: !choice.isSavedPlace))
         } else {
             let ids = remaining.map { journey.templateID($0) }
