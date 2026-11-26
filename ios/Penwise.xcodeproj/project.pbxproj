@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        D20300000000000000000001 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = D20300000000000000000002; };
 		0C7B414D9A7AF8838F71C48E /* AdSlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7F2E251A85BC1712C882AD /* AdSlot.swift */; };
 		1218E4E9012ED31280D28E0D /* InkModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0621C2F7BA30C309151FDFD2 /* InkModel.swift */; };
 		2172ABEF7FA7A31C706D4018 /* PenwiseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF20CD9BD97838515463C223 /* PenwiseApp.swift */; };
@@ -90,6 +91,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AFC030914A70E56D623A2F8F /* Foundation.framework in Frameworks */,
+                D20300000000000000000001 /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,7 +290,8 @@
 			dependencies = (
 			);
 			name = Penwise;
-			productName = Penwise;
+			packageProductDependencies = (D20300000000000000000002,);
+            productName = Penwise;
 			productReference = A74761335115A6F40F4CA880 /* Penwise.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -313,7 +316,8 @@
 			minimizedProjectReferenceProxies = 0;
 			preferredProjectObjectVersion = 100;
 			productRefGroup = 5D725631E0AFDFB7AA72AC2C /* Products */;
-			projectDirPath = "";
+			packageReferences = (D20300000000000000000003,);
+            projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				B9B30854CC10267DEB0E5EA0 /* Penwise */,
@@ -396,6 +400,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+        D20300000000000000000002 /* Lottie */ = {
+            isa = XCSwiftPackageProductDependency;
+            package = D20300000000000000000003;
+            productName = Lottie;
+        };
+        D20300000000000000000003 /* lottie-ios */ = {
+            isa = XCRemoteSwiftPackageReference;
+            repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+            requirement = {kind = exactVersion; version = 4.5.2; };
+        };
 
 /* Begin XCBuildConfiguration section */
 		3C21D17A24D8FE92D17371A2 /* Debug */ = {

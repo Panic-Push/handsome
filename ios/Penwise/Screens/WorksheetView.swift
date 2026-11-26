@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import Lottie
 
 /// What a worksheet is for: free practice of one letter in a mode, or a step
 /// of a journey lesson.
@@ -61,8 +62,8 @@ struct WorksheetView: View {
     @State private var errorText: String?
     @State private var notice: String?
     @State private var demoStart: Date?
-    @State private var celebrationStart: Date?
-    @State private var showDetails = false
+    @State private var run = LetterRun()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let library = TemplateLibrary.shared
     private let railWidth: CGFloat = 340
@@ -80,6 +81,7 @@ struct WorksheetView: View {
             _freeMode = State(initialValue: p.step.mode)
             _freeTemplateID = State(initialValue: "")
             _position = State(initialValue: p)
+            _run = State(initialValue: p.worksheet ?? LetterRun())
             review = isReview
         }
     }
@@ -117,7 +119,10 @@ struct WorksheetView: View {
     }
 
     private var guideKind: GuideKind {
-        if let step = position?.step { return step == .memory ? .memory : .learn }
+        if position?.step == .memory { return .memory }
+        if position != nil || freeMode == .learn {
+            return run.scores.count % 3 == 2 ? .faint : .learn
+        }
         switch freeMode {
         case .learn: return .learn
         case .practice: return practiceGuide == .faint ? .faint : .lines
@@ -161,26 +166,31 @@ struct WorksheetView: View {
                         if settings.handedness == .right {
                             rail(landscape: true).frame(width: railWidth)
                             Divider()
-                            page
+                            worksheetGrid
                         } else {
-                            page
+                            worksheetGrid
                             Divider()
                             rail(landscape: true).frame(width: railWidth)
                         }
                     }
                 } else {
                     VStack(spacing: 0) {
-                        page
+                        worksheetGrid
                         Divider()
                         rail(landscape: false).frame(height: portraitRailHeight)
                     }
                 }
             }
-            .onChange(of: outer.size) { _, _ in startOver() }
+            .allowsHitTesting(result == nil && !run.complete)
+            .accessibilityHidden(result != nil || run.complete)
+            .overlay {
+                if run.complete || result != nil { resultScreen }
+            }
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { toolbarContent }
+        .toolbar { if result == nil && !run.complete { toolbarContent } }
+        .toolbar(result != nil || run.complete ? .hidden : .visible, for: .navigationBar)
         .onAppear(perform: appear)
         .onDisappear {
             cancelPending()
@@ -195,6 +205,42 @@ struct WorksheetView: View {
     }
 
     // MARK: - Page
+
+    private var worksheetGrid: some View {
+        VStack(spacing: 8) {
+            ForEach(0..<2) { row in
+                HStack(spacing: 4) {
+                    ForEach(0..<3) { column in
+                        let index = row * 3 + column
+                        if index == run.scores.count {
+                            page
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(mode.color, lineWidth: 2))
+                        } else {
+                            GeometryReader { geo in
+                                let layout = makeLayout(geo.size)
+                                ZStack {
+                                    RuledLinesView(layout: layout)
+                                    if let template = selected, guideKind == .learn || guideKind == .faint {
+                                        TemplateOverlay(template: template, layout: layout, showArrows: false,
+                                                        showDots: false, pathOpacity: 0.18, solidPath: true)
+                                    }
+                                }
+                                .overlay(alignment: .topLeading) {
+                                    if index < run.scores.count {
+                                        Label("\(run.scores[index])", systemImage: "checkmark.circle.fill")
+                                            .font(.caption.bold()).foregroundStyle(.green).padding(8)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(Color.paper)
+    }
 
     private var page: some View {
         GeometryReader { geo in
@@ -212,18 +258,12 @@ struct WorksheetView: View {
                     }
                 }
                 InkCanvas(model: ink)
-                if mode == .test, let template = selected {
-                    TargetLetterCard(template: template, hinted: usedHint)
-                        .padding(16)
-                }
-                if let start = celebrationStart {
-                    ConfettiView(start: start)
-                }
+
             }
             .onAppear { canvasSize = geo.size }
             .onChange(of: geo.size) { _, newSize in
                 canvasSize = newSize
-                startOver() // the guides moved, so old ink would no longer line up
+                if result == nil { startOver() }
             }
         }
     }
@@ -344,20 +384,17 @@ struct WorksheetView: View {
             if landscape {
                 VStack(alignment: .leading, spacing: 20) {
                     if isLesson { stepChips }
-                    status
+                    prompt
                     Spacer(minLength: 0)
-                    actions
                 }
                 .padding(24)
             } else {
                 HStack(alignment: .center, spacing: 24) {
                     VStack(alignment: .leading, spacing: 12) {
                         if isLesson { stepChips }
-                        status
+                        prompt
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    actions
-                        .frame(width: 230)
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
@@ -381,26 +418,19 @@ struct WorksheetView: View {
         }
     }
 
-    @ViewBuilder
-    private var status: some View {
-        if let result = result {
-            feedback(result)
-        } else {
-            prompt
-        }
-    }
-
     private var instruction: String {
         if let errorText { return errorText }
         let name = lessonGlyph ?? selected?.glyph ?? "letter"
         if let step = position?.step {
             switch step {
             case .watch: return "Watch how the \(name) is written. Start tracing whenever you're ready."
+            case .trace where guideKind == .faint: return "Trace the faint \(name) on the lines."
             case .trace: return "Trace the \(name) from the green dot, following the arrow."
             case .memory: return "Write the \(name) from memory."
             }
         }
         switch freeMode {
+        case .learn where guideKind == .faint: return "Trace the faint \(name) on the lines."
         case .learn: return "Trace the \(name) from the green dot, following the arrow."
         case .practice:
             return practiceGuide == .faint ? "Write over the faint letter." : "Now write it on the lines, with no model."
@@ -415,6 +445,8 @@ struct WorksheetView: View {
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Color.green)
             }
+            Text("Exercise \(min(run.scores.count + 1, LetterRun.count)) of \(LetterRun.count)")
+                .font(.headline)
             Text(instruction)
                 .font(.workbook(.title2))
                 .foregroundStyle(errorText == nil ? Color.ink : Color.red)
@@ -446,120 +478,112 @@ struct WorksheetView: View {
         }
     }
 
-    private func feedback(_ r: ScoreResult) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Label(r.tip == nil ? "Looks great" : "One thing to work on",
-                  systemImage: r.tip == nil ? "checkmark.seal.fill" : "lightbulb.fill")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(r.tip == nil ? Color.green : mode.color)
-            Text(r.tip ?? goodMessage(r.overall))
-                .font(.workbook(.title2))
-                .foregroundStyle(Color.ink)
-                .lineLimit(4)
-                .minimumScaleFactor(0.75)
-            if let comparison {
-                Label(comparison.text, systemImage: comparison.improved ? "arrow.up.right.circle.fill" : "equal.circle")
-                    .font(.callout.weight(.medium))
-                    .foregroundStyle(comparison.improved ? Color.green : Color.secondary)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
-            }
-            HStack(spacing: 14) {
-                StarsView(count: ProgressStore.stars(for: r.overall), size: 15, animated: true)
-                Button { showDetails = true } label: {
-                    Text("Details · \(r.overall)")
-                        .font(.callout.weight(.semibold))
-                }
-                .buttonStyle(.borderless)
-                .popover(isPresented: $showDetails) {
-                    ScoreDetailsView(result: r, history: progress.recentAttempts(mode, templateID))
-                }
-                if guideKind == .memory && usedHint {
-                    Text("With hint")
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 3)
-                        .background(Color.orange.opacity(0.2), in: Capsule())
-                }
-            }
-        }
+    private var passed: Bool {
+        guard let attempt = currentAttempt else { return false }
+        return attempt.result.overall >= ProgressStore.passMark && !attempt.hinted
     }
 
-    /// Try again leads when there is a correction; moving on leads otherwise.
-    @ViewBuilder
-    private var actions: some View {
-        if let r = result {
-            VStack(spacing: 10) {
-                if r.tip != nil {
-                    primaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
-                    secondaryButton(nextLabel, "arrow.right", action: goNext)
-                } else {
-                    primaryButton(nextLabel, "arrow.right", action: goNext)
-                    secondaryButton("Try again", "arrow.counterclockwise", action: tryAgain)
+    private var resultScreen: some View {
+        let summary = run.complete
+        let success = summary || passed
+        let fox = LottieView(animation: .asset(success ? "fox_celebrate" : "fox_encourage")).resizable()
+        return ScrollView {
+            VStack(spacing: 12) {
+                Group {
+                    if reduceMotion { fox } else { fox.looping() }
                 }
-                if !isLesson && freeMode == .practice && practiceGuide == .faint {
-                    secondaryButton("Try with less guide", "eye.slash") {
-                        practiceGuide = .lines
-                        tryAgain()
+                .frame(width: 160, height: 160)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+                Text(summary ? "Letter complete · \(selected?.glyph ?? "")" :
+                        (success ? "Exercise passed!" : "Give it another try"))
+                    .font(.workbook(.title))
+                if summary {
+                    StarsView(count: ProgressStore.stars(for: run.average), size: 32, animated: true)
+                    Text("Average \(run.average)/100 · Best \(run.best)/100")
+                    Text("\(run.scores.count) exercises · \(run.attempts) attempts")
+                    ForEach(run.scores.indices, id: \.self) { i in
+                        Text("Exercise \(i + 1) · \(run.scores[i])/100")
+                    }
+                } else if let result {
+                    ScoreRing(score: result.overall)
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 128))]) {
+                        ForEach(result.parts) { PartChip(part: $0) }
+                    }
+                    if let tip = result.tip { Text(tip) }
+                    if let comparison, comparison.improved { Text(comparison.text) }
+                    if currentAttempt?.hinted == true {
+                        Text("Try once more without peeking to pass.")
                     }
                 }
+                Text(summary ? summaryAction : (success ?
+                    (run.scores.count == LetterRun.count - 1 ? "Tap for letter stats" : "Tap for the next exercise") :
+                    "Tap to retry this exercise"))
+                    .font(.headline).foregroundStyle(mode.color)
             }
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: 540)
+            .padding(24)
+            .frame(maxWidth: .infinity)
         }
+        .background(Color.paperCard)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: continueResult)
+        .accessibilityAction(named: Text("Continue")) { continueResult() }
     }
 
-    private func primaryButton(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: symbol)
-                .frame(maxWidth: .infinity)
+    private var summaryAction: String {
+        if let p = position, let j = journey, journeys.next(after: p, in: j) == nil {
+            return review ? "Tap to return to the map" : "Tap for the journey recap"
         }
-        .buttonStyle(.borderedProminent)
-        .tint(mode.color)
-        .controlSize(.large)
+        return "Tap for the next letter"
     }
 
-    private func secondaryButton(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: symbol)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.bordered)
-        .tint(mode.color)
+    private func saveRun() {
+        guard var p = position else { return }
+        p.worksheet = run
+        position = p
+        if !review { journeys.setPosition(p) }
     }
 
-    private var nextLabel: String {
-        guard let p = position, let j = journey else { return "Next letter" }
-        let next = journeys.next(after: p, in: j)
-        if review {
-            if let next, next.chapterID == p.chapterID, next.letterIndex == p.letterIndex {
-                return "Next step: \(next.step.title)"
-            }
-            return "Back to map"
+    private func continueResult() {
+        if run.complete {
+            goNext()
+            return
         }
-        guard let next else { return "See recap" }
-        if next.chapterID != p.chapterID { return "Finish chapter" }
-        if next.letterIndex != p.letterIndex { return "Next letter" }
-        return "Next step: \(next.step.title)"
+        guard let score = result else { return }
+        let advance = passed
+        tryAgain()
+        peek = false
+        usedHint = false
+        guard advance else { return }
+        previousAttempt = nil
+        run.scores.append(score.overall)
+        if run.scores.count == 3, var p = position, p.step == .trace {
+            if let glyph = lessonGlyph { journeys.markComplete(p, glyph: glyph) }
+            p.step = .memory
+            position = p
+        }
+        saveRun()
     }
 
     // MARK: - Automatic scoring
 
     private func inkChanged() {
         cancelPending()
-        if result != nil {
-            result = nil // the ink changed, so the old feedback is stale
-            celebrationStart = nil
-        }
+        guard result == nil, !run.complete else { return }
         guard ink.strokeCount > 0 else { return }
         if !ink.isDrawing { schedule() }
     }
 
     private func drawingChanged(_ drawing: Bool) {
+        guard result == nil, !run.complete else { return }
         if drawing {
             cancelPending()
             result = nil
             demoStart = nil
             notice = nil
-            if ink.strokeCount == 0 { usedHint = peek } // a new attempt begins
+            if peek { usedHint = true }
             beginTraceIfWatching()
         } else if ink.strokeCount > 0 && result == nil {
             schedule()
@@ -585,7 +609,8 @@ struct WorksheetView: View {
 
     /// Scores a snapshot, and shows it only if the ink and exercise still match.
     private func scoreNow(revision: Int, token: UUID) {
-        guard token == exercise, revision == ink.revision, !ink.isDrawing, ink.strokeCount > 0 else { return }
+        guard result == nil, !run.complete, token == exercise, revision == ink.revision,
+              !ink.isDrawing, ink.strokeCount > 0 else { return }
         pendingScore = nil
         checking = false
         guard let template = selected, let json = library.json(for: template.id) else {
@@ -606,7 +631,10 @@ struct WorksheetView: View {
             currentAttempt = Attempt(strokes: strokes, result: score, hinted: guideKind == .memory && usedHint)
             committed = false
             result = score
-            react(to: score.overall)
+            run.record(score.overall)
+            commitIfNeeded()
+            saveRun()
+            UINotificationFeedbackGenerator().notificationOccurred(passed ? .success : .warning)
         } catch {
             errorText = "Could not score this letter: \(error.localizedDescription)"
         }
@@ -649,7 +677,6 @@ struct WorksheetView: View {
         comparison = nil
         result = nil
         demoStart = nil
-        celebrationStart = nil
         exercise = UUID()
         ink.clear()
     }
@@ -667,6 +694,7 @@ struct WorksheetView: View {
     }
 
     private func resetLetter() {
+        run = LetterRun()
         peek = false
         usedHint = false
         startOver()
@@ -701,10 +729,6 @@ struct WorksheetView: View {
 
         guard let next = journeys.next(after: p, in: j) else {
             replaceRoute(with: review ? .journeyMap(j.id) : .recap(j.id))
-            return
-        }
-        if review && (next.chapterID != p.chapterID || next.letterIndex != p.letterIndex) {
-            if !path.isEmpty { path.removeLast() } // back to the map; the journey place is unchanged
             return
         }
         if next.chapterID != p.chapterID, let nextChapter = j.chapter(next.chapterID) {
@@ -749,35 +773,6 @@ struct WorksheetView: View {
                 demoStart = nil
                 beginTraceIfWatching()
             }
-        }
-    }
-
-    /// Haptic tap for every score, confetti for great ones.
-    private func react(to score: Int) {
-        let haptics = UINotificationFeedbackGenerator()
-        if score >= 85 {
-            haptics.notificationOccurred(.success)
-            let start = Date()
-            celebrationStart = start
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
-                if celebrationStart == start { celebrationStart = nil }
-            }
-        } else if score >= 60 {
-            haptics.notificationOccurred(.warning)
-        } else {
-            haptics.notificationOccurred(.error)
-        }
-    }
-
-    private func goodMessage(_ score: Int) -> String {
-        let name = lessonGlyph ?? selected?.glyph ?? "letter"
-        if isLesson {
-            return score >= 85 ? "Lovely \(name)! Ready for the next step." : "Good \(name). Try once more, or move on."
-        }
-        switch freeMode {
-        case .learn: return score >= 85 ? "Well traced! Try it in Practice next." : "Good. Trace it once more to make it smooth."
-        case .practice: return score >= 85 ? "Great control! Try it with less guide, or in Test." : "Nice. One more for consistency."
-        case .test: return score >= 85 ? "Excellent, written from memory!" : "Good. Keep practising this one."
         }
     }
 }
