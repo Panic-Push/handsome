@@ -40,7 +40,7 @@ struct SettingsView: View {
                     if let recent = progress.lastPlayed {
                         let attempts = progress.recentAttempts(recent.mode, recent.templateID)
                         if let last = attempts.first {
-                            LabeledContent("Last score · \(recent.templateID.components(separatedBy: ".").last ?? "")", value: "\(last.score)/100")
+                            LabeledContent("Last score · \(TemplateLibrary.shared.template(id: recent.templateID)?.glyph ?? "writing")", value: "\(last.score)/100")
                         }
                     } else {
                         Text("Your first scored letter will appear here.").foregroundStyle(.secondary)

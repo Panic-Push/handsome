@@ -4,7 +4,7 @@
 
 - Xcode Run uses Debug, Google's test ads and the local StoreKit catalogue. Release uses the Penwise AdMob app ID and the two placement IDs. The bundle ID is `app.penwise.dev`.
 - Onboarding, local workbook, age screening, handwriting check, report, suggested practice, words, paywall, restore and data deletion are available in the app.
-- The privacy policy is bundled for offline reading and published from `docs/privacy/`. Contact is penwise.dev@gmail.com.
+- The privacy policy is bundled for offline reading and ready to publish from `docs/privacy/`. Contact is penwise.dev@gmail.com.
 - For free hosting, select Settings → Pages → Deploy from a branch → main → /docs. Verify https://panic-push.github.io/handsome/privacy/ opens without signing in before entering it in App Store Connect.
 
 ## Before distribution

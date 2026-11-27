@@ -79,4 +79,4 @@ ID changes, the product IDs can stay as they are.
 
 Answer **None** to all content descriptors. Answer **Yes** to "Advertising"
 if asked (free version shows ads). Unrestricted web access: No. Result: 4+ by
-content; then set the **Age Rating Override to 13+**, for the intended teen and adult audience. Free accounts confirmed as adult can see advertising.
+content; then set the **Age Rating Override to 13+**, for the intended teen and adult audience. Free learners confirmed as adults can see advertising.

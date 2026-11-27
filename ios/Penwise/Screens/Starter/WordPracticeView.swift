@@ -2,6 +2,7 @@ import SwiftUI
 
 /// STARTER SCREEN (to be redesigned): practice words one after another.
 struct WordPracticeView: View {
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var session: WordSession
     @StateObject private var ink = InkModel()
     @State private var size: CGSize = .zero
@@ -14,8 +15,16 @@ struct WordPracticeView: View {
         VStack(alignment: .leading, spacing: 18) {
             ProgressView(value: session.progress)
             if session.isFinished {
-                Text("Words done!").font(.workbook(.largeTitle))
-                Text("Average \(session.average) · Best \(session.best)")
+                ScrollView {
+                    VStack(spacing: 18) {
+                        WorkbookFox(pose: .celebrate).frame(height: 128)
+                        Text("Word practice complete").font(.workbook(.largeTitle))
+                        ScoreRing(score: session.average)
+                        LabeledContent("Words written", value: String(session.words.count))
+                        LabeledContent("Best score", value: "\(session.best)/100")
+                        Button("Finish practice") { dismiss() }.buttonStyle(LessonActionStyle())
+                    }.padding(22).frame(maxWidth: 520).paperCard().frame(maxWidth: .infinity)
+                }
             } else if session.words.isEmpty {
                 Text("No words found for these letters.")
             } else if let word = session.word {

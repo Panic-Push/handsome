@@ -37,8 +37,7 @@ struct HomeView: View {
                         }
                         courseShelf(compact: compact)
                         modeShortcuts
-                        Button("Your practice plan") { path.append(.assessment) }
-                            .buttonStyle(.bordered)
+                        reviewCard
                         AdSlot(placement: .home).frame(maxWidth: .infinity)
                     }
                     .padding(.horizontal, 32)
@@ -168,6 +167,22 @@ struct HomeView: View {
     }
 
     // MARK: - Header
+
+    private var reviewCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Daily review").font(.workbook(.title2))
+            if let recent = progress.lastPlayed, let template = library.template(id: recent.templateID) {
+                Button {
+                    path.append(.write(recent.mode, recent.templateID))
+                } label: {
+                    Label("Review your last letter · \(template.glyph)", systemImage: "pencil.line")
+                }
+            }
+            Button { path.append(.assessment) } label: {
+                Label("Your practice plan", systemImage: "list.clipboard")
+            }.buttonStyle(.bordered)
+        }.padding(18).frame(maxWidth: .infinity, alignment: .leading).paperCard()
+    }
 
     private var header: some View {
         HStack(alignment: .center, spacing: 16) {

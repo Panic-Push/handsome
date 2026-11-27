@@ -43,7 +43,15 @@ struct ReportView: View {
     var body: some View {
         ScrollView {
             if let report = plans.report {
-                ReportContent(report: report).padding(28)
+                VStack(alignment: .leading, spacing: 20) {
+                    ReportContent(report: report)
+                    if plans.history.count > 1 {
+                        Text("Recent handwriting checks").font(.workbook(.title2))
+                        ForEach(Array(plans.history.suffix(5).reversed()), id: \.date) { past in
+                            LabeledContent(past.date.formatted(date: .abbreviated, time: .shortened), value: "\(past.overall)/100")
+                        }
+                    }
+                }.padding(28).frame(maxWidth: 720)
             } else {
                 Text("No report yet.").padding(28)
             }

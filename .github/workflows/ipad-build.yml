@@ -20,8 +20,22 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
+      - name: Check age classification at the adult boundary
+        run: |
+          xcrun --sdk macosx swiftc -target "$(uname -m)-apple-macos13.0" ios/Penwise/Storage/AppSettings.swift ios/Tests/AgeBandChecks.swift -o "$RUNNER_TEMP/check-age"
+          "$RUNNER_TEMP/check-age"
       - name: Build the iPad app for the simulator
         run: >
           xcodebuild -project ios/Penwise.xcodeproj -scheme Penwise
           -configuration Debug -destination 'generic/platform=iOS Simulator'
-          ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
+          -derivedDataPath "$RUNNER_TEMP/PenwiseBuild" ARCHS=arm64 CODE_SIGNING_ALLOWED=NO build
+      - name: Verify and package the Debug simulator app
+        run: |
+          app="$RUNNER_TEMP/PenwiseBuild/Build/Products/Debug-iphonesimulator/Penwise.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :GADApplicationIdentifier' "$app/Info.plist")" = 'ca-app-pub-3940256099942544~1458002511'
+          /usr/bin/ditto -c -k --keepParent "$app" "$RUNNER_TEMP/Penwise-iPad-Simulator.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Penwise-Debug-iPad-Simulator-arm64
+          path: ${{ runner.temp }}/Penwise-iPad-Simulator.zip
+          retention-days: 14
