@@ -31,6 +31,9 @@ final class StoreService: ObservableObject {
     @Published private(set) var isLoading = false
     @Published private(set) var lastError: String?
 
+    @Published private(set) var checkedEntitlements = false
+    @Published private(set) var eligibleForWeek = false
+    @Published private(set) var trialEnds: Date?
     private var updates: Task<Void, Never>?
     private static let cacheKey = "penwise.store.isPremium"
 
@@ -56,12 +59,18 @@ final class StoreService: ObservableObject {
     }
 
     func loadProducts() async {
+        eligibleForWeek = false
         isLoading = true
         defer { isLoading = false }
         do {
             let loaded = try await Product.products(for: ProductID.allCases.map(\.rawValue))
             let order = ProductID.allCases.map(\.rawValue)
             products = loaded.sorted { (order.firstIndex(of: $0.id) ?? 9) < (order.firstIndex(of: $1.id) ?? 9) }
+            if let yearly = product(.yearly)?.subscription, let offer = yearly.introductoryOffer,
+               offer.paymentMode == .freeTrial, offer.periodCount == 1,
+               (offer.period.unit == .week && offer.period.value == 1 || offer.period.unit == .day && offer.period.value == 7) {
+                eligibleForWeek = await yearly.isEligibleForIntroOffer
+            }
             lastError = nil
         } catch {
             lastError = "Couldn't load Premium options. Check your connection and try again."
@@ -95,6 +104,7 @@ final class StoreService: ObservableObject {
 
     /// Restores purchases (App Store review requires a visible Restore button).
     func restore() async {
+        lastError = nil
         do {
             try await AppStore.sync()
         } catch {
@@ -106,26 +116,31 @@ final class StoreService: ObservableObject {
     /// Re-reads the current entitlements from StoreKit.
     func refreshEntitlements() async {
         var active: String?
+        var trialExpiry: Date?
         for await entitlement in Transaction.currentEntitlements {
             guard case .verified(let transaction) = entitlement,
                   ProductID(rawValue: transaction.productID) != nil,
                   transaction.revocationDate == nil else { continue }
             if let expiry = transaction.expirationDate, expiry < Date() { continue }
             active = transaction.productID
+            if transaction.productID == ProductID.yearly.rawValue, transaction.offerType == .introductory {
+                trialExpiry = transaction.expirationDate
+            }
         }
+        trialEnds = trialExpiry
         activeProductID = active
         isPremium = active != nil
+        checkedEntitlements = true
         UserDefaults.standard.set(isPremium, forKey: StoreService.cacheKey)
     }
 
-    /// "7 days free, then $29.99/year" style text for a subscription.
     func offerText(for product: Product) -> String {
         guard let subscription = product.subscription else { return "\(product.displayPrice) once" }
         let period = subscription.subscriptionPeriod.unit == .year ? "year" : "month"
-        if let intro = subscription.introductoryOffer, intro.paymentMode == .freeTrial {
-            let days = intro.period.unit == .week ? intro.period.value * 7 : intro.period.value
-            return "\(days) days free, then \(product.displayPrice)/\(period)"
+        let price = "\(product.displayPrice) per \(period)"
+        if product.id == ProductID.yearly.rawValue && eligibleForWeek {
+            return "7 days free, then \(price). Renews automatically until cancelled."
         }
-        return "\(product.displayPrice)/\(period)"
+        return "\(price). Renews automatically until cancelled."
     }
 }

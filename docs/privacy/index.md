@@ -1,70 +1,25 @@
 # Penwise privacy policy
 
-_Last updated: 26 November 2026_
+Updated November 27, 2026
 
-Penwise is a handwriting practice app for iPad. This policy explains what
-information is involved when you use it.
+## Your workbook
 
-## The short version
+Penwise runs without a login. Handwriting, saved samples, workbook labels, learning preferences, scores and streaks stay on your iPad. Penwise does not upload them to a developer-operated server. Your device backups are governed by your Apple settings.
 
-- **Your handwriting stays on your iPad.** Letters, words and sentences you
-  write, your scores, your plan and your progress are stored only on your
-  device. We do not run servers that receive them.
-- **Ads are shown to free users** by Google AdMob. Google may collect
-  device and usage information to show and measure ads, as described below.
-- **Premium removes ads.** Purchases are handled by Apple.
-- **You can delete everything** at any time in Settings › Delete all my data.
+## Age and advertising
 
-## Information stored on your device
+The app asks for your birth year to determine whether you are at least 18. In the year of your 18th birthday it asks whether your birthday has passed. It saves only an age category on the device. You may skip the question. Advertising and tracking are disabled for minors, people whose age is unknown, and Premium users.
 
-| What | Why |
-|---|---|
-| Your handwriting strokes and scores | To check your writing and show progress |
-| Your plan, reports and course progress | To build and track your practice |
-| Settings (style, writing size, hand, age band) | To set up the app for you |
-| If you choose Sign in with Apple: your name and email as shared by Apple | To show your account in Settings |
+The free app uses Google AdMob for eligible adults. Google may process IP-derived approximate location, device identifiers, ad interactions and diagnostic information for ad delivery, measurement, fraud prevention and analytics. Tracking across apps or websites requires iPad tracking permission and applicable consent. You can manage tracking in iPad Settings and reopen advertising privacy choices in My workbook where available. See [how Google uses data](https://policies.google.com/technologies/partner-sites).
 
-This information is not sent to us. If you delete the app or use Delete all
-my data, it is removed from your device.
+## Purchases and reminders
 
-## Advertising
+Apple processes purchases and subscriptions. Penwise checks your StoreKit entitlement to unlock Premium. Restore Purchases is available in My workbook. Optional practice reminders are scheduled on your device with your permission.
 
-Free users see a small number of ads on the home screen and on the screen
-before a practice mode. Ads are provided by Google AdMob, which may collect
-your device's advertising identifier (only if you allow tracking), IP address,
-approximate location, device information and ad interactions. See
-[Google's privacy policy](https://policies.google.com/privacy) and
-[how Google uses information from apps](https://policies.google.com/technologies/partner-sites).
+## Your controls
 
-- In the European Economic Area, the UK and Switzerland, you are asked for
-  consent first, and can change your choice in Settings › Privacy choices.
-- Apple's tracking prompt is shown only to adults. If you decline, ads are
-  not personalised.
-- If you tell us you are under 18 (or haven't told us your age), ads are
-  requested as for a user under the age of consent and are not personalised.
-
-## Purchases
-
-Subscriptions and the lifetime purchase are processed by Apple. We do not
-receive your payment details. Apple tells the app only whether Premium is
-active.
-
-## Children
-
-Penwise is intended for people aged 13 and over. It is not directed at
-children under 13, and we do not knowingly collect information from them.
-
-## Your choices
-
-- Change ad consent: Settings › Privacy choices (where offered).
-- Turn off tracking: iPad Settings › Privacy & Security › Tracking.
-- Delete your data: Settings › Delete all my data.
-- Stop using Sign in with Apple: [appleid.apple.com](https://appleid.apple.com).
-
-## Changes
-
-If this policy changes, the new version will be posted here with a new date.
+Use My workbook to change preferences or delete your local data. Deleting workbook data does not cancel an Apple subscription. Manage subscriptions through your Apple Account. If you contact support by email, your email provider and ours process your message to deliver it and enable a reply.
 
 ## Contact
 
-Questions about this policy: [CONTACT EMAIL]
+For privacy and support, email [penwise.dev@gmail.com](mailto:penwise.dev@gmail.com).

@@ -89,7 +89,6 @@ end
 
 config_group = project.main_group.new_group('Config', 'Config')
 config_group.new_reference('Info.plist')
-config_group.new_reference('Penwise.entitlements')
 # Local StoreKit catalogue: purchases work in Xcode before App Store Connect.
 config_group.new_reference('Penwise.storekit')
 # Signing settings come from Config/Base.xcconfig, which reads the personal,
@@ -103,7 +102,7 @@ target.build_configurations.each do |config|
   s['PRODUCT_NAME'] = '$(TARGET_NAME)'
   s['MARKETING_VERSION'] = '0.1.0'
   s['CURRENT_PROJECT_VERSION'] = '1'
-  s['CODE_SIGN_ENTITLEMENTS'] = 'Config/Penwise.entitlements'
+  s['PENWISE_ADMOB_APP_ID'] = config.name == 'Debug' ? 'ca-app-pub-3940256099942544~1458002511' : 'ca-app-pub-7824337884890138~7438870140'
   s['INFOPLIST_FILE'] = 'Config/Info.plist'
   s['GENERATE_INFOPLIST_FILE'] = 'YES'
   s['INFOPLIST_KEY_CFBundleDisplayName'] = 'Penwise'
@@ -135,9 +134,6 @@ end
 # IDs derived from file paths instead of random ones, so regenerating the
 # project only changes the lines that really changed.
 project.predictabilize_uuids
-project.root_object.attributes['TargetAttributes'] = {
-  target.uuid => { 'SystemCapabilities' => { 'com.apple.SignInWithApple' => { 'enabled' => 1 } } }
-}
 
 project.save
 

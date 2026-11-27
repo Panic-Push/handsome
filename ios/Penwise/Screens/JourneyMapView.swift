@@ -323,7 +323,7 @@ private struct ModeChoiceSheet: View {
                     .buttonStyle(.borderedProminent)
                     .tint(Color.courseAccent)
                 }
-                AdSlot(placement: .home)
+                AdSlot(placement: .modeEntry)
                     .frame(maxWidth: .infinity)
             }
             .padding(24)
@@ -366,7 +366,7 @@ private struct SentenceChoiceSheet: View {
                     }
                     .buttonStyle(PressableStyle())
                 }
-                AdSlot(placement: .home).frame(maxWidth: .infinity)
+                AdSlot(placement: .modeEntry).frame(maxWidth: .infinity)
             }
             .padding(28)
         }

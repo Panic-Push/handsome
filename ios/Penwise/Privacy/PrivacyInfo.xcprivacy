@@ -2,14 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Penwise's own code does not track. The Google Mobile Ads SDK ships its
-	     own privacy manifest describing its data use. -->
+	<!-- Eligible adults may permit tracking through AdMob. SDK manifests describe SDK collection. -->
 	<key>NSPrivacyTracking</key>
-	<false/>
+	<true/>
 	<key>NSPrivacyTrackingDomains</key>
-	<array/>
-	<!-- Penwise collects no data off the device: progress, handwriting and the
-	     optional Apple sign-in details stay on this iPad. -->
+	<array>
+		<string>googleads.g.doubleclick.net</string>
+	</array>
+	<!-- Penwise collects no data off the device: progress and handwriting stay on this iPad. -->
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array/>
 	<key>NSPrivacyAccessedAPITypes</key>

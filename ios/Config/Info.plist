@@ -7,15 +7,15 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
-	<!-- Google AdMob. These are Google's public TEST ids: replace the app id
-	     and the two unit ids with your own from admob.google.com before release
-	     (debug builds always use test units). -->
+	<!-- The build configuration selects the app identifier. -->
+	<key>GADDelayAppMeasurementInit</key>
+	<true/>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-3940256099942544~1458002511</string>
+	<string>$(PENWISE_ADMOB_APP_ID)</string>
 	<key>PenwiseAdUnitHomeBanner</key>
-	<string>ca-app-pub-3940256099942544/2435281174</string>
+	<string>ca-app-pub-7824337884890138/2305642167</string>
 	<key>PenwiseAdUnitEntry</key>
-	<string>ca-app-pub-3940256099942544/2435281174</string>
+	<string>ca-app-pub-7824337884890138/5794615982</string>
 	<!-- Shown by Apple's tracking prompt (adults only). -->
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Penwise uses this to show ads that are more relevant to you. Your handwriting never leaves this iPad.</string>

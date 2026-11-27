@@ -4,17 +4,7 @@ import GoogleMobileAds
 import UIKit
 import UserMessagingPlatform
 
-/// Ads with Google AdMob, behind Google's consent form (EU/UK/Switzerland)
-/// and Apple's tracking prompt.
-///
-/// - Premium users never see ads and the ad SDK is not started for them.
-/// - Learners not confirmed as adults (`AppSettings.ageBand`) are treated as
-///   minors: no tracking prompt, ads tagged as under the age of consent.
-/// - Ads appear only on Home and the entry screen (`AdSlot`), never in a lesson.
-///
-/// Front end: call `start()` once the first screen is visible; read
-/// `showsAds`; show a "Privacy choices" button when `privacyOptionsRequired`
-/// and call `showPrivacyOptions()`.
+/// Advertising is available only to confirmed adult learners on the free plan.
 @MainActor
 final class AdsService: ObservableObject {
     static let shared = AdsService()
@@ -29,7 +19,7 @@ final class AdsService: ObservableObject {
             return AdsService.testBannerUnit
             #else
             let key = self == .homeBanner ? "PenwiseAdUnitHomeBanner" : "PenwiseAdUnitEntry"
-            return (Bundle.main.object(forInfoDictionaryKey: key) as? String) ?? AdsService.testBannerUnit
+            return (Bundle.main.object(forInfoDictionaryKey: key) as? String) ?? ""
             #endif
         }
     }
@@ -42,58 +32,54 @@ final class AdsService: ObservableObject {
     /// Show a "Privacy choices" button in Settings when true (EU/UK users).
     @Published private(set) var privacyOptionsRequired = false
 
-    private var started = false
+    private var loading = false
+    private var generation = 0
 
-    private init() {}
+    var eligible: Bool {
+        AppSettings.shared.ageBand == .adult && StoreService.shared.checkedEntitlements && !StoreService.shared.isPremium
+    }
 
-    /// True when an ad may be shown now.
-    var showsAds: Bool { isReady && !StoreService.shared.isPremium }
+    var showsAds: Bool { eligible && isReady }
 
-    /// True if the learner should be treated as a minor for ads.
-    var treatAsMinor: Bool { AppSettings.shared.ageBand != .adult }
-
-    /// Gathers consent and starts the ad SDK. Safe to call more than once.
     func start() async {
-        guard !started, !StoreService.shared.isPremium else { return }
-        started = true
-
+        guard eligible, !loading, !isReady else { return }
+        let token = generation
+        loading = true
+        defer { if token == generation { loading = false } }
         let parameters = RequestParameters()
-        parameters.isTaggedForUnderAgeOfConsent = treatAsMinor
         do {
             try await ConsentInformation.shared.requestConsentInfoUpdate(with: parameters)
-            if let root = AdsService.rootViewController() {
-                try await ConsentForm.loadAndPresentIfRequired(from: root)
-            }
+            guard eligible, token == generation, let root = Self.rootViewController() else { return }
+            try await ConsentForm.loadAndPresentIfRequired(from: root)
         } catch {
-            // Consent info could not be updated (offline): use what was stored last time.
+            return
         }
+        guard eligible, token == generation else { return }
         privacyOptionsRequired = ConsentInformation.shared.privacyOptionsRequirementStatus == .required
         guard ConsentInformation.shared.canRequestAds else { return }
-
-        if treatAsMinor {
-            // Deprecated in favour of `ageRestrictedTreatment` but still honoured in 13.x;
-            // move to the new property when upgrading the SDK.
-            MobileAds.shared.requestConfiguration.tagForUnderAgeOfConsent = true
-        } else if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
+        if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
             _ = await ATTrackingManager.requestTrackingAuthorization()
         }
+        guard eligible, token == generation else { return }
         _ = await MobileAds.shared.start()
-        isReady = true
+        if eligible, token == generation { isReady = ConsentInformation.shared.canRequestAds }
     }
 
-    /// Lets the learner change their consent choices (required when
-    /// `privacyOptionsRequired` is true).
     func showPrivacyOptions() async {
-        guard let root = AdsService.rootViewController() else { return }
+        guard eligible, let root = Self.rootViewController() else { return }
+        isReady = false
         try? await ConsentForm.presentPrivacyOptionsForm(from: root)
+        guard eligible else { return }
         privacyOptionsRequired = ConsentInformation.shared.privacyOptionsRequirementStatus == .required
+        if ConsentInformation.shared.canRequestAds { await start() }
     }
 
-    /// Clears stored consent (used when deleting all data).
     func resetConsent() {
-        ConsentInformation.shared.reset()
-        started = false
+        generation += 1
+        loading = false
         isReady = false
+        privacyOptionsRequired = false
+        ConsentInformation.shared.reset()
     }
 
     static func rootViewController() -> UIViewController? {

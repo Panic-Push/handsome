@@ -6,8 +6,15 @@ import SwiftUI
 struct AdSlot: View {
     /// Whether ad spaces (and the entry screen that holds one) should appear.
     @MainActor static var shouldAppear: Bool {
-        guard !StoreService.shared.isPremium else { return false }
-        return AdsService.shared.showsAds || AppSettings.shared.showAdPlaceholders
+        AdsService.shared.showsAds || previewEnabled
+    }
+
+    @MainActor private static var previewEnabled: Bool {
+        #if DEBUG
+        return AdsService.shared.eligible && AppSettings.shared.showAdPlaceholders
+        #else
+        return false
+        #endif
     }
 
     @ObservedObject private var ads = AdsService.shared
@@ -32,7 +39,7 @@ struct AdSlot: View {
     let placement: Placement
 
     var body: some View {
-        if !store.isPremium && ((ads.showsAds && !loadFailed) || settings.showAdPlaceholders) {
+        if !store.isPremium && ((ads.showsAds && !loadFailed) || Self.previewEnabled) {
             VStack(alignment: .leading, spacing: 6) {
                 Text("ADVERTISEMENT")
                     .font(.caption2.weight(.semibold))
@@ -49,7 +56,9 @@ struct AdSlot: View {
                     .frame(maxWidth: placement.size.width)
                     .frame(height: placement.size.height)
                 } else {
+                    #if DEBUG
                     placeholder
+                    #endif
                 }
             }
             .accessibilityElement(children: .combine)

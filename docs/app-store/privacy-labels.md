@@ -1,7 +1,7 @@
 # App Privacy answers (App Store Connect › App Privacy)
 
 Penwise itself collects nothing off the device. The Google Mobile Ads SDK
-does, so the answers below describe AdMob's collection in the free version.
+does, so the answers below describe AdMob's collection in the adult, ad-supported experience.
 Check Google's current guidance before submitting:
 https://developers.google.com/admob/ios/privacy/data-disclosure
 
@@ -13,9 +13,9 @@ https://developers.google.com/admob/ios/privacy/data-disclosure
 | Usage Data › Advertising Data | Yes | No | Yes | Third-party advertising, Analytics |
 | Diagnostics › Crash Data, Performance Data | Yes | No | No | Analytics |
 | Location › Coarse Location (from IP) | Yes | No | Yes | Third-party advertising |
-| Contact Info › Name, Email (Sign in with Apple) | **No**: kept on device only | | | |
+| Contact Info › Name, Email | **No**: kept on device only | | | |
 | User Content › handwriting | **No**: kept on device only | | | |
 | Purchases | **No**: handled by Apple | | | |
 
 Tracking: **Yes** (ads may be personalised for adults who allow tracking).
-The app shows Apple's tracking prompt only to adults.
+Only confirmed adults on the free plan enter the consent flow. Minors and people who skip the age question see no ads. The entered birth year is discarded after classification. At submission, inspect the Xcode archive privacy report, including the embedded Google SDK manifests.

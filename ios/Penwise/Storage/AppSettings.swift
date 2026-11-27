@@ -36,7 +36,7 @@ enum Handedness: String, CaseIterable, Identifiable {
 }
 
 /// The learner's age band, asked once at first launch. Unknown is treated as
-/// a minor for ads (no tracking prompt, ads tagged under the age of consent).
+/// ineligible for advertising and tracking.
 enum AgeBand: String, CaseIterable, Identifiable {
     case unknown
     case under18
@@ -59,7 +59,7 @@ final class AppSettings: ObservableObject {
     @Published var style: LetterStyle { didSet { save(style.rawValue, "style") } }
     @Published var size: WritingSize { didSet { save(size.rawValue, "size") } }
     @Published var handedness: Handedness { didSet { save(handedness.rawValue, "handedness") } }
-    @Published var ageBand: AgeBand { didSet { save(ageBand.rawValue, "ageBand") } }
+    @Published var ageBand: AgeBand { didSet { save(ageBand.rawValue, "workbookAgeBand") } }
     @Published var pencilOnly: Bool { didSet { defaults.set(pencilOnly, forKey: key("pencilOnly")) } }
     /// Shows ad placeholders until real ads are added (Phase 2). When off,
     /// the app behaves as if no ad is available: the mode screen is skipped.
@@ -69,10 +69,13 @@ final class AppSettings: ObservableObject {
 
     private init() {
         let d = UserDefaults.standard
+        for legacy in ["penwise.account.appleUser", "penwise.account.email", "penwise.account.name", "penwise.settings.ageBand"] {
+            d.removeObject(forKey: legacy)
+        }
         style = LetterStyle(rawValue: d.string(forKey: "penwise.settings.style") ?? "") ?? .print
         size = WritingSize(rawValue: d.string(forKey: "penwise.settings.size") ?? "") ?? .standard
         handedness = Handedness(rawValue: d.string(forKey: "penwise.settings.handedness") ?? "") ?? .right
-        ageBand = AgeBand(rawValue: d.string(forKey: "penwise.settings.ageBand") ?? "") ?? .unknown
+        ageBand = AgeBand(rawValue: d.string(forKey: "penwise.settings.workbookAgeBand") ?? "") ?? .unknown
         pencilOnly = d.object(forKey: "penwise.settings.pencilOnly") as? Bool ?? true
         showAdPlaceholders = d.object(forKey: "penwise.settings.adPlaceholders") as? Bool ?? false
     }
@@ -81,5 +84,17 @@ final class AppSettings: ObservableObject {
 
     private func save(_ value: String, _ name: String) {
         defaults.set(value, forKey: key(name))
+    }
+}
+
+extension AgeBand {
+    static func classify(birthYear: Int?, currentYear: Int, birthdayPassed: Bool?) -> AgeBand {
+        guard let birthYear, (currentYear - 120...currentYear).contains(birthYear) else { return .unknown }
+        let difference = currentYear - birthYear
+        if difference == 18 {
+            guard let birthdayPassed else { return .unknown }
+            return birthdayPassed ? .adult : .under18
+        }
+        return difference > 18 ? .adult : .under18
     }
 }

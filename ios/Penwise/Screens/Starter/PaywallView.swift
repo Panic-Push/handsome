@@ -1,60 +1,74 @@
 import StoreKit
 import SwiftUI
 
-/// STARTER SCREEN (to be redesigned): Penwise Premium.
-/// App Store review needs: price and period on each option, Restore,
-/// and links to the privacy policy and terms of use.
 struct PaywallView: View {
     @ObservedObject private var store = StoreService.shared
     @Environment(\.dismiss) private var dismiss
     @State private var message: String?
+    @State private var purchasing = false
 
     var body: some View {
-        List {
-            Section {
-                Label("Every course: Normal, Classic and Traditional", systemImage: "book.closed")
-                Label("Unlimited tests, words and sentences", systemImage: "infinity")
-                Label("Your full daily plan", systemImage: "calendar")
-                Label("No ads", systemImage: "nosign")
-            } header: {
-                Text("Penwise Premium")
-            }
-            Section {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
                 if store.isPremium {
-                    Label("Premium is active. Thank you!", systemImage: "checkmark.seal.fill").foregroundStyle(.green)
-                }
-                if store.products.isEmpty {
-                    Text(store.lastError ?? "Loading…").foregroundStyle(.secondary)
-                }
-                ForEach(store.products, id: \.id) { product in
-                    Button {
-                        Task {
-                            switch await store.purchase(product) {
-                            case .purchased: dismiss()
-                            case .pending: message = "Waiting for approval."
-                            case .cancelled: break
-                            case .failed(let text): message = text
-                            }
-                        }
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text(product.displayName).font(.headline)
-                            Text(store.offerText(for: product)).foregroundStyle(.secondary)
-                        }
+                    WorkbookFox(pose: .celebrate).frame(height: 132)
+                    Text("Your Premium workbook is ready").font(.workbook(.largeTitle))
+                    Text("Your full daily plan is open. Enjoy an ad-free workbook on this iPad.")
+                    if let end = store.trialEnds {
+                        LabeledContent("Your free week ends", value: end.formatted(date: .long, time: .omitted))
                     }
-                    .disabled(store.isPremium)
+                    Link("Manage subscriptions", destination: AppLinks.subscriptions)
+                    Button("Continue writing") { dismiss() }.buttonStyle(LessonActionStyle())
+                } else {
+                    Label("Penwise Premium", systemImage: "book.closed.fill").font(.headline)
+                    Text("Make time for your handwriting").font(.workbook(.largeTitle))
+                    Label("Open every activity in your daily plan", systemImage: "checklist")
+                    Label("Practise without ads", systemImage: "pencil.and.scribble")
+                    if store.isLoading && store.products.isEmpty {
+                        ProgressView("Loading prices")
+                    } else if store.products.isEmpty {
+                        Text(store.lastError ?? "Purchase options are unavailable.")
+                        Button("Try again") { Task { await store.loadProducts() } }
+                    }
+                    ForEach(store.products, id: \.id) { product in
+                        Button {
+                            purchasing = true
+                            Task {
+                                defer { purchasing = false }
+                                switch await store.purchase(product) {
+                                case .purchased: message = nil
+                                case .pending: message = "Waiting for purchase approval."
+                                case .cancelled: message = nil
+                                case .failed(let text): message = text
+                                }
+                            }
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(product.displayName).font(.workbook(.title3))
+                                    Text(store.offerText(for: product)).font(.body)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                            }.padding(18).paperCard()
+                        }.buttonStyle(.plain).disabled(purchasing)
+                    }
+                    Text("Manage or cancel subscriptions in your Apple Account at least 24 hours before the end of the current period.").font(.footnote)
                 }
-                Button("Restore purchases") { Task { await store.restore() } }
-                if let message { Text(message).font(.footnote) }
-            } footer: {
-                Text("Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. Manage or cancel in your Apple ID settings.")
-            }
-            Section {
-                Link("Privacy policy", destination: AppLinks.privacyPolicy)
+                if let message { Text(message) }
+                Button("Restore purchases") {
+                    Task {
+                        await store.restore()
+                        message = store.lastError ?? (store.isPremium ? "Purchases restored." : "No active purchases found.")
+                    }
+                }.disabled(purchasing)
+                NavigationLink("Privacy policy") { PrivacyPolicyView() }
                 Link("Terms of use", destination: AppLinks.terms)
             }
+            .padding(28).frame(maxWidth: 620).frame(maxWidth: .infinity)
         }
+        .background(Color.paper)
         .navigationTitle("Premium")
-        .task { if store.products.isEmpty { await store.loadProducts() } }
+        .task { await store.loadProducts() }
     }
 }

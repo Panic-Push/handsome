@@ -1,172 +1,176 @@
 import SwiftUI
-import AuthenticationServices
+import UserNotifications
 
 struct SettingsView: View {
     @ObservedObject private var settings = AppSettings.shared
+    @ObservedObject private var progress = ProgressStore.shared
+    @ObservedObject private var plans = PlanStore.shared
+    @ObservedObject private var journeys = JourneyStore.shared
+    @ObservedObject private var store = StoreService.shared
+    @ObservedObject private var ads = AdsService.shared
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("penwise.workbook.label") private var workbookName = ""
+    @AppStorage("penwise.appearance") private var appearance = "System"
+    @AppStorage("penwise.intention") private var intention = "Everyday notes"
+    @AppStorage("penwise.experience") private var experience = "Starting out"
     @State private var confirmReset = false
     @State private var confirmDelete = false
     @State private var showPaywall = false
-    @ObservedObject private var store = StoreService.shared
-    @ObservedObject private var ads = AdsService.shared
+    @State private var restoreMessage: String?
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    HStack(spacing: 12) {
+                    HStack(spacing: 16) {
                         Image("FoxMark").resizable().frame(width: 64, height: 64)
                             .clipShape(RoundedRectangle(cornerRadius: 15)).accessibilityHidden(true)
-                        Text("Your Penwise account").font(.workbook(.title2))
+                        VStack(alignment: .leading) {
+                            Text(workbookName.isEmpty ? "My workbook" : workbookName).font(.workbook(.title2))
+                            Text("Saved on this iPad").foregroundStyle(.secondary)
+                        }
                     }
-                    AppleAccountControls()
-                } header: {
-                    Text("Apple account")
-                } footer: {
-                    Text("Writing history and course progress belong to this iPad. Signing out keeps them on this device.")
+                    TextField("Workbook name", text: $workbookName)
+                    LabeledContent("Writing goal", value: intention)
+                    LabeledContent("Starting point", value: experience)
                 }
-                Section("Premium") {
-                    if store.isPremium {
-                        Label("Premium is active", systemImage: "checkmark.seal.fill").foregroundStyle(.green)
+                Section("Practice journal") {
+                    LabeledContent("Day streak", value: String(progress.streak))
+                    LabeledContent("Scored attempts today", value: String(progress.attemptsToday))
+                    if let recent = progress.lastPlayed {
+                        let attempts = progress.recentAttempts(recent.mode, recent.templateID)
+                        if let last = attempts.first {
+                            LabeledContent("Last score · \(recent.templateID.components(separatedBy: ".").last ?? "")", value: "\(last.score)/100")
+                        }
                     } else {
-                        Button("Get Penwise Premium") { showPaywall = true }
+                        Text("Your first scored letter will appear here.").foregroundStyle(.secondary)
                     }
-                    Button("Restore purchases") { Task { await store.restore() } }
-                }
-                Section {
-                    Picker("Age", selection: $settings.ageBand) {
-                        ForEach(AgeBand.allCases.filter { $0 != .unknown }) { Text($0.title).tag($0) }
-                        if settings.ageBand == .unknown { Text(AgeBand.unknown.title).tag(AgeBand.unknown) }
+                    NavigationLink("Course milestones") {
+                        List(LetterStyle.allCases) { style in
+                            if let course = JourneyLibrary.shared.journey(style: style) {
+                                let chapters = course.chapters.filter { !$0.isCheckpoint }
+                                let completed = chapters.reduce(0) { $0 + journeys.completedCount($1, in: course) }
+                                let total = chapters.reduce(0) { $0 + $1.letters.count }
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Label(style.title, systemImage: completed == total && total > 0 ? "rosette" : "book")
+                                    ProgressView(value: Double(completed), total: Double(max(total, 1)))
+                                    Text("\(completed) of \(total) letters completed").font(.footnote)
+                                }.padding(.vertical, 6)
+                            }
+                        }.navigationTitle("Course milestones")
                     }
-                    if ads.privacyOptionsRequired {
-                        Button("Privacy choices for ads") { Task { await ads.showPrivacyOptions() } }
-                    }
-                    Link("Privacy policy", destination: AppLinks.privacyPolicy)
-                    Button("Delete all my data", role: .destructive) { confirmDelete = true }
-                } header: {
-                    Text("Privacy")
-                } footer: {
-                    Text("Your handwriting and progress stay on this iPad. Under 18s never see personalised ads.")
                 }
                 Section("Writing preferences") {
+                    Picker("Daily goal", selection: $plans.minutesPerDay) {
+                        ForEach(PlanStore.minuteChoices, id: \.self) { Text("\($0) minutes").tag($0) }
+                    }
+                    Picker("Appearance", selection: $appearance) {
+                        ForEach(["System", "Light", "Dark"], id: \.self) { Text($0) }
+                    }
                     Picker("Writing size", selection: $settings.size) {
                         ForEach(WritingSize.allCases) { Text($0.title).tag($0) }
                     }
                     Picker("I write with my", selection: $settings.handedness) {
                         ForEach(Handedness.allCases) { Text($0.title).tag($0) }
                     }
-                    Toggle("Apple Pencil only (ignore palm and finger)", isOn: $settings.pencilOnly)
+                    Toggle("Apple Pencil only", isOn: $settings.pencilOnly)
+                    PracticeReminderRow()
                 }
-                Section {
-                    Toggle("Show ad placeholders", isOn: $settings.showAdPlaceholders)
-                    NavigationLink("Recorder: templates and samples") { RecorderView() }
-                    Button("Reset all progress", role: .destructive) { confirmReset = true }
-                } header: {
-                    Text("Developer")
-                } footer: {
-                    Text("With ad placeholders off, the app behaves as if no ad is available and goes straight to a mode's letters.")
+                Section("Premium") {
+                    if store.isPremium {
+                        Label("Premium is active", systemImage: "checkmark.seal.fill")
+                        if let ends = store.trialEnds { LabeledContent("Trial ends", value: ends.formatted(date: .abbreviated, time: .omitted)) }
+                        Link("Manage subscriptions", destination: AppLinks.subscriptions)
+                    } else {
+                        Button("Explore Penwise Premium") { showPaywall = true }
+                    }
+                    Button("Restore purchases") {
+                        Task { await store.restore(); restoreMessage = store.lastError ?? (store.isPremium ? "Purchases restored." : "No active purchases found.") }
+                    }
+                    if let restoreMessage { Text(restoreMessage).font(.footnote) }
                 }
+                Section("Privacy and support") {
+                    LabeledContent("Age group", value: settings.ageBand.title)
+                    if ads.eligible && ads.privacyOptionsRequired {
+                        Button("Privacy choices for ads") { Task { await ads.showPrivacyOptions() } }
+                    }
+                    NavigationLink("Privacy policy") { PrivacyPolicyView() }
+                    Link("Terms of use", destination: AppLinks.terms)
+                    Link("Contact Penwise", destination: AppLinks.support)
+                    Button("Reset writing progress", role: .destructive) { confirmReset = true }
+                    Button("Delete all my data", role: .destructive) { confirmDelete = true }
+                }
+                #if DEBUG
+                Section("Developer") {
+                    if ads.eligible { Toggle("Show ad placeholders", isOn: $settings.showAdPlaceholders) }
+                    NavigationLink("Record templates and samples") { RecorderView() }
+                }
+                #endif
             }
-            .navigationTitle("Account")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
-                }
-            }
+            .navigationTitle("My workbook")
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .sheet(isPresented: $showPaywall) { NavigationStack { PaywallView() } }
-            .confirmationDialog("Delete all your data?", isPresented: $confirmDelete, titleVisibility: .visible) {
+            .confirmationDialog("Delete all workbook data?", isPresented: $confirmDelete, titleVisibility: .visible) {
                 Button("Delete everything", role: .destructive) {
+                    dismiss()
                     AccountService.deleteAllData()
                 }
             } message: {
-                Text("Your progress, plan, reports, settings and sign-in details will be erased from this iPad. Purchases can be restored later. To also stop using Sign in with Apple, visit appleid.apple.com.")
+                Text("This erases your samples, reports, reminders and settings from this iPad. Apple manages purchases and subscriptions separately.")
             }
-            .confirmationDialog("Reset all progress?", isPresented: $confirmReset, titleVisibility: .visible) {
-                Button("Reset", role: .destructive) {
+            .confirmationDialog("Reset writing progress?", isPresented: $confirmReset, titleVisibility: .visible) {
+                Button("Reset progress", role: .destructive) {
                     ProgressStore.shared.reset()
                     JourneyStore.shared.reset()
+                    PlanStore.shared.reset()
                 }
             } message: {
-                Text("Best scores, attempts, streak and journey progress will be cleared on this iPad.")
+                Text("Scores, streaks, course progress and your practice plan will be cleared.")
             }
         }
+        .preferredColorScheme(appearance == "Dark" ? .dark : appearance == "Light" ? .light : nil)
     }
 }
 
-struct AppleAccountControls: View {
-    var onSignIn: () -> Void = {}
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.scenePhase) private var scenePhase
-    @AppStorage("penwise.account.appleUser") private var appleUser = ""
-    @AppStorage("penwise.account.email") private var email = ""
-    @AppStorage("penwise.account.name") private var displayName = ""
-    @State private var accountMessage: String?
+private struct PracticeReminderRow: View {
+    @State private var enabled = false
+    @State private var busy = false
+    @State private var message: String?
+    private let center = UNUserNotificationCenter.current()
+    private let reminderID = "penwise.practice"
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if appleUser.isEmpty {
-                SignInWithAppleButton(.signIn, onRequest: { request in
-                    request.requestedScopes = [.fullName, .email]
-                }, onCompletion: finishSignIn)
-                .signInWithAppleButtonStyle(scheme == .dark ? .white : .black)
-                .frame(maxWidth: 360)
-                .frame(height: 50)
-            } else {
-                Label(displayName.isEmpty ? "Signed in with Apple" : displayName,
-                      systemImage: "person.crop.circle.fill")
-                if !email.isEmpty { LabeledContent("Email", value: email) }
-                Button("Sign out", action: signOut)
-                Link("Manage Apple sign-in", destination: AppLinks.manageAppleID)
-            }
-            if let accountMessage { Text(accountMessage).font(.footnote) }
+        Toggle("Daily reminder at 6 PM", isOn: Binding(get: { enabled }, set: { value in
+            busy = true
+            Task { await changeReminder(to: value); busy = false }
+        }))
+        .disabled(busy)
+        .task {
+            let requests = await center.pendingNotificationRequests()
+            let settings = await center.notificationSettings()
+            enabled = settings.authorizationStatus != .denied && requests.contains { $0.identifier == reminderID }
         }
-        .onAppear(perform: refreshCredential)
-        .onChange(of: scenePhase) { _, phase in if phase == .active { refreshCredential() } }
-        .onReceive(NotificationCenter.default.publisher(for: ASAuthorizationAppleIDProvider.credentialRevokedNotification)) { _ in refreshCredential() }
+        if let message { Text(message).font(.footnote) }
     }
 
-    private func finishSignIn(_ result: Result<ASAuthorization, Error>) {
-        switch result {
-        case .success(let authorization):
-            guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                accountMessage = "Apple could not confirm this account. Please try again."
+    @MainActor private func changeReminder(to value: Bool) async {
+        message = nil
+        if !value {
+            center.removePendingNotificationRequests(withIdentifiers: [reminderID])
+            enabled = false
+            return
+        }
+        do {
+            guard try await center.requestAuthorization(options: [.alert, .sound]) else {
+                message = "To receive reminders, allow Penwise notifications in iPad Settings."
                 return
             }
-            if appleUser != credential.user {
-                email = ""
-                displayName = ""
-            }
-            appleUser = credential.user
-            if let address = credential.email { email = address }
-            if let name = credential.fullName {
-                let formatted = PersonNameComponentsFormatter().string(from: name)
-                if !formatted.isEmpty { displayName = formatted }
-            }
-            accountMessage = nil
-            onSignIn()
-        case .failure(let error):
-            if (error as? ASAuthorizationError)?.code != .canceled {
-                accountMessage = error.localizedDescription
-            }
-        }
-    }
-
-    private func refreshCredential() {
-        let user = appleUser
-        guard !user.isEmpty else { return }
-        ASAuthorizationAppleIDProvider().getCredentialState(forUserID: user) { state, error in
-            DispatchQueue.main.async {
-                guard appleUser == user, error == nil else { return }
-                if state == .revoked || state == .notFound { signOut() }
-            }
-        }
-    }
-
-    private func signOut() {
-        appleUser = ""
-        email = ""
-        displayName = ""
-        accountMessage = nil
+            let content = UNMutableNotificationContent()
+            content.title = "Time for your workbook"
+            content.body = "Pick up where you left off in Penwise."
+            let trigger = UNCalendarNotificationTrigger(dateMatching: DateComponents(hour: 18, minute: 0), repeats: true)
+            try await center.add(UNNotificationRequest(identifier: reminderID, content: content, trigger: trigger))
+            enabled = true
+        } catch { message = "The reminder could not be scheduled. Try again." }
     }
 }

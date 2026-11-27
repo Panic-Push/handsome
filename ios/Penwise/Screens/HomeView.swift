@@ -11,7 +11,7 @@ struct HomeView: View {
     @State private var greeting = 0
     private let greetings: [FoxPose] = [.hello, .tap, .sneeze, .pencilBonk, .dizzy, .sleepy, .happy]
 
-    @AppStorage("penwise.welcome.seen") private var sawWelcome = false
+    @AppStorage("penwise.welcome.workbook.v2") private var sawWelcome = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showingWelcome = false
     @State private var showingStreak = false
@@ -39,10 +39,7 @@ struct HomeView: View {
                         modeShortcuts
                         Button("Your practice plan") { path.append(.assessment) }
                             .buttonStyle(.bordered)
-                        if AdSlot.shouldAppear {
-                            AdSlot(placement: .home)
-                                .frame(maxWidth: .infinity)
-                        }
+                        AdSlot(placement: .home).frame(maxWidth: .infinity)
                     }
                     .padding(.horizontal, 32)
                     .padding(.vertical, 20)
@@ -59,7 +56,7 @@ struct HomeView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showSettings = true } label: {
-                        Label("Account", systemImage: "person.crop.circle").labelStyle(.titleAndIcon)
+                        Label("My workbook", systemImage: "book.closed").labelStyle(.titleAndIcon)
                     }
                 }
             }
@@ -76,6 +73,7 @@ struct HomeView: View {
                 GeometryReader { geometry in
                     LottieView(animation: animation).resizable()
                         .playing()
+                        .animationSpeed(1.25)
                         .animationDidFinish { completed in
                             guard transitionID == id else { return }
                             transitionFox = nil
@@ -104,7 +102,12 @@ struct HomeView: View {
         .onAppear {
             if !sawWelcome { showingWelcome = true }
         }
-        .fullScreenCover(isPresented: $showingWelcome) {
+        .onChange(of: sawWelcome) { _, seen in
+            if !seen { showingWelcome = true }
+        }
+        .fullScreenCover(isPresented: $showingWelcome, onDismiss: {
+            Task { await AdsService.shared.start() }
+        }) {
             WorkbookWelcome(style: $settings.style) {
                 sawWelcome = true
                 showingWelcome = false
@@ -352,27 +355,43 @@ struct HomeView: View {
 private struct WorkbookWelcome: View {
     @Binding var style: LetterStyle
     let finish: () -> Void
-    private enum Step: Int { case welcome, workbook, account }
+    private enum Step: Int, CaseIterable { case welcome, intention, experience, workbook, age, label }
     @State private var step: Step = .welcome
     @ObservedObject private var plans = PlanStore.shared
-    @AppStorage("penwise.account.appleUser") private var appleUser = ""
+    @AppStorage("penwise.intention") private var intention = "Everyday notes"
+    @AppStorage("penwise.experience") private var experience = "Starting out"
+    @AppStorage("penwise.workbook.label") private var workbookName = ""
+    @State private var year: Int?
+    @State private var birthdayPassed: Bool?
+    private var currentYear: Int { Calendar(identifier: .gregorian).component(.year, from: Date()) }
+    private var boundary: Bool { year == currentYear - 18 }
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                ProgressView(value: Double(step.rawValue + 1), total: 3)
-                    .accessibilityLabel("Step \(step.rawValue + 1) of 3")
+            VStack(alignment: .leading, spacing: 20) {
+                ProgressView(value: Double(step.rawValue + 1), total: Double(Step.allCases.count))
+                    .accessibilityLabel("Step \(step.rawValue + 1) of \(Step.allCases.count)")
                 Image("FoxMark")
-                    .resizable().scaledToFit().frame(width: 110, height: 110)
-                    .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+                    .resizable().scaledToFit().frame(width: 90, height: 90)
+                    .clipShape(RoundedRectangle(cornerRadius: 23))
                     .accessibilityHidden(true)
                 switch step {
                 case .welcome:
                     Text("Welcome to Penwise").font(.workbook(.largeTitle))
-                    Text("Trace a letter, try it on your own, and watch your handwriting grow.")
-                        .font(.workbook(.title3))
-                    Button("Get started") { step = .workbook }.buttonStyle(LessonActionStyle())
-                    Button("Skip introduction", action: finish)
+                    Text("Trace a letter, write it from memory, and see where your penmanship improves.")
+                    next("Set up my workbook", .intention)
+                    Button("Skip introduction") { step = .age }
+                case .intention:
+                    Text("What brings you to the page?").font(.workbook(.largeTitle))
+                    choices(["Everyday notes", "School or study", "Cursive writing"], selection: $intention)
+                    next("Continue", .experience)
+                case .experience:
+                    Text("How does writing feel?").font(.workbook(.largeTitle))
+                    choices(["Starting out", "Getting comfortable", "Fine-tuning my writing"], selection: $experience)
+                    Text(experience == "Starting out" ? "Tracing shows you where each stroke begins." :
+                         experience == "Getting comfortable" ? "Practice lets you try each letter with a lighter guide." :
+                         "Test lets you write from memory and compare your scores.")
+                    next("Continue", .workbook)
                 case .workbook:
                     Text("Choose your workbook").font(.workbook(.largeTitle))
                     ForEach(LetterStyle.allCases) { option in
@@ -381,30 +400,63 @@ private struct WorkbookWelcome: View {
                                 if let letter = TemplateLibrary.shared.template(id: "latin.\(option.rawValue).a") {
                                     LetterThumbnail(template: letter).frame(width: 48, height: 48)
                                 }
-                                Text(option.title).font(.headline)
+                                Text(option.title)
                                 Spacer()
                                 Image(systemName: option == style ? "checkmark.circle.fill" : "circle")
                             }.padding(12).paperCard(radius: 16)
-                        }.buttonStyle(.plain)
-                        .accessibilityAddTraits(option == style ? .isSelected : [])
+                        }.buttonStyle(.plain).accessibilityAddTraits(option == style ? .isSelected : [])
                     }
                     Picker("Daily practice goal", selection: $plans.minutesPerDay) {
-                        ForEach(PlanStore.minuteChoices, id: \.self) { Text("\($0) min").tag($0) }
-                    }.pickerStyle(.menu)
-                    Button("Continue") { step = .account }.buttonStyle(LessonActionStyle())
-                    Button("Back") { step = .welcome }
-                case .account:
-                    Text("Your workbook is ready").font(.workbook(.largeTitle))
-                    Text("You can use Apple to sign in or practise as a guest. Your handwriting stays on this iPad.")
-                    AppleAccountControls(onSignIn: finish)
-                    Button(appleUser.isEmpty ? "Continue as a guest" : "Open Penwise", action: finish)
-                        .buttonStyle(.bordered)
-                    Button("Back") { step = .workbook }
+                        ForEach(PlanStore.minuteChoices, id: \.self) { Text("\($0) minutes").tag($0) }
+                    }
+                    next("Continue", .age)
+                case .age:
+                    Text("What year were you born?").font(.workbook(.largeTitle))
+                    Text("Penwise uses your answer to set age-appropriate privacy settings. Only your age group is saved on this iPad.")
+                    Picker("Birth year", selection: $year) {
+                        Text("Choose a year").tag(nil as Int?)
+                        ForEach(Array((currentYear-120...currentYear).reversed()), id: \.self) {
+                            Text(String($0)).tag(Optional($0))
+                        }
+                    }.onChange(of: year) { _, _ in birthdayPassed = nil }
+                    if boundary {
+                        Picker("Has your birthday happened this year?", selection: $birthdayPassed) {
+                            Text("Choose an answer").tag(nil as Bool?)
+                            Text("Yes").tag(Optional(true))
+                            Text("No").tag(Optional(false))
+                        }
+                    }
+                    next("Continue", .label).disabled(year == nil || (boundary && birthdayPassed == nil))
+                    Button("Prefer not to say") { year = nil; birthdayPassed = nil; step = .label }
+                case .label:
+                    Text("Name your workbook").font(.workbook(.largeTitle))
+                    TextField("Workbook name (optional)", text: $workbookName).textFieldStyle(.roundedBorder)
+                    Text("Your letters, scores and practice plan stay on this iPad.")
+                    Button("Open my workbook") {
+                        AppSettings.shared.ageBand = AgeBand.classify(birthYear: year, currentYear: currentYear, birthdayPassed: birthdayPassed)
+                        finish()
+                    }.buttonStyle(LessonActionStyle())
                 }
+                if let previous = Step(rawValue: step.rawValue - 1) { Button("Back") { step = previous } }
             }
-            .multilineTextAlignment(.center)
             .padding(28).frame(maxWidth: 560).frame(maxWidth: .infinity)
         }
         .background(Color.paper).interactiveDismissDisabled()
+    }
+
+    private func next(_ title: String, _ destination: Step) -> some View {
+        Button(title) { step = destination }.buttonStyle(LessonActionStyle())
+    }
+
+    private func choices(_ options: [String], selection: Binding<String>) -> some View {
+        ForEach(options, id: \.self) { value in
+            Button { selection.wrappedValue = value } label: {
+                HStack {
+                    Text(value)
+                    Spacer()
+                    Image(systemName: selection.wrappedValue == value ? "checkmark.circle.fill" : "circle")
+                }.padding().paperCard(radius: 16)
+            }.buttonStyle(.plain).accessibilityAddTraits(selection.wrappedValue == value ? .isSelected : [])
+        }
     }
 }

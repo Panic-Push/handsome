@@ -1,28 +1,9 @@
-# Notes for App Review (App Store Connect › App Review Information)
+# Notes for App Review
 
-Paste and adjust:
+Penwise is an iPad handwriting workbook for students and adults. A reviewer can open a course or start a handwriting check on Home. Use Apple Pencil, or turn off Apple Pencil only in My workbook to write with a finger. Tap after reviewing exercise and letter scores.
 
-> Penwise is a handwriting coach for iPad. Write with Apple Pencil or a
-> finger on the ruled lines; letters are scored automatically after a short
-> pause (no button needed).
->
-> To test quickly: open Home, tap "Writing check", then "Start handwriting
-> check" and write a few letters. Premium can be tested with the sandbox
-> account below; Restore Purchases is in Settings and on the paywall.
->
-> Ads: shown only on the home screen and on the screen before a practice
-> mode, never during writing. Users under 18 (or who have not given their
-> age) receive non-personalised ads and never see the tracking prompt.
->
-> Accounts: Sign in with Apple is optional during onboarding and in Account.
-> Guest access is available. All data is stored on the device; Settings › Delete all my data
-> erases everything. No data is sent to our servers.
+No demo account is required. Workbook names, handwriting, scores and learning preferences are stored locally. My workbook includes the privacy policy, Restore purchases and Delete all my data.
 
-**Sign in with Apple and account deletion.** Apple's guideline 5.1.1(v)
-requires in-app account deletion. Penwise has no server account, and
-"Delete all my data" erases everything locally. The Account screen links to Apple’s
-account management page for disconnecting the Apple ID. Automatic token
-revocation requires a server-side integration and is pending for release.
+Onboarding asks for birth year. A learner who turns 18 this calendar year also indicates whether their birthday has passed. Only the resulting age group is retained. Under-18, unknown-age and Premium learners see no ads or tracking prompts. Eligible free adults can see a banner on Home or before an activity. Google consent and Apple tracking permission control the advertising experience.
 
-Demo account: none needed. Sandbox tester for purchases: create one in App
-Store Connect › Users and Access › Sandbox.
+The paywall uses StoreKit prices. A 7-day free trial is offered only on the annual subscription when StoreKit confirms eligibility. Monthly and annual subscriptions renew automatically. Lifetime is a single purchase.

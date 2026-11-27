@@ -20,7 +20,7 @@ struct AdBannerView: UIViewRepresentable {
         banner.adUnitID = placement.unitID
         banner.rootViewController = AdsService.rootViewController()
         banner.delegate = context.coordinator
-        banner.load(Request())
+        if AdsService.shared.showsAds, !placement.unitID.isEmpty { banner.load(Request()) }
         return banner
     }
 

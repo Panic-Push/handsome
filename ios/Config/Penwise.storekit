@@ -3,7 +3,7 @@
   "nonRenewingSubscriptions": [],
   "products": [
     {
-      "displayPrice": "59.99",
+      "displayPrice": "39.99",
       "familyShareable": false,
       "internalID": "677F430E-C9CB-4C18-8242-8B406BEC5523",
       "localizations": [
@@ -36,7 +36,7 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "29.99",
+          "displayPrice": "14.99",
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "D64F6729-15D6-475E-87B9-775DA4140AC0",
@@ -61,7 +61,7 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "4.99",
+          "displayPrice": "3.99",
           "familyShareable": false,
           "groupNumber": 2,
           "internalID": "B0EB5F7C-363E-4458-9894-9C28DBA3E676",

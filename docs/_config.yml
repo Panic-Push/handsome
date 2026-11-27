@@ -1,0 +1,5 @@
+exclude:
+  - app-store
+  - design
+  - FRONTEND_HANDOFF.md
+  - privacy/index.md

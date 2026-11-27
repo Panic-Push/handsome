@@ -9,7 +9,7 @@ Fill these into App Store Connect › your app › App Information / version pag
 | Category | Education (secondary: Productivity) | |
 | Age rating | 13+ (see questionnaire below) | |
 | Keywords | handwriting,cursive,penmanship,apple pencil,calligraphy,print,writing,practice,neat,letters | 100 |
-| Support URL | https://panic-push.github.io/handsome/ (or your site) | |
+| Support URL | https://panic-push.github.io/handsome/privacy/ | |
 | Privacy policy URL | https://panic-push.github.io/handsome/privacy/ | |
 
 ## Promotional text (170)
@@ -47,8 +47,7 @@ PRIVATE BY DESIGN
 Your handwriting stays on your iPad.
 
 PENWISE PREMIUM
-Unlock every course, unlimited practice and your full daily plan, with no
-ads. Choose yearly (with a free week), monthly, or a one-time lifetime unlock.
+Open every activity in your daily plan and practise without ads. Choose yearly (with a free week for eligible subscribers), monthly, or a one-time lifetime unlock.
 
 Payment is charged to your Apple ID at confirmation. Subscriptions renew
 automatically unless cancelled at least 24 hours before the end of the
@@ -60,9 +59,9 @@ Privacy policy: https://panic-push.github.io/handsome/privacy/
 
 | Reference name | Product ID | Type | Price (US / India) | Notes |
 |---|---|---|---|---|
-| Premium Yearly | app.penwise.premium.yearly | Auto-renewable, group "Penwise Premium" | $29.99 / ₹799 | Introductory offer: 1 week free |
-| Premium Monthly | app.penwise.premium.monthly | Auto-renewable, same group | $4.99 / ₹149 | |
-| Premium Lifetime | app.penwise.premium.lifetime | Non-consumable | $59.99 / ₹1,499 | |
+| Premium Yearly | app.penwise.premium.yearly | Auto-renewable, group "Penwise Premium" | $14.99 / ₹999 | Introductory offer: 1 week free |
+| Premium Monthly | app.penwise.premium.monthly | Auto-renewable, same group | $3.99 / ₹149 | |
+| Premium Lifetime | app.penwise.premium.lifetime | Non-consumable | $39.99 / ₹1,999 | |
 
 The product IDs must match `StoreService.ProductID` exactly. If your bundle
 ID changes, the product IDs can stay as they are.
@@ -80,6 +79,4 @@ ID changes, the product IDs can stay as they are.
 
 Answer **None** to all content descriptors. Answer **Yes** to "Advertising"
 if asked (free version shows ads). Unrestricted web access: No. Result: 4+ by
-content; then set the **Age Rating Override to 13+**, because Penwise is not
-designed for children and shows ads (this also keeps it out of the Kids
-Category, as planned).
+content; then set the **Age Rating Override to 13+**, for the intended teen and adult audience. Free accounts confirmed as adult can see advertising.

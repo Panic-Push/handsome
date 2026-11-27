@@ -1,36 +1,17 @@
-# Launch checklist
+# Penwise release checklist
 
-Tick these off in order. Items marked (you) need your accounts.
+## Current build
 
-## Accounts and setup
+- Xcode Run uses Debug, Google's test ads and the local StoreKit catalogue. Release uses the Penwise AdMob app ID and the two placement IDs. The bundle ID is `app.penwise.dev`.
+- Onboarding, local workbook, age screening, handwriting check, report, suggested practice, words, paywall, restore and data deletion are available in the app.
+- The privacy policy is bundled for offline reading and published from `docs/privacy/`. Contact is penwise.dev@gmail.com.
+- For free hosting, select Settings → Pages → Deploy from a branch → main → /docs. Verify https://panic-push.github.io/handsome/privacy/ opens without signing in before entering it in App Store Connect.
 
-- [ ] (you) Join the Apple Developer Program ($99/year) and run `tools/setup_signing.sh YOURTEAMID your.bundle.id`.
-- [ ] (you) Choose the final bundle ID (for example `app.penwise.ios`) and create the app in App Store Connect.
-- [ ] (you) Sign the Paid Applications agreement and add banking and tax details (needed before purchases work).
-- [ ] (you) Create the three in-app purchases from `listing.md`, with the exact product IDs.
-- [ ] (you) Create an AdMob account, add the iOS app, and create two banner units (Home, Entry).
-- [ ] Put the real AdMob app ID and unit IDs in `ios/Config/Info.plist` (`GADApplicationIdentifier`, `PenwiseAdUnitHomeBanner`, `PenwiseAdUnitEntry`). Debug builds keep using test ads.
-- [ ] (you) In AdMob › Privacy & messaging, create a GDPR consent message (EEA/UK) and an IDFA explainer message.
-- [ ] (you) In AdMob, set the app's max ad content rating to "Teen" and turn on "Treatment for users under the age of consent" handling.
-- [ ] (you) Add `app-ads.txt` to your website once the app is live (AdMob shows the line to add).
+## Before distribution
 
-## Privacy and legal
-
-- [ ] Add a contact email to `docs/privacy/index.md` and `index.html` (replace `[CONTACT EMAIL]`).
-- [ ] (you) Turn on GitHub Pages for the repo (Settings › Pages › branch `main`, folder `/docs`), so the privacy policy is live at the URL in `AppLinks`. Or host it elsewhere and update `AppLinks.privacyPolicy`.
-- [ ] Fill in App Privacy (`privacy-labels.md`) and the age rating (`listing.md`).
-- [ ] Enable Sign in with Apple on the release App ID and verify sign-in, cancellation, sign-out and revocation with a provisioned device.
-
-## Product
-
-- [ ] Front end: first-launch age question, assessment, report, plan, words, paywall and Settings rows (see `docs/FRONTEND_HANDOFF.md`).
-- [x] Opaque 1024 × 1024 fox-and-pen app icon.
-- [ ] Test on a real iPad: purchases (sandbox), Restore, ads (test units), consent form (use a VPN to an EU country or AdMob's debug geography), Delete all my data.
-- [ ] Sample test: 10–20 people write with the app; tune pass marks and tips.
-
-## Release
-
-- [ ] Archive in Xcode (Product › Archive) and upload to App Store Connect.
-- [ ] TestFlight: internal testers first, then up to 10,000 external testers (needs a short beta review).
-- [ ] Screenshots and description from `listing.md`.
-- [ ] Submit for review with the notes in `review-notes.md`.
+- Confirm the final bundle ID and signing team, register the app, and complete Apple’s paid applications, tax and banking setup.
+- Set the three products and storefront prices from listing.md in App Store Connect. Set India explicitly. Enable the one-week introductory offer only for the annual subscription.
+- Configure Google's European consent message, regional privacy messages and appropriate ad content rating in AdMob. Verify app ownership and app-ads.txt according to the account instructions.
+- Use an iPad and sandbox purchases to test eligible and returning subscribers, restore, renewals, monthly, lifetime, cancellations and data deletion. Verify gated ads for under-18, skipped age, adult with ATT declined or granted, and Premium. Test consent changes and banner no-fill.
+- Enter App Privacy answers from the release archive and SDK disclosures, complete the age questionnaire, add iPad screenshots, the public privacy URL and standard EULA link.
+- Archive and upload a signed build to TestFlight before submitting for review.

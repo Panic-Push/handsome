@@ -24,7 +24,7 @@ looks.** Read this before changing any Swift.
 |---|---|---|
 | `.assessment` | The 3-minute handwriting check | `AssessmentView` |
 | `.report` | The latest report | `ReportView` |
-| `.plan` | Today's personal plan | `PlanView` |
+| `.assessment` after a check | Suggested daily practice | `PracticeSuggestions` |
 | `.words(WordRequest)` | A run of practice words | `WordPracticeView` |
 | `.paywall` | Penwise Premium | `PaywallView` |
 
@@ -89,7 +89,7 @@ the last lift, and only if the ink spans most of the word.
 | Use | What it gives |
 |---|---|
 | `products` | Yearly, monthly, lifetime (`Product`): `displayName`, `displayPrice`. |
-| `offerText(for:)` | "7 days free, then $29.99/year". |
+| `offerText(for:)` | "7 days free, then $14.99/year (US, eligible yearly subscriber)". |
 | `purchase(product)` async → `.purchased / .pending / .cancelled / .failed(text)` | |
 | `restore()` async | **A visible Restore button is required by App Review.** |
 | `isPremium`, `activeProductID`, `lastError` | |
@@ -120,10 +120,8 @@ also needs the auto-renew sentence, as in the starter screen.
 
 ## 6. Age and privacy
 
-- Ask once at first launch: "Are you 18 or older?" and set
-  `AppSettings.shared.ageBand` (`.adult` or `.under18`). Until set, the app
-  treats the learner as a minor (safer).
-- Settings needs **Delete all my data** (confirmation, then
+- Onboarding derives an age category from birth year and, where necessary, birthday status. Minors and unknown ages receive no ads or tracking prompts.
+- Settings includes **Delete all my data** (confirmation, then
   `AccountService.deleteAllData()`), the privacy policy link, and Restore.
   The starter Settings rows show the minimum.
 
